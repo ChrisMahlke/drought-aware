@@ -1,4 +1,4 @@
-# Air Quality Aware App
+# Drought Aware App
 
 The Air Quality Aware app is intended to provide information about the current conditions of air quality in the United States, along with the potential human health impacts. 
 
