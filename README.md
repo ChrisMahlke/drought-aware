@@ -7,9 +7,9 @@ The Air Quality Aware app is intended to provide information about the current c
 ![App](./screenshot.png)
 
 ## Features
-Click on a location in the U.S. to see the AQI (including ozone and particulate matter) for now, later today, and tomorrow.
+The Drought Aware app is intended to provide the latest information about current, future and historical drought conditions in the United States. The data shown here from ArcGIS Living Atlas are authoritative U.S. government sources
 
-The National Weather Service’s 72-hour forecast for wind will also be displayed. Scroll down the page and find information for the same Census Tract on racial composition and other at-risk populations for degraded air quality.
+Click a location in the U.S. to see the current Drought Monitor information and potential impacts. These values can be viewed by county or state from the selector at the top right.  Expanding either the Contiguous or inset maps will allow you to zoom into areas.
 
 ## Requirements
 
@@ -18,9 +18,9 @@ The National Weather Service’s 72-hour forecast for wind will also be displaye
 - [React.js](https://reactjs.org/)
 
 ## Resources
-- The Environmental Protection Agency [AirNow](https://www.airnow.gov/) program for current and future Air Quality Index information.
-- The NOAA National Weather Service [wind forecast](https://www.arcgis.com/home/item.html?id=47ed83c3b4f943118e848fbfc33d119e).
-- U.S. Census - derived [American Community Survey](https://livingatlas.arcgis.com/en/browse/#d=2&q=ACS&cont=true) demographic data, along with variables derived by Esri.
+- NOAA NIDIS [US Drought Monitor](https://www.airnow.gov/) and NOAA Climate Prediction Cetner Monthly and Seasonal Drought Outlooks.
+- The USDA [2017 Census of Agriculture](https://www.arcgis.com/home/item.html?id=47ed83c3b4f943118e848fbfc33d119e) for agricultural values and employment.
+- U.S. Census [American Community Survey](https://livingatlas.arcgis.com/en/browse/#d=2&q=ACS&cont=true) for state and county population totals for the past year.
 
 ## Issues
 
