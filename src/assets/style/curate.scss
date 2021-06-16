@@ -23,7 +23,7 @@ and (-webkit-min-device-pixel-ratio: 2) {
 
 #viewDiv {
   position: absolute;
-  inset: 0px 0px 200px 0px;
+  inset: 0px 0px 175px 350px;
   display: flex;
 }
 
@@ -33,20 +33,38 @@ and (-webkit-min-device-pixel-ratio: 2) {
   width: 100%;
 }
 
+#miniMaps {
+  position: absolute;
+  left: 0;
+  top: 15%;
+  width: 250px;
+}
+
 #akViewDiv {
   padding: 0;
   margin: 0;
-  height: 225px;
-  width: 300px;
+  height: 115px;
+  width: 250px;
   background-color: #cac5b1;
   box-shadow: none !important;
 }
 
 #hiViewDiv {
   padding: 0;
-  margin: 0;
-  height: 135px;
-  width: 200px;
+  height: 115px;
+  width: 250px;
+  margin-left: 0;
+  margin-top: 1em;
+  background-color: #cac5b1;
+  box-shadow: none !important;
+}
+
+#prView {
+  padding: 0;
+  height: 115px;
+  width: 250px;
+  margin-left: 0;
+  margin-top: 1em;
   background-color: #cac5b1;
   box-shadow: none !important;
 }
@@ -74,26 +92,6 @@ and (-webkit-min-device-pixel-ratio: 2) {
 
 
 
-#bottom {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-}
-
-#bottomLeft {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  font-size: .85em;
-}
-
-#bottomRight {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-}
-
 #filterContainer {
   float: left;
 }
@@ -107,25 +105,59 @@ and (-webkit-min-device-pixel-ratio: 2) {
 }
 
 
+
+#bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+#locationContainer {
+  margin-left: .85em;
+  position: absolute;
+  bottom: 160;
+}
+
+#bottomLeft {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+
+#bottomRight {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+
+
 #infoContainerLeft {
   float: left;
   margin-left: 1em;
+  font-size: .75em;
 }
 
 #infoContainerCenter {
   float: left;
   margin-left: 3em;
+  font-size: .75em;
 }
 
 #infoContainerRight {
   float: left;
   margin-left: 3em;
+  font-size: .75em;
 }
 
 .info-container-section {
   margin-bottom: 1em;
 }
 
+.info-container-section-header {
+  line-height: 1;
+}
+
 .info-container-section-value {
-  font-size: 1.5em;
+  font-size: 1.2em;
 }

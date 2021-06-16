@@ -1,7 +1,11 @@
 <div id="viewDiv">
     <div id="mapDiv"></div>
-    <div id="akViewDiv" class="esri-widget"></div>
-    <div id="hiViewDiv" class="esri-widget"></div>
+</div>
+
+<div id="miniMaps">
+    <div id="akViewDiv"></div>
+    <div id="hiViewDiv"></div>
+    <div id="prView"></div>
 </div>
 
 <div id="top">
@@ -24,16 +28,18 @@
 </div>
 
 <div id="bottom">
+    <div id="locationContainer">
+        <span id="selected-location-county"></span>, <span id="selected-location-state"></span>
+    </div>
     <div id="bottomLeft">
-
         <div id="infoContainerLeft">
             <div class="info-container-section">
-                <div>Current Drought Status</div>
+                <div class="info-container-section-header">Current Drought Status</div>
                 <div>(XX/XX/XXXX)</div>
                 <div class="info-container-section-value">Moderate Drought</div>
             </div>
             <div class="info-container-section">
-                <div>Monthly Drought Status</div>
+                <div class="info-container-section-header">Monthly Drought Status</div>
                 <div>(XX/XX/XXXX)</div>
                 <div class="info-container-section-value">Drought Intensifies</div>
             </div>
@@ -41,12 +47,12 @@
 
         <div id="infoContainerCenter">
             <div class="info-container-section">
-                <div>Consecutive Weeks of</div>
+                <div class="info-container-section-header">Consecutive Weeks of</div>
                 <div>Seasonal Drought</div>
                 <div class="info-container-section-value">12</div>
             </div>
             <div class="info-container-section">
-                <div>Seasonal Drought Outlook</div>
+                <div class="info-container-section-header">Seasonal Drought Outlook</div>
                 <div>(XX/XX/XXXX)</div>
                 <div class="info-container-section-value">Drought Improves</div>
             </div>
@@ -54,14 +60,14 @@
 
         <div id="infoContainerRight">
             <div class="info-container-section">
-                <div>Agricultural Impact</div>
-                <div>XX,XXX jobs</div>
-                <div>Total Sales: XX,XXX,XXX</div>
-                <div>Corn: $XX,XXX,XXX</div>
-                <div>Soy:  $XX,XXX,XXX</div>
-                <div>Hay: $XX,XXX,XXX</div>
-                <div>Winter wheat: $XX,XXX,XXX</div>
-                <div>Livestock: $XX,XXX,XXX</div>
+                <div class="info-container-section-header">Agricultural Impact</div>
+                <div><span id="agrJobs"></span> jobs</div>
+                <div>Total Sales: $<span id="agrTotalSales"></span></div>
+                <div>Corn: $<span id="agrCorn"></span></div>
+                <div>Soy:  $<span id="agrSoy"></span></div>
+                <div>Hay: $<span id="agrHay"></span></div>
+                <div>Winter wheat: $<span id="agrWheat"></span></div>
+                <div>Livestock: $<span id="liveStock"></span></div>
             </div>
         </div>
     </div>

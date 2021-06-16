@@ -16,66 +16,33 @@ window.onSignInHandler = (portal) => {
     } else {
         console.debug("SIGNED IN");
         loadModules([
-            "esri/Map",
             "esri/views/MapView",
             "esri/WebMap",
-            "esri/layers/FeatureLayer"
-        ]).then(([
-            Map, MapView, WebMap, FeatureLayer
-                         ]) => {
+            "esri/tasks/QueryTask",
+            "esri/tasks/support/Query",
+            "esri/geometry/Point"
+        ]).then(([MapView, WebMap, QueryTask, Query, Point]) => {
 
-            let countyLayer = new FeatureLayer({
+            let webmap = new WebMap({
                 portalItem: {
-                    id: "8e61ed294160448e9423d3502068b1fe"
-                },
-                outFields: ["*"],
-                title: "U.S. counties"
-            });
-
-            let droughtLayer = new FeatureLayer({
-                portalItem: {
-                    id: "3e743f2e49a8421d89bf2de02a6e2ee2"
-                },
-                outFields: ["*"],
-                title: "U.S. Drought"
-            });
-
-            let map = new Map({
-                layers: [countyLayer, droughtLayer]
+                    id: "ab5bf0057f11443ca86d78e7d1998da5"
+                }
             });
 
             let mainView = new MapView({
                 container: "mapDiv",
-                map: map,
-                popup: {
-                    highlightEnabled: false,
-                    dockEnabled: true,
-                    dockOptions: {
-                        breakpoint: false,
-                        position: "top-right"
-                    }
-                },
-                extent: {
-                    xmin: -3094834,
-                    ymin: -44986,
-                    xmax: 2752687,
-                    ymax: 3271654,
-                    spatialReference: {
-                        wkid: 5070
-                    }
-                },
-                spatialReference: {
-                    // NAD_1983_Contiguous_USA_Albers
-                    wkid: 5070
-                },
+                map: webmap,
+                zoom: 2,
                 ui: {
                     components: ["attribution"]
                 }
             });
+            mainView.popup = null;
 
             let akView = new MapView({
                 container: "akViewDiv",
-                map: map,
+                map: webmap,
+                zoom: 3,
                 extent: {
                     xmin: 396381,
                     ymin: -2099670,
@@ -93,11 +60,12 @@ window.onSignInHandler = (portal) => {
                     components: []
                 }
             });
-            mainView.ui.add("akViewDiv", "bottom-left");
+            akView.popup = null;
 
             let hiView = new MapView({
                 container: "hiViewDiv",
-                map: map,
+                map: webmap,
+                zoom: 2,
                 extent: {
                     xmin: -342537,
                     ymin: 655453,
@@ -115,138 +83,86 @@ window.onSignInHandler = (portal) => {
                     components: []
                 }
             });
-            mainView.ui.add("hiViewDiv", "bottom-left");
+            hiView.popup = null;
 
-            mainView
-                .when(maintainFixedExtent)
-                .then(disableNavigation)
-                .then(disablePopupOnClick)
-                .then(enableHighlightOnPointerMove);
-            akView
-                .when(disableNavigation)
-                .then(disablePopupOnClick)
-                .then(enableHighlightOnPointerMove);
-            hiView
-                .when(disableNavigation)
-                .then(disablePopupOnClick)
-                .then(enableHighlightOnPointerMove);
-
-            function maintainFixedExtent(view) {
-                let fixedExtent = view.extent.clone();
-                // keep a fixed extent in the view
-                // when the view size changes
-                view.on("resize", function() {
-                    view.extent = fixedExtent;
-                });
-                return view;
-            }
-
-            let highlight = null;
-            let lastHighlight = null;
-            function enableHighlightOnPointerMove(view) {
-                view.whenLayerView(countyLayer).then(function(layerView) {
-                    view.on("pointer-move", function(event) {
-                        view.hitTest(event).then(function(response) {
-                            lastHighlight = highlight;
-                            // if a feature is returned, highlight it
-                            // and display its attributes in the popup
-                            // if no features are returned, then close the popup
-                            let id = null;
-                            if (response.results.length) {
-                                let feature = response.results.filter(function(result) {
-                                    return result.graphic.layer === countyLayer;
-                                })[0].graphic;
-                                feature.popupTemplate = countyLayer.popupTemplate;
-                                id = feature.attributes.OBJECTID;
-                                highlight = layerView.highlight([id]);
-                                let selectionId = mainView.popup.selectedFeature ? mainView.popup.selectedFeature.attributes.OBJECTID : null;
-                                if (highlight && id !== selectionId) {
-                                    mainView.popup.open({
-                                        features: [feature]
-                                    });
-                                }
-                            } else {
-                                if (mainView.popup.visible) {
-                                    mainView.popup.close();
-                                    mainView.popup.clear();
-                                }
-                            }
-
-                            // remove the previous highlight
-                            if (lastHighlight) {
-                                lastHighlight.remove();
-                                lastHighlight = null;
-                            }
-                        });
-                    });
-                });
-            }
-
-            // disables all navigation in the view
-            function disableNavigation(view) {
-                view.popup.dockEnabled = true;
-
-                // Removes the zoom action on the popup
-                view.popup.actions = [];
-
-                // stops propagation of default behavior when an event fires
-                function stopEvtPropagation(event) {
-                    event.stopPropagation();
+            let prView = new MapView({
+                container: "prView",
+                map: webmap,
+                zoom: 2,
+                extent: {
+                    xmin:-7605722.95,
+                    ymin:1875651.07,
+                    xmax: -7157496.21,
+                    ymax: 2242548.81,
+                    spatialReference: {
+                        wkid: 102007
+                    }
+                },
+                spatialReference: {
+                    wkid: 102007
+                },
+                ui: {
+                    components: []
                 }
+            });
+            prView.popup = null;
 
-                // disable mouse wheel scroll zooming on the view
-                view.navigation.mouseWheelZoomEnabled = false;
-
-                // disable zooming via double-click on the view
-                view.on("double-click", stopEvtPropagation);
-
-                // disable zooming out via double-click + Control on the view
-                view.on("double-click", ["Control"], stopEvtPropagation);
-
-                // disables pinch-zoom and panning on the view
-                view.navigation.browserTouchPanEnabled = false;
-                view.on("drag", stopEvtPropagation);
-
-                // disable the view's zoom box to prevent the Shift + drag
-                // and Shift + Control + drag zoom gestures.
-                view.on("drag", ["Shift"], stopEvtPropagation);
-                view.on("drag", ["Shift", "Control"], stopEvtPropagation);
-
-                // prevents zooming and rotation with the indicated keys
-                view.on("key-down", function(event) {
-                    let prohibitedKeys = ["+", "-", "_", "=", "a", "d"];
-                    let keyPressed = event.key.toLowerCase();
-                    if (prohibitedKeys.indexOf(keyPressed) !== -1) {
-                        event.stopPropagation();
+            // main map (Webmap)
+            // https://arcgis-content.maps.arcgis.com/home/item.html?id=ab5bf0057f11443ca86d78e7d1998da5
+            //
+            // Query Layer (Feature Layer)
+            // https://arcgis-content.maps.arcgis.com/home/item.html?id=2b64a8bfbe0c4e1292393c91c0d72a21
+            // County: {CountyName}, State: {STATE_NAME}  [393939]
+            // Population: {CountyPop2020}; {StatePop2020} [393939]
+            //
+            // Monthly Drought Outlook (Map Image Layer)
+            // https://arcgis-content.maps.arcgis.com/home/item.html?id=fa875c5c407c493b8935d4cfbf110d23
+            //
+            // Consecutive Weeks in Drought (Feature Layer sublayer=1)
+            // https://arcgis-content.maps.arcgis.com/home/item.html?id=9731f9062afd45f2be7b3bf2e050fbfa
+            //
+            // Agriculture Impact (Feature Layer)
+            // https://arcgis-content.maps.arcgis.com/home/item.html?id=2b64a8bfbe0c4e1292393c91c0d72a21
+            //
+            // County Timeseries (Feature Layer | subLayer 1)
+            // State Timeseries (Feature Layer | subLayer 0)
+            // https://arcgis-content.maps.arcgis.com/home/item.html?id=9731f9062afd45f2be7b3bf2e050fbfa
+            mainView.on("click", function(event) {
+                getAgriculturalImpact({
+                    url: "https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/USA_PR_Counties_DroughtApp/FeatureServer/0",
+                    returnGeometry: false,
+                    outFields: ["*"],
+                    geometry: event.mapPoint,
+                    q: ""
+                }).then(response => {
+                    if (response.features.length > 0) {
+                        let attrs = response.features[0].attributes;
+                        console.debug(attrs);
+                        document.getElementById("selected-location-county").innerHTML = attrs["CountyName"];
+                        document.getElementById("selected-location-state").innerHTML = attrs["STATE_NAME"];
+                        document.getElementById("agrJobs").innerHTML = attrs["CountyLabor"];
+                        document.getElementById("agrTotalSales").innerHTML = attrs["County_Total_Sales"];
+                        document.getElementById("agrCorn").innerHTML = attrs["County_Corn_Value"];
+                        document.getElementById("agrSoy").innerHTML = attrs["County_Soy_Value"];
+                        document.getElementById("agrHay").innerHTML = attrs["County_Hay_Value"];
+                        document.getElementById("agrWheat").innerHTML = attrs["County_WinterWheat_Value"];
+                        document.getElementById("liveStock").innerHTML = attrs["County_Livestock_Value"];
                     }
                 });
-                return view;
-            }
+            });
 
-            // prevents the user from opening the popup with click
-
-            function disablePopupOnClick(view) {
-                view.on("click", function(event) {
-                    event.stopPropagation();
+            function getAgriculturalImpact(params) {
+                let queryTask = new QueryTask({
+                    url: params.url
                 });
-                return view;
+                let query = new Query();
+                query.returnGeometry = params.returnGeometry;
+                query.outFields = params.outFields;
+                query.geometry = params.geometry;
+                query.inSR = 102003;
+                query.where = params.q;
+                return queryTask.execute(query);
             }
-
-            /*let webmap = new WebMap({
-                portalItem: {
-                    id: "ab5bf0057f11443ca86d78e7d1998da5"
-                }
-            });
-
-            let view = new MapView({
-                map: webmap,
-                container: "mapDiv",
-                zoom: 2
-            });
-            view.popup = null;
-            view.on("click", function(event) {
-                console.debug(event)
-            });*/
         });
     }
 }
