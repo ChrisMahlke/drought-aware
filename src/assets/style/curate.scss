@@ -1,0 +1,131 @@
+@import '~calcite-web/dist/css/calcite-web.min.css';
+
+/* Set the background color of body to tan */
+body {
+  background-color: #cac5b1;
+}
+
+@media only screen
+and (min-device-width: 1024px)
+and (max-device-width: 1366px)
+and (-webkit-min-device-pixel-ratio: 2) {
+  body {
+    background-color: blue;
+  }
+}
+
+/* On screens that are 600px or less, set the background color to olive */
+@media screen and (max-width: 600px) {
+  body {
+    background-color: olive;
+  }
+}
+
+#viewDiv {
+  position: absolute;
+  inset: 0px 0px 200px 0px;
+  display: flex;
+}
+
+#mapDiv {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+}
+
+#akViewDiv {
+  padding: 0;
+  margin: 0;
+  height: 225px;
+  width: 300px;
+  background-color: #cac5b1;
+  box-shadow: none !important;
+}
+
+#hiViewDiv {
+  padding: 0;
+  margin: 0;
+  height: 135px;
+  width: 200px;
+  background-color: #cac5b1;
+  box-shadow: none !important;
+}
+
+
+
+
+#top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+#topLeft {
+  margin-left: 1em;
+}
+
+#topRight {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin-right: 1em;
+}
+
+
+
+#bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+#bottomLeft {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  font-size: .85em;
+}
+
+#bottomRight {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+
+#filterContainer {
+  float: left;
+}
+
+#searchContainer {
+  float: right;
+}
+
+#searchWidget {
+  margin: 0 !important;
+}
+
+
+#infoContainerLeft {
+  float: left;
+  margin-left: 1em;
+}
+
+#infoContainerCenter {
+  float: left;
+  margin-left: 3em;
+}
+
+#infoContainerRight {
+  float: left;
+  margin-left: 3em;
+}
+
+.info-container-section {
+  margin-bottom: 1em;
+}
+
+.info-container-section-value {
+  font-size: 1.5em;
+}

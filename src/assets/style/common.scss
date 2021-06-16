@@ -1,0 +1,24 @@
+@import '~calcite-web/dist/css/calcite-web.min.css';
+
+.sub-nav.page-nav {
+    background: #323232;
+    width: 100%;
+    z-index: 10;
+
+    .sub-nav-title {
+        font-size: 1.25rem;
+        line-height: 2rem;
+    }
+
+    .top-nav-link {
+        // width: 100px;
+        text-align: center;
+        line-height: 1.7rem;
+        font-size: 1rem;
+        padding: 1rem 1.25rem;
+    }
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}

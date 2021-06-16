@@ -1,0 +1,63 @@
+{
+    "nominated": "Nominated",
+    "accepted": "Accepted",
+    "unassigned": "Unassigned",
+
+    "under_review_btn_label": "Under Review",
+    "pending_btn_label": "Pending",
+    "accept_btn_label": "Accept",
+    "do_not_accept_btn_label": "Do Not Accept",
+
+    "no_items": "No items found that meet your criteria. Try changing your search term or clearing some filters to show more items.",
+    "suggestion_no_content": "You have no suggestions.",
+
+    "lrd_default_label": "Last Reviewed",
+    "nrd_default_label": "Next Review",
+    "nrd_ufr_label": "Ready for Review",
+    "eol_default_label": "Living Atlas Removal",
+    "eol_ufr_label": "Living Atlas Removal",
+
+    "normal_review_cycle_settings_label": "Normal review cycle settings (required)",
+    "end_of_life_label": "Living Atlas auto removal date (optional)",
+    "set_removal_date": "Set removal date:",
+    "removal_date": "Removal date",
+    "removal_after": "Removal After",
+    "quarterly": "Quarterly (every 3 months)",
+    "biannual": "Biannual (twice a year)",
+    "annual": "Annual (default)",
+
+    "not_set": "Not set",
+
+    "accept_modal_instructions": "After accepting the item in the ArcGIS Living Atlas of the World, the change will take at least 5 minutes to be applied.",
+    "accept_modal_nrd_instructions": "Set the item's review cycle in months.  (<span>Optional: You can also set when the item will be removed from the Living Atlas.)</span>",
+
+    "review_cycle_tooltip": "<div class='font-size--1 avenir-light'><div>The review cycle for an item can be set to occur every 3, 6, or 12 months.</div><div>The review cycle begins once the item is accepted.</div></div>",
+    "eol_tooltip": "<div class='font-size--1 avenir-light'>You can set a date when the item should be automatically removed from the Living Atlas.  If set, the item will be removed on the first day of the following month.</div>",
+
+    "eolBeforeNrdMsg": "<span class=\"text-red\">NOTE:</span> This item is set to be <span class=\"avenir-demi\">Auto Removed</span> from the Living Atlas before the <span class=\"avenir-demi\">Next Review</span> cycle.",
+
+    "add_remove_categories": "Add / Remove Categories",
+    "categories": "Categories",
+
+    "non_curator_title": "Insufficient Privileges",
+    "non_curator": "Please contact <span class=\"avenir-demi\">Deane Kensok</span> or <span class=\"avenir-demi\">Paul Dodd</span>",
+
+    "email_item_owner_modal_title": "Email Item Owner",
+    "email_item_owner_msg": "",
+
+    "reassign_modal_title": "Assign Curator",
+    "reassign_modal_instructions": "Assign at least one curator.",
+
+    "accept_suggestion_modal_title": "Accept Suggestion",
+    "accept_suggection_modal_instructions": "Accept the curator's suggestion and send them a message or use the default message below.",
+    "accept_suggection_modal_instructions_placeholder": "Thank you for the suggestion!",
+
+    "decline_suggestion_modal_title": "Decline Suggestion",
+    "decline_suggection_modal_instructions": "Decline the curator's suggestion and send them a message or use the default message below.",
+    "decline_suggection_modal_instructions_placeholder": "The item should not include this category.",
+
+    "review_comments_tab_label": "Review Comments",
+
+    "okay_btn": "Okay",
+    "cancel_btn": "Cancel"
+}
