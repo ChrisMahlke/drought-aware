@@ -1,5 +1,12 @@
 @import '~calcite-web/dist/css/calcite-web.min.css';
 
+.esri-view .esri-view-surface--inset-outline:focus::after {
+  outline: none !important;
+}
+
+
+
+
 /* Set the background color of body to tan */
 body {
   background-color: #cac5b1;
@@ -23,7 +30,7 @@ and (-webkit-min-device-pixel-ratio: 2) {
 
 #viewDiv {
   position: absolute;
-  inset: 0px 0px 175px 350px;
+  inset: 0px 0px 0px 350px;
   display: flex;
 }
 
@@ -111,6 +118,7 @@ and (-webkit-min-device-pixel-ratio: 2) {
   bottom: 0;
   left: 0;
   right: 0;
+  height: 200px;
 }
 
 #locationContainer {
@@ -160,4 +168,9 @@ and (-webkit-min-device-pixel-ratio: 2) {
 
 .info-container-section-value {
   font-size: 1.2em;
+}
+
+#chart {
+  width: 100%;
+  text-align: center;
 }
