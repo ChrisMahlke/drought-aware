@@ -37,7 +37,7 @@ export default function OauthManager() {
 
     const _setOauthInfo = (OAuthInfo) => {
         info = new OAuthInfo({
-            appId: "qFLDoXBECP10OhW0",
+            appId: "7aTNN4DUR5xAbE02",
             portalUrl: "https://www.arcgis.com",
             popup: false
         });

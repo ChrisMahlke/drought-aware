@@ -54,7 +54,7 @@ window.onSignInHandler = (portal) => {
                 }
             });
             mainView.popup = null;
-/*
+
             let akView = new MapView({
                 container: "akViewDiv",
                 map: webmap,
@@ -122,7 +122,6 @@ window.onSignInHandler = (portal) => {
                 }
             });
             prView.popup = null;
-*/
 
             // main map (Webmap)
             // https://arcgis-content.maps.arcgis.com/home/item.html?id=ab5bf0057f11443ca86d78e7d1998da5
@@ -144,7 +143,7 @@ window.onSignInHandler = (portal) => {
             // County Timeseries (Feature Layer | subLayer 1)
             // State Timeseries (Feature Layer | subLayer 0)
             // https://arcgis-content.maps.arcgis.com/home/item.html?id=9731f9062afd45f2be7b3bf2e050fbfa
-            /*mainView.on("click", function(event) {
+            mainView.on("click", function(event) {
                 getAgriculturalImpact({
                     url: "https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/USA_PR_Counties_DroughtApp/FeatureServer/0",
                     returnGeometry: false,
@@ -206,12 +205,12 @@ window.onSignInHandler = (portal) => {
                         left: 25
                     };
                     let width = inputDataset.length;
-                    let height = 150;
+                    let height = 125;
                     const chartElement = d3.select("#chart");
                     // create the svg
                     let svg = chartElement.append("svg")
                         .attr("width", width)
-                        .attr("height", "200");
+                        .attr("height", height);
                     let g = svg.append("g")
                         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -275,7 +274,6 @@ window.onSignInHandler = (portal) => {
                     console.log(error);
                 }
             })();
-            */
         });
     }
 }

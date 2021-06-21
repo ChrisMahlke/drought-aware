@@ -28,9 +28,9 @@ and (-webkit-min-device-pixel-ratio: 2) {
   }
 }
 
-#viewDiv {
+#mapDivContainer {
   position: absolute;
-  inset: 0px 0px 0px 350px;
+  inset: 0px 0px 175px 500px;
   display: flex;
 }
 
@@ -50,8 +50,8 @@ and (-webkit-min-device-pixel-ratio: 2) {
 #akViewDiv {
   padding: 0;
   margin: 0;
-  height: 115px;
-  width: 250px;
+  height: 215px;
+  width: 300px;
   background-color: #cac5b1;
   box-shadow: none !important;
 }
