@@ -203,8 +203,14 @@ window.onSignInHandler = (portal) => {
                     const pGeom = projection.project(event.results[0].results[0].feature.geometry, cs2);
                     //mainView.graphics.add(new Graphic(pGeom, symbol));
 
-                    let intersects1 = geometryEngine.intersects(pGeom, mainView.graphics.items[0].geometry);
-                    console.debug("intersects1", intersects1);
+                    let contains = geometryEngine.intersects(pGeom, mainView.graphics.items[0].geometry);
+                    console.debug("contains", contains);
+                    if (contains) {
+                        // lower 48
+                        mainView.graphics.add(new Graphic(event.results[0].results[0].extent, symbol));
+                    } else {
+                        akView.graphics.add(new Graphic(event.results[0].results[0].extent, symbol));
+                    }
                 });
             });
 
