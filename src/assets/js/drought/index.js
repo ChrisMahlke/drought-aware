@@ -68,10 +68,18 @@ window.onSignInHandler = (portal) => {
             });
             mainView.popup = null;
 
+            let viewMask = {
+                type: "simple-fill",  // autocasts as new SimpleFillSymbol()
+                color: [128, 128, 128, 0.0],
+                outline: {  // autocasts as new SimpleLineSymbol()
+                    color: [128, 128, 128, 0.0],
+                    width: "0px"
+                }
+            };
             const mainViewGeometry = Polygon.fromExtent(mainView.extent);
             const graphic = new Graphic({
                 geometry: mainViewGeometry,
-                symbol: { type: "simple-fill" }
+                symbol: viewMask
             });
             mainView.graphics.add(graphic);
 
@@ -148,7 +156,7 @@ window.onSignInHandler = (portal) => {
             const cs2 = new SpatialReference({
                 wkid: 5070
             });
-            
+
             let symbol = {
                 type: "simple-marker",  // autocasts as new SimpleMarkerSymbol()
                 style: "circle",
@@ -169,6 +177,7 @@ window.onSignInHandler = (portal) => {
                     mainView.graphics.add(new Graphic(pGeom, symbol));
 
 
+
                     console.debug("mainView.graphics.items[0].geometry", mainView.graphics.items[0].geometry)
                     //mainView.graphics.add(new Graphic(centerPt, symbol));
                     //console.debug(mainView.graphics);
@@ -176,9 +185,9 @@ window.onSignInHandler = (portal) => {
                     let intersects1 = geometryEngine.intersects(centerPt, mainView.graphics.items[0].geometry);
                     console.debug("intersects1", intersects1);
 
-                    console.debug("----------------------------");
-                    let intersects2 = geometryEngine.intersects(pGeom, mainView.graphics.items[0].geometry);
-                    console.debug("intersects2", intersects2);
+                    //console.debug("----------------------------");
+                    //let intersects2 = geometryEngine.intersects(pGeom, mainView.graphics.items[0].geometry);
+                    //console.debug("intersects2", intersects2);
                     //console.debug(pGeom)
                     //let intersects2 = geometryEngine.intersects(pGeom, mainView.graphics.items[0].geometry);
                     //console.debug("intersects2", intersects2);
@@ -190,11 +199,13 @@ window.onSignInHandler = (portal) => {
                 console.debug("search-complete");
                 console.debug(event.results[0].results[0]);
 
-                const pGeom = projection.project(event.results[0].results[0].feature.geometry, cs2);
-                mainView.graphics.add(new Graphic(pGeom, symbol));
+                projection.load().then(function (evt) {
+                    const pGeom = projection.project(event.results[0].results[0].feature.geometry, cs2);
+                    //mainView.graphics.add(new Graphic(pGeom, symbol));
 
-                let intersects1 = geometryEngine.intersects(pGeom, mainView.graphics.items[0].geometry);
-                console.debug("intersects1", intersects1);
+                    let intersects1 = geometryEngine.intersects(pGeom, mainView.graphics.items[0].geometry);
+                    console.debug("intersects1", intersects1);
+                });
             });
 
             // Add the search widget to the top right corner of the view
