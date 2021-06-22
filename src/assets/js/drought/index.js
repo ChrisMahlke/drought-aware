@@ -75,7 +75,6 @@ window.onSignInHandler = (portal) => {
             });
             mainView.graphics.add(graphic);
 
-
             let akView = new MapView({
                 container: "akViewDiv",
                 map: webmap,
@@ -121,7 +120,8 @@ window.onSignInHandler = (portal) => {
                 }
             });
             hiView.popup = null;
-/*
+
+            /*
             let prView = new MapView({
                 container: "prView",
                 map: webmap,
@@ -148,27 +148,15 @@ window.onSignInHandler = (portal) => {
             const cs2 = new SpatialReference({
                 wkid: 5070
             });
-
-            //const geoStep = new GeographicTransformationStep({
-            //    wkid: 108021
-            //});
-            //const geoTrans = new GeographicTransformation({
-            //    steps:[geoStep]
-            //});
-
-            let polylineSymbol = {
-                type: "simple-line",  // autocasts as SimpleLineSymbol()
-                color: [226, 119, 40],
-                width: 4
-            };
+            
             let symbol = {
                 type: "simple-marker",  // autocasts as new SimpleMarkerSymbol()
-                style: "square",
+                style: "circle",
                 color: "blue",
-                size: "8px",  // pixels
+                size: "10px",  // pixels
                 outline: {  // autocasts as new SimpleLineSymbol()
                     color: [ 255, 255, 0 ],
-                    width: 3  // points
+                    width: 1  // points
                 }
             };
 
@@ -189,7 +177,8 @@ window.onSignInHandler = (portal) => {
                     console.debug("intersects1", intersects1);
 
                     console.debug("----------------------------");
-
+                    let intersects2 = geometryEngine.intersects(pGeom, mainView.graphics.items[0].geometry);
+                    console.debug("intersects2", intersects2);
                     //console.debug(pGeom)
                     //let intersects2 = geometryEngine.intersects(pGeom, mainView.graphics.items[0].geometry);
                     //console.debug("intersects2", intersects2);
@@ -201,32 +190,11 @@ window.onSignInHandler = (portal) => {
                 console.debug("search-complete");
                 console.debug(event.results[0].results[0]);
 
-                const pGeom = projection.project(event.results[0].results[0].extent, cs2);
-                console.debug("pGeom", pGeom);
+                const pGeom = projection.project(event.results[0].results[0].feature.geometry, cs2);
                 mainView.graphics.add(new Graphic(pGeom, symbol));
 
-                //let mainViewGeometryWM = webMercatorUtils.geographicToWebMercator(graphic.geomtry);
-                //let tmp = webMercatorUtils.geographicToWebMercator(event.results[0].results[0].extent);
-
-                //console.debug("mainViewGeometryWM", mainViewGeometryWM);
-                //console.debug("tmp", tmp);
-
-                //console.debug(mainViewGeometry)
-                //let crosses = geometryEngine.within(mainViewGeometry.extent.center, mainView.graphics[0].geometry);
-                //console.debug("crosses", crosses);
-
-
-
-                //let searchResultGraphic = new Graphic({
-                //    geometry: event.results[0].results[0].feature.geometry,
-                //    symbol: symbol
-                //});
-                //console.debug("searchResultGraphic", searchResultGraphic);
-                //mainView.graphics.add(searchResultGraphic);
-
-                /*console.debug(mainView.graphics)
-                let contains = geometryEngine.contains(graphic.geometry, event.results[0].results[0].extent.center);
-                console.debug("contains", contains);*/
+                let intersects1 = geometryEngine.intersects(pGeom, mainView.graphics.items[0].geometry);
+                console.debug("intersects1", intersects1);
             });
 
             // Add the search widget to the top right corner of the view
