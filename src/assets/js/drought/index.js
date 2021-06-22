@@ -70,7 +70,7 @@ window.onSignInHandler = (portal) => {
 
             let viewMask = {
                 type: "simple-fill",  // autocasts as new SimpleFillSymbol()
-                color: [128, 128, 128, 0.0],
+                color: [128, 128, 128, 0.3],
                 outline: {  // autocasts as new SimpleLineSymbol()
                     color: [128, 128, 128, 0.0],
                     width: "0px"
@@ -105,6 +105,12 @@ window.onSignInHandler = (portal) => {
                 }
             });
             akView.popup = null;
+            const akViewViewGeometry = Polygon.fromExtent(akView.extent);
+            const akViewGraphic = new Graphic({
+                geometry: akViewViewGeometry,
+                symbol: viewMask
+            });
+            akView.graphics.add(akViewGraphic);
 
             let hiView = new MapView({
                 container: "hiViewDiv",
@@ -128,6 +134,12 @@ window.onSignInHandler = (portal) => {
                 }
             });
             hiView.popup = null;
+            const hiViewViewGeometry = Polygon.fromExtent(hiView.extent);
+            const hiViewGraphic = new Graphic({
+                geometry: hiViewViewGeometry,
+                symbol: viewMask
+            });
+            hiView.graphics.add(hiViewGraphic);
 
             /*
             let prView = new MapView({
@@ -182,8 +194,26 @@ window.onSignInHandler = (portal) => {
                     //mainView.graphics.add(new Graphic(centerPt, symbol));
                     //console.debug(mainView.graphics);
                     console.debug("centerPt", centerPt)
-                    let intersects1 = geometryEngine.intersects(centerPt, mainView.graphics.items[0].geometry);
-                    console.debug("intersects1", intersects1);
+                    //let intersects1 = geometryEngine.intersects(centerPt, mainView.graphics.items[0].geometry);
+                    //console.debug("intersects1", intersects1);
+
+                    mainView.goTo({
+                        target: centerPt,
+                        zoom: 10
+                    }).catch(function(error) {
+                        if (error.name !== "AbortError") {
+                            console.error(error);
+                        }
+                    });
+
+                    akView.goTo({
+                        target: centerPt,
+                        zoom: 5
+                    }).catch(function(error) {
+                        if (error.name !== "AbortError") {
+                            console.error(error);
+                        }
+                    });
 
                     //console.debug("----------------------------");
                     //let intersects2 = geometryEngine.intersects(pGeom, mainView.graphics.items[0].geometry);
@@ -200,16 +230,46 @@ window.onSignInHandler = (portal) => {
                 console.debug(event.results[0].results[0]);
 
                 projection.load().then(function (evt) {
-                    const pGeom = projection.project(event.results[0].results[0].feature.geometry, cs2);
-                    //mainView.graphics.add(new Graphic(pGeom, symbol));
+                    const mainViewSR = new SpatialReference({
+                        wkid: 5070
+                    });
+                    const mainViewProGeom = projection.project(event.results[0].results[0].feature.geometry, mainViewSR);
+                    console.debug("mainViewProGeom", mainViewProGeom);
+                    let mainViewGeomEngResult = geometryEngine.intersects(mainViewProGeom, mainView.graphics.items[0].geometry);
+                    console.debug("mainViewGeomEngResult", mainViewGeomEngResult);
 
-                    let contains = geometryEngine.intersects(pGeom, mainView.graphics.items[0].geometry);
-                    console.debug("contains", contains);
-                    if (contains) {
+                    const akViewSR = new SpatialReference({
+                        wkid: 5936
+                    });
+                    const akViewProGeom = projection.project(event.results[0].results[0].feature.geometry, akViewSR);
+                    let akViewGeomEngResult = geometryEngine.intersects(akViewProGeom, akView.graphics.items[0].geometry);
+                    console.debug("akViewGeomEngResult", akViewGeomEngResult);
+
+                    const hiViewSR = new SpatialReference({
+                        wkid: 102007
+                    });
+                    const hiViewProGeom = projection.project(event.results[0].results[0].feature.geometry, hiViewSR);
+                    let hiViewGeomEngResult = geometryEngine.intersects(hiViewProGeom, hiView.graphics.items[0].geometry);
+                    console.debug("hiViewGeomEngResult", hiViewGeomEngResult);
+
+                    if (mainViewGeomEngResult) {
                         // lower 48
                         mainView.graphics.add(new Graphic(event.results[0].results[0].extent, symbol));
-                    } else {
+                    } else if (akViewGeomEngResult) {
+                        console.debug(event.results[0].results[0].feature)
                         akView.graphics.add(new Graphic(event.results[0].results[0].extent, symbol));
+                        akView.goTo({
+                            target: event.results[0].results[0].feature,
+                            zoom: 5
+                        }).catch(function(error) {
+                            if (error.name !== "AbortError") {
+                                console.error(error);
+                            }
+                        });
+                    } else if (hiViewGeomEngResult) {
+                        hiView.graphics.add(new Graphic(event.results[0].results[0].extent, symbol));
+                    } else {
+                        alert("Nothing");
                     }
                 });
             });
