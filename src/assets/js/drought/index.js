@@ -6,6 +6,7 @@ import { loadCss, loadModules } from 'esri-loader';
 
 import * as calcite from "calcite-web";
 import * as d3 from "d3";
+import {main} from "d3/dist/package";
 
 window.onSignInHandler = (portal) => {
     // initialize calcite
@@ -18,13 +19,25 @@ window.onSignInHandler = (portal) => {
     } else {
         console.debug("SIGNED IN");
         loadModules([
+            "esri/geometry/support/webMercatorUtils",
+            "esri/layers/GraphicsLayer",
+            "esri/Graphic",
+            "esri/geometry/Extent",
+            "esri/geometry/geometryEngine",
+            "esri/geometry/projection",
+            "esri/geometry/SpatialReference",
             "esri/views/MapView",
             "esri/WebMap",
             "esri/tasks/QueryTask",
             "esri/tasks/support/Query",
             "esri/geometry/Point",
-            "esri/widgets/Search"
-        ]).then(([MapView, WebMap, QueryTask, Query, Point, Search]) => {
+            "esri/geometry/Polygon",
+            "esri/widgets/Search",
+            "esri/geometry/support/GeographicTransformationStep",
+            "esri/geometry/support/GeographicTransformation"
+        ]).then(([webMercatorUtils, GraphicsLayer, Graphic, Extent, geometryEngine, projection,
+                             SpatialReference, MapView, WebMap, QueryTask, Query,
+                             Point, Polygon, Search, GeographicTransformationStep, GeographicTransformation]) => {
 
             let webmap = new WebMap({
                 portalItem: {
@@ -49,11 +62,19 @@ window.onSignInHandler = (portal) => {
                     // NAD_1983_Contiguous_USA_Albers
                     wkid: 5070
                 },
-                ui: {
-                    components: ["attribution"]
+                constraints: {
+                    rotationEnabled: false
                 }
             });
             mainView.popup = null;
+
+            const mainViewGeometry = Polygon.fromExtent(mainView.extent);
+            const graphic = new Graphic({
+                geometry: mainViewGeometry,
+                symbol: { type: "simple-fill" }
+            });
+            mainView.graphics.add(graphic);
+
 
             let akView = new MapView({
                 container: "akViewDiv",
@@ -100,7 +121,7 @@ window.onSignInHandler = (portal) => {
                 }
             });
             hiView.popup = null;
-
+/*
             let prView = new MapView({
                 container: "prView",
                 map: webmap,
@@ -122,6 +143,98 @@ window.onSignInHandler = (portal) => {
                 }
             });
             prView.popup = null;
+            */
+
+            const cs2 = new SpatialReference({
+                wkid: 5070
+            });
+
+            //const geoStep = new GeographicTransformationStep({
+            //    wkid: 108021
+            //});
+            //const geoTrans = new GeographicTransformation({
+            //    steps:[geoStep]
+            //});
+
+            let polylineSymbol = {
+                type: "simple-line",  // autocasts as SimpleLineSymbol()
+                color: [226, 119, 40],
+                width: 4
+            };
+            let symbol = {
+                type: "simple-marker",  // autocasts as new SimpleMarkerSymbol()
+                style: "square",
+                color: "blue",
+                size: "8px",  // pixels
+                outline: {  // autocasts as new SimpleLineSymbol()
+                    color: [ 255, 255, 0 ],
+                    width: 3  // points
+                }
+            };
+
+            mainView.on("click", function(event) {
+                let centerPt = event.mapPoint;
+
+                projection.load().then(function (evt) {
+                    const pGeom = projection.project(centerPt, cs2);
+                    console.debug("pGeom", pGeom);
+                    mainView.graphics.add(new Graphic(pGeom, symbol));
+
+
+                    console.debug("mainView.graphics.items[0].geometry", mainView.graphics.items[0].geometry)
+                    //mainView.graphics.add(new Graphic(centerPt, symbol));
+                    //console.debug(mainView.graphics);
+                    console.debug("centerPt", centerPt)
+                    let intersects1 = geometryEngine.intersects(centerPt, mainView.graphics.items[0].geometry);
+                    console.debug("intersects1", intersects1);
+
+                    console.debug("----------------------------");
+
+                    //console.debug(pGeom)
+                    //let intersects2 = geometryEngine.intersects(pGeom, mainView.graphics.items[0].geometry);
+                    //console.debug("intersects2", intersects2);
+                });
+            });
+
+            let searchWidget = new Search();
+            searchWidget.on("search-complete", function(event) {
+                console.debug("search-complete");
+                console.debug(event.results[0].results[0]);
+
+                const pGeom = projection.project(event.results[0].results[0].extent, cs2);
+                console.debug("pGeom", pGeom);
+                mainView.graphics.add(new Graphic(pGeom, symbol));
+
+                //let mainViewGeometryWM = webMercatorUtils.geographicToWebMercator(graphic.geomtry);
+                //let tmp = webMercatorUtils.geographicToWebMercator(event.results[0].results[0].extent);
+
+                //console.debug("mainViewGeometryWM", mainViewGeometryWM);
+                //console.debug("tmp", tmp);
+
+                //console.debug(mainViewGeometry)
+                //let crosses = geometryEngine.within(mainViewGeometry.extent.center, mainView.graphics[0].geometry);
+                //console.debug("crosses", crosses);
+
+
+
+                //let searchResultGraphic = new Graphic({
+                //    geometry: event.results[0].results[0].feature.geometry,
+                //    symbol: symbol
+                //});
+                //console.debug("searchResultGraphic", searchResultGraphic);
+                //mainView.graphics.add(searchResultGraphic);
+
+                /*console.debug(mainView.graphics)
+                let contains = geometryEngine.contains(graphic.geometry, event.results[0].results[0].extent.center);
+                console.debug("contains", contains);*/
+            });
+
+            // Add the search widget to the top right corner of the view
+            mainView.ui.add(searchWidget, {
+                position: "top-right"
+            });
+
+            //mainView.when(disableZooming);
 
             // main map (Webmap)
             // https://arcgis-content.maps.arcgis.com/home/item.html?id=ab5bf0057f11443ca86d78e7d1998da5
@@ -143,7 +256,7 @@ window.onSignInHandler = (portal) => {
             // County Timeseries (Feature Layer | subLayer 1)
             // State Timeseries (Feature Layer | subLayer 0)
             // https://arcgis-content.maps.arcgis.com/home/item.html?id=9731f9062afd45f2be7b3bf2e050fbfa
-            mainView.on("click", function(event) {
+            /*mainView.on("click", function(event) {
                 getAgriculturalImpact({
                     url: "https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/USA_PR_Counties_DroughtApp/FeatureServer/0",
                     returnGeometry: false,
@@ -165,7 +278,7 @@ window.onSignInHandler = (portal) => {
                         document.getElementById("liveStock").innerHTML = attrs["County_Livestock_Value"];
                     }
                 });
-            });
+            });*/
 
             function getAgriculturalImpact(params) {
                 let queryTask = new QueryTask({
@@ -182,7 +295,7 @@ window.onSignInHandler = (portal) => {
 
             (async function() {
                 try {
-                    //const jsonResponse = await d3.json(sampleDataset);
+                    //const jsonResponse = await d3.json("data.json");
                     let features = jsonResponse.features;
                     let inputDataset = [];
                     inputDataset = features.map(feature => {
@@ -197,27 +310,25 @@ window.onSignInHandler = (portal) => {
                             total: 100
                         };
                     });
-                    //console.debug(inputDataset)
+                    console.debug(inputDataset)
                     let margin = {
                         top: 5,
                         right: 0,
                         bottom: 0,
                         left: 25
                     };
-                    let width = inputDataset.length;
-                    let height = 125;
+                    let width = 800;
+                    let height = 100;
+
                     const chartElement = d3.select("#chart");
                     // create the svg
-                    let svg = chartElement.append("svg")
-                        .attr("width", width)
-                        .attr("height", height);
-                    let g = svg.append("g")
-                        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+                    let svg = chartElement.append("svg").attr("width", width).attr("height", height + 25);
+                    let g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
                     // set x scale
-                    let x = d3.scaleBand().rangeRound([0, width]);
+                    let x = d3.scaleBand().range([0, width]);
                     // set y scale
-                    let y = d3.scaleLinear().rangeRound([height, 0]);
+                    let y = d3.scaleLinear().range([height, 0]);
                     // set the colors
                     let z = d3.scaleOrdinal().range(["#b2a077", "#ccaa5b", "#e4985a", "#e28060", "#b24543", "rgba(57,57,57,0.11)"]);
 
@@ -231,6 +342,7 @@ window.onSignInHandler = (portal) => {
                     z.domain(keys);
 
                     g.append("g")
+                        .attr("class", "bars")
                         .selectAll("g")
                         .data(d3.stack().keys(keys)(inputDataset))
                         .enter().append("g")
@@ -254,14 +366,14 @@ window.onSignInHandler = (portal) => {
                         .attr("width", x.bandwidth());
 
                     let xScale = d3.scaleTime().domain([new Date(inputDataset[0].date), new Date(inputDataset[inputDataset.length - 1].date)]).range([0, width]);
-                    // define the y axis
+
                     g.append("g")
-                        .attr("class", "axis")
+                        .attr("class", "x-axis")
                         .attr("transform", "translate(0," + height + ")")
                         .call(d3.axisBottom(xScale));
 
                     g.append("g")
-                        .attr("class", "axis")
+                        .attr("class", "y-axis")
                         .call(d3.axisLeft(y).ticks(null, "s"))
                         .append("text")
                         .attr("x", 2)
@@ -270,6 +382,30 @@ window.onSignInHandler = (portal) => {
                         .attr("fill", "#000")
                         .attr("font-weight", "bold")
                         .attr("text-anchor", "start");
+
+                    function zoom(svg) {
+                        const extent = [[margin.left, margin.top], [width - margin.right, height - margin.top]];
+                        svg.call(d3.zoom()
+                            .scaleExtent([1, 15])
+                            .translateExtent(extent)
+                            .extent(extent)
+                            .on("zoom", zoomed));
+
+                        function zoomed(event) {
+                            x.range([0, width].map(d => event.transform.applyX(d)));
+                            svg.selectAll(".bars rect").attr("x", d => x(d.data.date)).attr("width", x.bandwidth());
+                            //let xScale = d3.scaleTime().domain([new Date(inputDataset[0].date), new Date(inputDataset[inputDataset.length - 1].date)]).range([x.range()[0], x.range()[1]]);
+                            console.debug(x.doamin())
+                            let xScale = d3.scaleTime().domain([inputDataset[0].date, inputDataset[inputDataset.length - 1].date]).range([0, width]);
+                            g.append("g")
+                                .attr("class", "x-axis")
+                                .attr("transform", "translate(0," + height + ")")
+                                .call(d3.axisBottom(xScale));
+                            svg.selectAll(".x-axis").call(xScale);
+                        }
+                    }
+
+                    svg.call(zoom)
                 } catch(error) {
                     console.log(error);
                 }

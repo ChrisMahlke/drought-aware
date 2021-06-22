@@ -83,7 +83,7 @@ and (-webkit-min-device-pixel-ratio: 2) {
   position: absolute;
   top: 0;
   left: 0;
-  right: 0;
+  width: 350px;
 }
 
 #topLeft {
@@ -173,4 +173,37 @@ and (-webkit-min-device-pixel-ratio: 2) {
 #chart {
   width: 100%;
   text-align: center;
+}
+
+#chart > svg {
+  width: 100%;
+}
+
+.chart-legend-color-container {
+  height: 5px;
+  width: 25px;
+}
+
+.chart-legend-label-container {
+
+}
+
+.abnormally-dry {
+  background: #b2a077;
+}
+
+.moderate-drought {
+  background: #ccaa5b;
+}
+
+.severe-drought {
+  background: #e4985a;
+}
+
+.extreme-drought {
+  background: #e28060;
+}
+
+.exceptional-drought {
+  background: #b24543;
 }
