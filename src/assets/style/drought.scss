@@ -1,0 +1,160 @@
+@import '~calcite-web/dist/css/calcite-web.min.css';
+
+.esri-view .esri-view-surface--inset-outline:focus::after {
+  outline: none !important;
+}
+
+/* Set the background color of body to tan */
+body {
+  background-color: #cac5b1;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+@media (min-width: 768px) {
+  .container {
+    display: grid;
+    grid-template-columns: 200px 1fr 200px;
+    grid-template-rows: auto 1fr auto;
+
+  }
+}
+
+header {
+  grid-column: span 3;
+  padding: 30px;
+  text-align: center;
+  font-size: 1.4em;
+  background-color: #369;
+  color: white;
+}
+
+main {
+  flex: 1;
+}
+
+nav {
+  background-color: #f90;
+  padding: 20px;
+}
+
+aside {
+  padding: 20px;
+  background-color: #936;
+}
+
+footer {
+  grid-column: span 3;
+  padding: 30px;
+  text-align: center;
+  font-size: 1.4em;
+  background-color: #690;
+  color: white;
+}
+
+#mainMapContainer {
+  /*position: absolute;
+  inset: 0px 0px 0px 500px;
+  display: flex;*/
+  height: 75vh;
+  border: 1px blue dotted;
+}
+
+#mainMapView {
+  height: 100%;
+  width: 100%;
+}
+
+#data-container {
+  height: 25vh;
+}
+
+#akViewcontainer {
+  height: 10em;
+  border: 1px red dotted;
+}
+
+#akView {
+  height: 100%;
+  width: 100%;
+}
+
+#hiViewcontainer {
+  height: 6em;
+  border: 1px red dotted;
+}
+
+#hiView {
+  height: 100%;
+  width: 100%;
+}
+
+#prViewcontainer {
+  height: 10em;
+  border: 1px red dotted;
+}
+
+#prView {
+  height: 100%;
+  width: 100%;
+}
+/*
+@media only screen
+and (min-device-width: 1024px)
+and (max-device-width: 1366px)
+and (-webkit-min-device-pixel-ratio: 2) {
+  body {
+    background-color: blue;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  body {
+    background-color: olive;
+  }
+}
+
+#top {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+#top-left {
+  margin-left: 1em;
+}
+
+#mainMapContainer {
+  position: absolute;
+  inset: 0px 0px 0px 500px;
+  display: flex;
+}
+
+#mainMapView {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+}
+
+#akViewcontainer {
+  position: absolute;
+  inset: 0px 0px 0px 0px;
+  display: flex;
+}
+
+#akView {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+}
+
+#bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}*/

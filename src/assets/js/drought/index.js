@@ -1,4 +1,4 @@
-import "../../style/curate.scss";
+import "../../style/drought.scss";
 import jsonResponse from ".//data.json";
 import config from './config.json';
 
@@ -14,39 +14,37 @@ window.onSignInHandler = (portal) => {
     // esri styles
     loadCss();
 
-    if (portal === undefined) {
-        console.debug("NOT SIGNED IN");
-    } else {
-        console.debug("SIGNED IN");
-        loadModules([
-            "esri/geometry/support/webMercatorUtils",
-            "esri/layers/GraphicsLayer",
-            "esri/Graphic",
-            "esri/geometry/Extent",
-            "esri/geometry/geometryEngine",
-            "esri/geometry/projection",
-            "esri/geometry/SpatialReference",
-            "esri/views/MapView",
-            "esri/WebMap",
-            "esri/tasks/QueryTask",
-            "esri/tasks/support/Query",
-            "esri/geometry/Point",
-            "esri/geometry/Polygon",
-            "esri/widgets/Search",
-            "esri/geometry/support/GeographicTransformationStep",
-            "esri/geometry/support/GeographicTransformation"
-        ]).then(([webMercatorUtils, GraphicsLayer, Graphic, Extent, geometryEngine, projection,
-                             SpatialReference, MapView, WebMap, QueryTask, Query,
-                             Point, Polygon, Search, GeographicTransformationStep, GeographicTransformation]) => {
+    loadModules([
+        "esri/geometry/support/webMercatorUtils",
+        "esri/layers/GraphicsLayer",
+        "esri/Graphic",
+        "esri/geometry/Extent",
+        "esri/geometry/geometryEngine",
+        "esri/geometry/projection",
+        "esri/geometry/SpatialReference",
+        "esri/views/MapView",
+        "esri/WebMap",
+        "esri/tasks/QueryTask",
+        "esri/tasks/support/Query",
+        "esri/geometry/Point",
+        "esri/geometry/Polygon",
+        "esri/widgets/Search",
+        "esri/geometry/support/GeographicTransformationStep",
+        "esri/geometry/support/GeographicTransformation",
+        "esri/core/watchUtils"
+    ]).then(([webMercatorUtils, GraphicsLayer, Graphic, Extent, geometryEngine, projection,
+                 SpatialReference, MapView, WebMap, QueryTask, Query,
+                 Point, Polygon, Search, GeographicTransformationStep, GeographicTransformation, watchUtils]) => {
 
+        if (portal === undefined) {
             let webmap = new WebMap({
                 portalItem: {
-                    id: "ab5bf0057f11443ca86d78e7d1998da5"
+                    id: "665ae29aea72474591b3f853f5ec3689"// "ab5bf0057f11443ca86d78e7d1998da5"
                 }
             });
 
             let mainView = new MapView({
-                container: "mapDiv",
+                container: "mainMapView",
                 map: webmap,
                 zoom: 2,
                 extent: {
@@ -63,28 +61,34 @@ window.onSignInHandler = (portal) => {
                     wkid: 5070
                 },
                 constraints: {
-                    rotationEnabled: false
+                    rotationEnabled: false,
+                    minScale: 40000000,
+                    maxScale: 0
                 }
             });
             mainView.popup = null;
+            mainView.on("drag", stopEvtPropagation);
 
-            let viewMask = {
-                type: "simple-fill",  // autocasts as new SimpleFillSymbol()
-                color: [128, 128, 128, 0.3],
-                outline: {  // autocasts as new SimpleLineSymbol()
-                    color: [128, 128, 128, 0.0],
-                    width: "0px"
-                }
-            };
-            const mainViewGeometry = Polygon.fromExtent(mainView.extent);
-            const graphic = new Graphic({
-                geometry: mainViewGeometry,
-                symbol: viewMask
+            // Watch view's stationary property for becoming true.
+            /*watchUtils.whenTrue(mainView, "navigating", function() {
+                console.debug("NAVIGATING");
+                mainView.navigation.mouseWheelZoomEnabled = true;
             });
-            mainView.graphics.add(graphic);
+            watchUtils.whenTrue(mainView, "stationary", function() {
+                console.debug("STATIONARY");
+                // Get the new center of the view only when view is stationary.
+                if (mainView.center) {
+                    console.debug(mainView.center);
+                }
+
+                // Get the new extent of the view only when view is stationary.
+                if (mainView.extent) {
+                    console.debug(mainView.extent);
+                }
+            });*/
 
             let akView = new MapView({
-                container: "akViewDiv",
+                container: "akView",
                 map: webmap,
                 zoom: 3,
                 extent: {
@@ -105,17 +109,10 @@ window.onSignInHandler = (portal) => {
                 }
             });
             akView.popup = null;
-            const akViewViewGeometry = Polygon.fromExtent(akView.extent);
-            const akViewGraphic = new Graphic({
-                geometry: akViewViewGeometry,
-                symbol: viewMask
-            });
-            akView.graphics.add(akViewGraphic);
 
             let hiView = new MapView({
-                container: "hiViewDiv",
+                container: "hiView",
                 map: webmap,
-                zoom: 2,
                 extent: {
                     xmin: -342537,
                     ymin: 655453,
@@ -134,228 +131,6 @@ window.onSignInHandler = (portal) => {
                 }
             });
             hiView.popup = null;
-            const hiViewViewGeometry = Polygon.fromExtent(hiView.extent);
-            const hiViewGraphic = new Graphic({
-                geometry: hiViewViewGeometry,
-                symbol: viewMask
-            });
-            hiView.graphics.add(hiViewGraphic);
-
-            /*
-            let prView = new MapView({
-                container: "prView",
-                map: webmap,
-                zoom: 2,
-                extent: {
-                    xmin:-7605722.95,
-                    ymin:1875651.07,
-                    xmax: -7157496.21,
-                    ymax: 2242548.81,
-                    spatialReference: {
-                        wkid: 102007
-                    }
-                },
-                spatialReference: {
-                    wkid: 102007
-                },
-                ui: {
-                    components: []
-                }
-            });
-            prView.popup = null;
-            */
-
-            const cs2 = new SpatialReference({
-                wkid: 5070
-            });
-
-            let symbol = {
-                type: "simple-marker",  // autocasts as new SimpleMarkerSymbol()
-                style: "circle",
-                color: "blue",
-                size: "10px",  // pixels
-                outline: {  // autocasts as new SimpleLineSymbol()
-                    color: [ 255, 255, 0 ],
-                    width: 1  // points
-                }
-            };
-
-            mainView.on("click", function(event) {
-                let centerPt = event.mapPoint;
-                console.debug("Main View", centerPt);
-                projection.load().then(function (evt) {
-                    const pGeom = projection.project(centerPt, cs2);
-                    console.debug("pGeom", pGeom);
-                    mainView.graphics.add(new Graphic(pGeom, symbol));
-
-                    console.debug("mainView.graphics.items[0].geometry", mainView.graphics.items[0].geometry)
-                    //mainView.graphics.add(new Graphic(centerPt, symbol));
-                    //console.debug(mainView.graphics);
-                    console.debug("centerPt", centerPt)
-                    //let intersects1 = geometryEngine.intersects(centerPt, mainView.graphics.items[0].geometry);
-                    //console.debug("intersects1", intersects1);
-
-                    mainView.goTo({
-                        target: centerPt,
-                        zoom: 10
-                    }).catch(function(error) {
-                        if (error.name !== "AbortError") {
-                            console.error(error);
-                        }
-                    });
-
-                    akView.goTo({
-                        target: centerPt,
-                        zoom: 5
-                    }).catch(function(error) {
-                        if (error.name !== "AbortError") {
-                            console.error(error);
-                        }
-                    });
-
-                    //console.debug("----------------------------");
-                    //let intersects2 = geometryEngine.intersects(pGeom, mainView.graphics.items[0].geometry);
-                    //console.debug("intersects2", intersects2);
-                    //console.debug(pGeom)
-                    //let intersects2 = geometryEngine.intersects(pGeom, mainView.graphics.items[0].geometry);
-                    //console.debug("intersects2", intersects2);
-                });
-            });
-
-            akView.on("click", function(event) {
-                let centerPt = event.mapPoint;
-                console.debug("Alaska", centerPt);
-                projection.load().then(function (evt) {
-                    //const akViewSR = new SpatialReference({
-                    //    wkid: 5936
-                    //});
-                    //akView.graphics.add(new Graphic(akViewSR, symbol));
-                    //console.debug("akView.graphics.items[0].geometry", akView.graphics.items[0].geometry)
-                    //console.debug("centerPt", centerPt)
-                    akView.goTo({
-                        target: centerPt,
-                        scale: 175000
-                    }).catch(function(error) {
-                        if (error.name !== "AbortError") {
-                            console.error(error);
-                        }
-                    });
-                });
-            });
-
-            let searchWidget = new Search();
-            searchWidget.on("search-complete", function(event) {
-                console.debug("search-complete");
-                console.debug(event.results[0].results[0]);
-
-                projection.load().then(function (evt) {
-                    const mainViewSR = new SpatialReference({
-                        wkid: 5070
-                    });
-                    const mainViewProGeom = projection.project(event.results[0].results[0].feature.geometry, mainViewSR);
-                    console.debug("mainViewProGeom", mainViewProGeom);
-                    let mainViewGeomEngResult = geometryEngine.intersects(mainViewProGeom, mainView.graphics.items[0].geometry);
-                    console.debug("mainViewGeomEngResult", mainViewGeomEngResult);
-
-                    const akViewSR = new SpatialReference({
-                        wkid: 5936
-                    });
-                    const akViewProGeom = projection.project(event.results[0].results[0].feature.geometry, akViewSR);
-                    let akViewGeomEngResult = geometryEngine.intersects(akViewProGeom, akView.graphics.items[0].geometry);
-                    console.debug("akViewGeomEngResult", akViewGeomEngResult);
-
-                    const hiViewSR = new SpatialReference({
-                        wkid: 102007
-                    });
-                    const hiViewProGeom = projection.project(event.results[0].results[0].feature.geometry, hiViewSR);
-                    let hiViewGeomEngResult = geometryEngine.intersects(hiViewProGeom, hiView.graphics.items[0].geometry);
-                    console.debug("hiViewGeomEngResult", hiViewGeomEngResult);
-
-                    if (mainViewGeomEngResult) {
-                        // lower 48
-                        mainView.graphics.add(new Graphic(event.results[0].results[0].extent, symbol));
-                    } else if (akViewGeomEngResult) {
-                        console.debug(event.results[0].results[0].feature)
-                        akView.graphics.add(new Graphic(event.results[0].results[0].extent, symbol));
-                        akView.goTo({
-                            target: event.results[0].results[0].feature.geometry,
-                            zoom: 5
-                        }).catch(function(error) {
-                            if (error.name !== "AbortError") {
-                                console.error(error);
-                            }
-                        });
-                    } else if (hiViewGeomEngResult) {
-                        hiView.graphics.add(new Graphic(event.results[0].results[0].extent, symbol));
-                    } else {
-                        alert("Nothing");
-                    }
-                });
-            });
-
-            // Add the search widget to the top right corner of the view
-            mainView.ui.add(searchWidget, {
-                position: "top-right"
-            });
-
-            //mainView.when(disableZooming);
-
-            // main map (Webmap)
-            // https://arcgis-content.maps.arcgis.com/home/item.html?id=ab5bf0057f11443ca86d78e7d1998da5
-            //
-            // Query Layer (Feature Layer)
-            // https://arcgis-content.maps.arcgis.com/home/item.html?id=2b64a8bfbe0c4e1292393c91c0d72a21
-            // County: {CountyName}, State: {STATE_NAME}  [393939]
-            // Population: {CountyPop2020}; {StatePop2020} [393939]
-            //
-            // Monthly Drought Outlook (Map Image Layer)
-            // https://arcgis-content.maps.arcgis.com/home/item.html?id=fa875c5c407c493b8935d4cfbf110d23
-            //
-            // Consecutive Weeks in Drought (Feature Layer sublayer=1)
-            // https://arcgis-content.maps.arcgis.com/home/item.html?id=9731f9062afd45f2be7b3bf2e050fbfa
-            //
-            // Agriculture Impact (Feature Layer)
-            // https://arcgis-content.maps.arcgis.com/home/item.html?id=2b64a8bfbe0c4e1292393c91c0d72a21
-            //
-            // County Timeseries (Feature Layer | subLayer 1)
-            // State Timeseries (Feature Layer | subLayer 0)
-            // https://arcgis-content.maps.arcgis.com/home/item.html?id=9731f9062afd45f2be7b3bf2e050fbfa
-            /*mainView.on("click", function(event) {
-                getAgriculturalImpact({
-                    url: "https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/USA_PR_Counties_DroughtApp/FeatureServer/0",
-                    returnGeometry: false,
-                    outFields: ["*"],
-                    geometry: event.mapPoint,
-                    q: ""
-                }).then(response => {
-                    if (response.features.length > 0) {
-                        let attrs = response.features[0].attributes;
-                        console.debug(attrs);
-                        document.getElementById("selected-location-county").innerHTML = attrs["CountyName"];
-                        document.getElementById("selected-location-state").innerHTML = attrs["STATE_NAME"];
-                        document.getElementById("agrJobs").innerHTML = attrs["CountyLabor"];
-                        document.getElementById("agrTotalSales").innerHTML = attrs["County_Total_Sales"];
-                        document.getElementById("agrCorn").innerHTML = attrs["County_Corn_Value"];
-                        document.getElementById("agrSoy").innerHTML = attrs["County_Soy_Value"];
-                        document.getElementById("agrHay").innerHTML = attrs["County_Hay_Value"];
-                        document.getElementById("agrWheat").innerHTML = attrs["County_WinterWheat_Value"];
-                        document.getElementById("liveStock").innerHTML = attrs["County_Livestock_Value"];
-                    }
-                });
-            });*/
-
-            function getAgriculturalImpact(params) {
-                let queryTask = new QueryTask({
-                    url: params.url
-                });
-                let query = new Query();
-                query.returnGeometry = params.returnGeometry;
-                query.outFields = params.outFields;
-                query.geometry = params.geometry;
-                query.inSR = 102003;
-                query.where = params.q;
-                return queryTask.execute(query);
-            }
 
             (async function() {
                 try {
@@ -378,11 +153,11 @@ window.onSignInHandler = (portal) => {
                     let margin = {
                         top: 5,
                         right: 0,
-                        bottom: 0,
+                        bottom: 10,
                         left: 25
                     };
-                    let width = 800;
-                    let height = 100;
+                    let width = 1064;
+                    let height = 125;
 
                     const chartElement = d3.select("#chart");
                     // create the svg
@@ -474,6 +249,35 @@ window.onSignInHandler = (portal) => {
                     console.log(error);
                 }
             })();
-        });
+
+            /*let prView = new MapView({
+                container: "prView",
+                map: webmap,
+                extent: {
+                    xmin: -7727240.88,
+                    ymin: 1710227.45,
+                    xmax: -6902332.47,
+                    ymax: 2381038.81,
+                    spatialReference: {
+                        wkid: 102045
+                    }
+                },
+                spatialReference: {
+                    // Hawaii_Albers_Equal_Area_Conic
+                    wkid: 102045
+                },
+                ui: {
+                    components: []
+                }
+            });
+            prView.popup = null;*/
+        } else {
+            console.debug("SIGNED IN");
+        }
+    });
+
+    // stops propagation of default behavior when an event fires
+    function stopEvtPropagation(event) {
+        event.stopPropagation();
     }
 }
