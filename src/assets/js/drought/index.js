@@ -36,10 +36,10 @@ window.onSignInHandler = (portal) => {
                  SpatialReference, MapView, WebMap, QueryTask, Query,
                  Point, Polygon, Search, GeographicTransformationStep, GeographicTransformation, watchUtils]) => {
 
-        if (portal === undefined) {
+        //if (portal === undefined) {
             let webmap = new WebMap({
                 portalItem: {
-                    id: "665ae29aea72474591b3f853f5ec3689"// "ab5bf0057f11443ca86d78e7d1998da5"
+                    id: "ab5bf0057f11443ca86d78e7d1998da5"//"665ae29aea72474591b3f853f5ec3689"//
                 }
             });
 
@@ -73,8 +73,8 @@ window.onSignInHandler = (portal) => {
             /*watchUtils.whenTrue(mainView, "navigating", function() {
                 console.debug("NAVIGATING");
                 mainView.navigation.mouseWheelZoomEnabled = true;
-            });
-            watchUtils.whenTrue(mainView, "stationary", function() {
+            });*/
+            /*watchUtils.whenTrue(mainView, "stationary", function() {
                 console.debug("STATIONARY");
                 // Get the new center of the view only when view is stationary.
                 if (mainView.center) {
@@ -110,6 +110,7 @@ window.onSignInHandler = (portal) => {
             });
             akView.popup = null;
 
+
             let hiView = new MapView({
                 container: "hiView",
                 map: webmap,
@@ -132,11 +133,34 @@ window.onSignInHandler = (portal) => {
             });
             hiView.popup = null;
 
+            let prView = new MapView({
+                container: "prView",
+                map: webmap,
+                extent: {
+                    xmin: 2979131.20455834,
+                    ymin: -149630.81150056463,
+                    xmax: 3433834.4375183396,
+                    ymax: 110260.77268655399,
+                    spatialReference: {
+                        wkid: 5070
+                    }
+                },
+                spatialReference: {
+                    // Hawaii_Albers_Equal_Area_Conic
+                    wkid: 5070
+                },
+                ui: {
+                    components: []
+                }
+            });
+            prView.popup = null;
+
             mainView.on("click", function(event) {
                 let mapPoint = event.mapPoint;
                 console.debug(mapPoint);
+
                 queryService({
-                    url: "https://services9.arcgis.com/RHVPKKiFTONKtxq3/ArcGIS/rest/services/US_Drought_Intensity_v1/FeatureServer/1",
+                    url: "https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/USA_PR_Counties_DroughtApp/FeatureServer/0",
                     returnGeometry: false,
                     outFields: ["*"],
                     geometry: event.mapPoint,
@@ -146,6 +170,18 @@ window.onSignInHandler = (portal) => {
                         console.debug(response);
                     }
                 });
+
+                /*queryService({
+                    url: "https://services9.arcgis.com/RHVPKKiFTONKtxq3/ArcGIS/rest/services/US_Drought_Intensity_v1/FeatureServer/1",
+                    returnGeometry: false,
+                    outFields: ["*"],
+                    geometry: event.mapPoint,
+                    q: ""
+                }).then(response => {
+                    if (response.features.length > 0) {
+                        console.debug(response);
+                    }
+                });*/
             });
             (async function() {
                 try {
@@ -264,9 +300,9 @@ window.onSignInHandler = (portal) => {
                     console.log(error);
                 }
             })();
-        } else {
-            console.debug("SIGNED IN");
-        }
+        //} else {
+        //    console.debug("SIGNED IN");
+        //}
 
         // stops propagation of default behavior when an event fires
         function stopEvtPropagation(event) {
