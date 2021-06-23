@@ -48,10 +48,10 @@ window.onSignInHandler = (portal) => {
                 map: webmap,
                 zoom: 2,
                 extent: {
-                    xmin: -3094834,
-                    ymin: -44986,
-                    xmax: 2752687,
-                    ymax: 3271654,
+                    xmax: 2841527.165071185,
+                    xmin: -2991495.024884269,
+                    ymax: 3191062.7476635515,
+                    ymin: 252581.70093458006,
                     spatialReference: {
                         wkid: 5070
                     }
@@ -67,6 +67,7 @@ window.onSignInHandler = (portal) => {
                 }
             });
             mainView.popup = null;
+            mainView.ui.components = [];
             //mainView.on("drag", stopEvtPropagation);
 
             // Watch view's stationary property for becoming true.
@@ -74,7 +75,7 @@ window.onSignInHandler = (portal) => {
                 console.debug("NAVIGATING");
                 mainView.navigation.mouseWheelZoomEnabled = true;
             });*/
-            /*watchUtils.whenTrue(mainView, "stationary", function() {
+            watchUtils.whenTrue(mainView, "stationary", function() {
                 console.debug("STATIONARY");
                 // Get the new center of the view only when view is stationary.
                 if (mainView.center) {
@@ -85,7 +86,7 @@ window.onSignInHandler = (portal) => {
                 if (mainView.extent) {
                     console.debug(mainView.extent);
                 }
-            });*/
+            });
 
             let akView = new MapView({
                 container: "akView",
@@ -168,6 +169,10 @@ window.onSignInHandler = (portal) => {
                 }).then(response => {
                     if (response.features.length > 0) {
                         console.debug(response);
+                        let selectedFeature = response.features[0];
+                        document.getElementsByClassName("selected-location-label")[0].innerHTML = `${selectedFeature.attributes["CountyName"]}, ${selectedFeature.attributes["STATE_NAME"]}`;
+                        document.getElementsByClassName("selected-location-population")[0].innerHTML = `Population: ${selectedFeature.attributes["CountyPop2020"]}`;
+                        //selectedFeature.attributes["STATE_NAME"];
                     }
                 });
 
@@ -207,7 +212,7 @@ window.onSignInHandler = (portal) => {
                         bottom: 10,
                         left: 25
                     };
-                    let width = 1064;
+                    let width = 715;
                     let height = 125;
 
                     const chartElement = d3.select("#chart");

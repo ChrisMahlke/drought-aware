@@ -24,36 +24,8 @@ body {
   }
 }
 
-header {
-  grid-column: span 3;
-  padding: 30px;
-  text-align: center;
-  font-size: 1.4em;
-  background-color: #369;
-  color: white;
-}
-
-main {
-  flex: 1;
-}
-
-nav {
-  background-color: #f90;
-  padding: 20px;
-}
-
-aside {
-  padding: 20px;
-  background-color: #936;
-}
-
-footer {
-  grid-column: span 3;
-  padding: 30px;
-  text-align: center;
-  font-size: 1.4em;
-  background-color: #690;
-  color: white;
+#location-container {
+  background-color: rgba(57,57,57,0.11);
 }
 
 #mainMapContainer {
@@ -61,7 +33,7 @@ footer {
   inset: 0px 0px 0px 500px;
   display: flex;*/
   height: 75vh;
-  border: 1px blue dotted;
+  border: 1px #bab4a5 dotted;
 }
 
 #mainMapView {
@@ -73,9 +45,17 @@ footer {
   height: 25vh;
 }
 
+#data-text-container {
+  background-color: #dddacf;
+}
+
+#data-chart-container {
+  background-color: #dddacf;
+}
+
 #akViewcontainer {
   height: 10em;
-  border: 1px red dotted;
+  border: 1px #bab4a5 dotted;
 }
 
 #akView {
@@ -85,7 +65,7 @@ footer {
 
 #hiViewcontainer {
   height: 6em;
-  border: 1px red dotted;
+  border: 1px #bab4a5 dotted;
 }
 
 #hiView {
@@ -94,8 +74,8 @@ footer {
 }
 
 #prViewcontainer {
-  height: 10em;
-  border: 1px red dotted;
+  height: 6em;
+  border: 1px #bab4a5 dotted;
 }
 
 #prView {
@@ -104,7 +84,7 @@ footer {
 }
 
 #chart {
-  padding-top: 1em;
+
 }
 /*
 @media only screen

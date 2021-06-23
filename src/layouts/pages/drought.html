@@ -3,14 +3,15 @@
 
         <div class="column-24">
             <div class="column-6">
-                <div>
+                <div class="column-6">
                     <div class="font-size-5">Esri Drought Aware</div>
                     <div class="font-size--1">Statistics and impacts of drought in the U.S.A.</div>
                     <div class="font-size--3">Source: NOAA, Census, USDA</div>
                     <div class="btn btn-transparent sign-in-btn hide">Sign In</div>
                     <div class="btn btn-transparent sign-out-btn hide">Sign Out</div>
                 </div>
-                <div>
+
+                <div class="column-6">
                     <div id="akViewcontainer" class="leader-half">
                         <div id="akView"></div>
                     </div>
@@ -30,9 +31,50 @@
             </div>
         </div>
 
+        <div class="column-24">
+            <div id="location-container" class="column-8 post-16">
+                <div class="selected-location-label column-4 font-size-1">Collin County, Texas</div>
+                <div class="selected-location-population column-4 font-size-1">Population: 1,427,003</div>
+            </div>
+        </div>
+
         <div id="data-container" class="column-24">
-            <div class="column-6">TEST</div>
-            <div class="column-18">
+            <div id="data-text-container" class="column-12 font-size--3">
+                <div class="column-4">
+                    <div class="column-4 trailer-half">
+                        <div>Current Drought Status</div>
+                        <div>(xx/xx/xxxx)</div>
+                        <div class=" font-size-1">Moderate Drought</div>
+                    </div>
+                    <div class="column-4">
+                        <div>Monthly Drought Outlook</div>
+                        <div>(xx/xx/xxxx)</div>
+                        <div class=" font-size-1">Drought Intensifies</div>
+                    </div>
+                </div>
+                <div class="column-4">
+                    <div class="column-4 trailer-half">
+                        <div>Consecutive Weeks of Severe Drought</div>
+                        <div class=" font-size-1">12</div>
+                    </div>
+                    <div class="column-4">
+                        <div>Seasonal Drought Outlook</div>
+                        <div>(xx/xx/xxxx)</div>
+                        <div class=" font-size-1">Drought Improves</div>
+                    </div>
+                </div>
+                <div class="column-4">
+                    <div>Agricultural Impact</div>
+                    <div><span>436</span> jobs</div>
+                    <div>Total Sales: <span></span></div>
+                    <div>Corn: <span></span></div>
+                    <div>Soy: <span></span></div>
+                    <div>Hay: <span></span></div>
+                    <div>Winter Wheat: <span></span></div>
+                    <div>Livestock: <span></span></div>
+                </div>
+            </div>
+            <div id="data-chart-container" class="column-12">
                 <div id="chart"></div>
             </div>
         </div>
