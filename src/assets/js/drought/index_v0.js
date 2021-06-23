@@ -199,30 +199,6 @@ window.onSignInHandler = (portal) => {
             });
             hiView.graphics.add(hiViewGraphic);
 
-            /*
-            let prView = new MapView({
-                container: "prView",
-                map: webmap,
-                zoom: 2,
-                extent: {
-                    xmin:-7605722.95,
-                    ymin:1875651.07,
-                    xmax: -7157496.21,
-                    ymax: 2242548.81,
-                    spatialReference: {
-                        wkid: 102007
-                    }
-                },
-                spatialReference: {
-                    wkid: 102007
-                },
-                ui: {
-                    components: []
-                }
-            });
-            prView.popup = null;
-            */
-
             const cs2 = new SpatialReference({
                 wkid: 5070
             });
