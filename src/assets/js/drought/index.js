@@ -31,7 +31,7 @@ window.onSignInHandler = (portal) => {
         "esri/widgets/Search",
         "esri/geometry/support/GeographicTransformationStep",
         "esri/geometry/support/GeographicTransformation",
-        "esri/core/watchUtils"
+        "esri/core/watchUtils",
     ]).then(([webMercatorUtils, GraphicsLayer, Graphic, Extent, geometryEngine, projection,
                  SpatialReference, MapView, WebMap, QueryTask, Query,
                  Point, Polygon, Search, GeographicTransformationStep, GeographicTransformation, watchUtils]) => {
@@ -67,7 +67,7 @@ window.onSignInHandler = (portal) => {
                 }
             });
             mainView.popup = null;
-            mainView.on("drag", stopEvtPropagation);
+            //mainView.on("drag", stopEvtPropagation);
 
             // Watch view's stationary property for becoming true.
             /*watchUtils.whenTrue(mainView, "navigating", function() {
@@ -132,6 +132,21 @@ window.onSignInHandler = (portal) => {
             });
             hiView.popup = null;
 
+            mainView.on("click", function(event) {
+                let mapPoint = event.mapPoint;
+                console.debug(mapPoint);
+                queryService({
+                    url: "https://services9.arcgis.com/RHVPKKiFTONKtxq3/ArcGIS/rest/services/US_Drought_Intensity_v1/FeatureServer/1",
+                    returnGeometry: false,
+                    outFields: ["*"],
+                    geometry: event.mapPoint,
+                    q: ""
+                }).then(response => {
+                    if (response.features.length > 0) {
+                        console.debug(response);
+                    }
+                });
+            });
             (async function() {
                 try {
                     //const jsonResponse = await d3.json("data.json");
@@ -249,35 +264,26 @@ window.onSignInHandler = (portal) => {
                     console.log(error);
                 }
             })();
-
-            /*let prView = new MapView({
-                container: "prView",
-                map: webmap,
-                extent: {
-                    xmin: -7727240.88,
-                    ymin: 1710227.45,
-                    xmax: -6902332.47,
-                    ymax: 2381038.81,
-                    spatialReference: {
-                        wkid: 102045
-                    }
-                },
-                spatialReference: {
-                    // Hawaii_Albers_Equal_Area_Conic
-                    wkid: 102045
-                },
-                ui: {
-                    components: []
-                }
-            });
-            prView.popup = null;*/
         } else {
             console.debug("SIGNED IN");
         }
-    });
 
-    // stops propagation of default behavior when an event fires
-    function stopEvtPropagation(event) {
-        event.stopPropagation();
-    }
+        // stops propagation of default behavior when an event fires
+        function stopEvtPropagation(event) {
+            event.stopPropagation();
+        }
+
+        function queryService(params) {
+            let queryTask = new QueryTask({
+                url: params.url
+            });
+            let query = new Query();
+            query.returnGeometry = params.returnGeometry;
+            query.outFields = params.outFields;
+            query.geometry = params.geometry;
+            query.inSR = 102003;
+            query.where = params.q;
+            return queryTask.execute(query);
+        }
+    });
 }
