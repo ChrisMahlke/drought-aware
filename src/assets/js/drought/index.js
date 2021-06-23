@@ -182,13 +182,11 @@ window.onSignInHandler = (portal) => {
 
             mainView.on("click", function(event) {
                 let centerPt = event.mapPoint;
-
+                console.debug("Main View", centerPt);
                 projection.load().then(function (evt) {
                     const pGeom = projection.project(centerPt, cs2);
                     console.debug("pGeom", pGeom);
                     mainView.graphics.add(new Graphic(pGeom, symbol));
-
-
 
                     console.debug("mainView.graphics.items[0].geometry", mainView.graphics.items[0].geometry)
                     //mainView.graphics.add(new Graphic(centerPt, symbol));
@@ -221,6 +219,27 @@ window.onSignInHandler = (portal) => {
                     //console.debug(pGeom)
                     //let intersects2 = geometryEngine.intersects(pGeom, mainView.graphics.items[0].geometry);
                     //console.debug("intersects2", intersects2);
+                });
+            });
+
+            akView.on("click", function(event) {
+                let centerPt = event.mapPoint;
+                console.debug("Alaska", centerPt);
+                projection.load().then(function (evt) {
+                    //const akViewSR = new SpatialReference({
+                    //    wkid: 5936
+                    //});
+                    //akView.graphics.add(new Graphic(akViewSR, symbol));
+                    //console.debug("akView.graphics.items[0].geometry", akView.graphics.items[0].geometry)
+                    //console.debug("centerPt", centerPt)
+                    akView.goTo({
+                        target: centerPt,
+                        scale: 175000
+                    }).catch(function(error) {
+                        if (error.name !== "AbortError") {
+                            console.error(error);
+                        }
+                    });
                 });
             });
 
@@ -259,7 +278,7 @@ window.onSignInHandler = (portal) => {
                         console.debug(event.results[0].results[0].feature)
                         akView.graphics.add(new Graphic(event.results[0].results[0].extent, symbol));
                         akView.goTo({
-                            target: event.results[0].results[0].feature,
+                            target: event.results[0].results[0].feature.geometry,
                             zoom: 5
                         }).catch(function(error) {
                             if (error.name !== "AbortError") {
