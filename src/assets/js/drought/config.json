@@ -1,3 +1,101 @@
 {
-
+  "webMapId": "d94fc059145b409d86a0d3c9eb75e647",
+  "views": [
+    {
+      "container": "mainMapView",
+      "map": null,
+      "zoom": 2,
+      "extent": {
+        "xmin": -2991495.024884269,
+        "ymin": 252581.70093458006,
+        "xmax": 2841527.165071185,
+        "ymax": 3191062.7476635515,
+        "spatialReference": {
+          "wkid": 5070
+        }
+      },
+      "spatialReference": {
+        "wkid": 5070
+      },
+      "constraints": {
+        "rotationEnabled": false,
+        "minScale": 40000000,
+        "maxScale": 0
+      }
+    },
+    {
+      "container": "akView",
+      "map": null,
+      "zoom": 3,
+      "extent": {
+        "xmin": 396381,
+        "ymin": -2099670,
+        "xmax": 3393803,
+        "ymax": 148395,
+        "spatialReference": {
+          "wkid": 5936
+        }
+      },
+      "spatialReference": {
+        "wkid": 5936
+      },
+      "ui": {
+        "components": []
+      }
+    },
+    {
+      "container": "hiView",
+      "map": null,
+      "zoom": 3,
+      "extent": {
+        "xmin": -342537,
+        "ymin": 655453,
+        "xmax": 231447,
+        "ymax": 1023383,
+        "spatialReference": {
+          "wkid": 102007
+        }
+      },
+      "spatialReference": {
+        "wkid": 102007
+      },
+      "ui": {
+        "components": []
+      }
+    },
+    {
+      "container": "prView",
+      "map": null,
+      "zoom": 3,
+      "extent": {
+        "xmin": 2979131.20455834,
+        "ymin": -149630.81150056463,
+        "xmax": 3433834.4375183396,
+        "ymax": 110260.77268655399,
+        "spatialReference": {
+          "wkid": 5070
+        }
+      },
+      "spatialReference": {
+        "wkid": 5070
+      },
+      "ui": {
+        "components": []
+      }
+    }
+  ],
+  "searchResultSymbol": {
+    "type": "simple-marker",
+    "style": "circle",
+    "color": "blue",
+    "size": "10px",
+    "outline": {
+      "color": [
+        255,
+        255,
+        0
+      ],
+      "width": 1
+    }
+  }
 }
