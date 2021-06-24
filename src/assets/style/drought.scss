@@ -33,7 +33,6 @@ body {
   inset: 0px 0px 0px 500px;
   display: flex;*/
   height: 75vh;
-  border: 1px #bab4a5 dotted;
 }
 
 #mainMapView {
@@ -53,9 +52,18 @@ body {
 
 }
 
+.mini-map-container-icon {
+  position: absolute;
+  margin-left: .5em;
+  opacity: 0.65;
+}
+
+.mini-map-container {
+  border: 1px #d9d9d9 dotted;
+}
+
 #akViewcontainer {
   height: 10em;
-  border: 1px #bab4a5 dotted;
 }
 
 #akView {
@@ -65,7 +73,6 @@ body {
 
 #hiViewcontainer {
   height: 6em;
-  border: 1px #bab4a5 dotted;
 }
 
 #hiView {
@@ -75,7 +82,6 @@ body {
 
 #prViewcontainer {
   height: 6em;
-  border: 1px #bab4a5 dotted;
 }
 
 #prView {
