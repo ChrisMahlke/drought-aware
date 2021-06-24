@@ -55,6 +55,44 @@ window.onSignInHandler = (portal) => {
                 }
             });
             mapView.graphics.add(graphic);
+            mapView.on("click", function(event) {
+                let mapPoint = event.mapPoint;
+                console.debug(mapPoint);
+                let response = fetchData({
+                    url: "https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/USA_PR_Counties_DroughtApp/FeatureServer/0",
+                    returnGeometry: false,
+                    outFields: ["*"],
+                    geometry: event.mapPoint,
+                    q: ""
+                });
+                response.then(response => {
+                    if (response.features.length > 0) {
+                        console.debug("response1", response);
+                        let selectedFeature = response.features[0];
+                        document.getElementsByClassName("selected-location-label")[0].innerHTML = `${selectedFeature.attributes["CountyName"]}, ${selectedFeature.attributes["STATE_NAME"]}`;
+                        document.getElementsByClassName("selected-location-population")[0].innerHTML = `Population: ${selectedFeature.attributes["CountyPop2020"]}`;
+
+                        fetchData({
+                            url: "https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/USA_PR_Counties_DroughtApp/FeatureServer/0",
+                            returnGeometry: false,
+                            outFields: ["*"],
+                            q: `CountyFIPS = '${selectedFeature.attributes["CountyFIPS"]}'`
+                        }).then(response => {
+                            if (response.features.length > 0) {
+                                console.debug("response2", response);
+                                let result = response.features[0];
+                                document.getElementById("jobs").innerHTML = result.attributes["CountyLabor"];
+                                document.getElementById("totalSales").innerHTML = result.attributes["County_Total_Sales"];
+                                document.getElementById("cornSales").innerHTML = result.attributes["County_Corn_Value"];
+                                document.getElementById("soySales").innerHTML = result.attributes["County_Soy_Value"];
+                                document.getElementById("haySales").innerHTML = result.attributes["County_Hay_Value"];
+                                document.getElementById("wheatSales").innerHTML = result.attributes["County_WinterWheat_Value"];
+                                document.getElementById("livestockSales").innerHTML = result.attributes["County_Livestock_Value"];
+                            }
+                        });
+                    }
+                });
+            });
             views.push(mapView);
         });
 
@@ -124,46 +162,14 @@ window.onSignInHandler = (portal) => {
                 if (mainViewGeomEngResult) {
                     // lower 48
                     views[0].graphics.add(new Graphic(resultExtent, config.searchResultSymbol));
-                    views[0].goTo({
-                        target: resultGeometry,
-                        zoom: 3
-                    }).catch(function(error) {
-                        if (error.name !== "AbortError") {
-                            console.error(error);
-                        }
-                    });
                 } else if (akViewGeomEngResult) {
                     views[1].graphics.add(new Graphic(resultExtent, config.searchResultSymbol));
-                    views[1].goTo({
-                        target: event.results[0].results[0].feature.geometry,
-                        zoom: 5
-                    }).catch(function(error) {
-                        if (error.name !== "AbortError") {
-                            console.error(error);
-                        }
-                    });
                 } else if (hiViewGeomEngResult) {
                     views[2].graphics.add(new Graphic(resultExtent, config.searchResultSymbol));
-                    views[2].goTo({
-                        target: event.results[0].results[0].feature.geometry,
-                        zoom: 5
-                    }).catch(function(error) {
-                        if (error.name !== "AbortError") {
-                            console.error(error);
-                        }
-                    });
                 } else if(prViewGeomEngResult) {
                     views[3].graphics.add(new Graphic(resultExtent, config.searchResultSymbol));
-                    views[3].goTo({
-                        target: event.results[0].results[0].feature.geometry,
-                        zoom: 5
-                    }).catch(function(error) {
-                        if (error.name !== "AbortError") {
-                            console.error(error);
-                        }
-                    });
                 } else {
-                    alert("Nothing");
+                    alert("There are no results within the map's extent!");
                 }
 
             });
