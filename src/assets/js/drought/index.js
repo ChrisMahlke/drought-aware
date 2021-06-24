@@ -179,6 +179,21 @@ window.onSignInHandler = (portal) => {
         views[0].ui.add(searchWidget, {
             position: "top-right"
         });
+
+        document.getElementsByClassName("mini-map-container-icon")[0].addEventListener("click", event => {
+            const target = event.target;
+            const targetParent = target.parentElement;
+            if (calcite.hasClass(target, "icon-ui-minimize")) {
+                calcite.removeClass(target, "icon-ui-minimize");
+                calcite.addClass(target, "icon-ui-maximize");
+                targetParent.style.height = "1.5em";
+            } else {
+                calcite.removeClass(target, "icon-ui-maximize");
+                calcite.addClass(target, "icon-ui-minimize");
+                targetParent.style.height = "10em";
+            }
+        });
+
 /*
         views[0].on("click", function(event) {
             let mapPoint = event.mapPoint;
