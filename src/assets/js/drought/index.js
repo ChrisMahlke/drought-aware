@@ -194,7 +194,7 @@ window.onSignInHandler = (portal) => {
             }
         });
 
-/*
+
         views[0].on("click", function(event) {
             let mapPoint = event.mapPoint;
             console.debug(mapPoint);
@@ -230,10 +230,16 @@ window.onSignInHandler = (portal) => {
                             document.getElementById("livestockSales").innerHTML = result.attributes["County_Livestock_Value"];
                         }
                     });
+
+                    fetchData({
+                        url: "https://idpgis.ncep.noaa.gov/arcgis/rest/services/NWS_Climate_Outlooks/cpc_drought_outlk/MapServer/0",
+                        returnGeometry: false,
+                        outFields: ["*"],
+                    });
                 }
             });
         });
-*/
+
         async function fetchData(params) {
             return await queryService(params);
         }
@@ -262,7 +268,7 @@ window.onSignInHandler = (portal) => {
                     bottom: 10,
                     left: 25
                 };
-                let width = 715;
+                let width = 700;
                 let height = 125;
 
                 const chartElement = d3.select("#chart");
