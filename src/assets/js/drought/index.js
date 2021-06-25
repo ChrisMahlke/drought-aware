@@ -15,6 +15,7 @@ window.onSignInHandler = (portal) => {
 
     loadModules([
         "esri/Graphic",
+        "esri/geometry/Extent",
         "esri/geometry/geometryEngine",
         "esri/geometry/projection",
         "esri/geometry/SpatialReference",
@@ -25,7 +26,7 @@ window.onSignInHandler = (portal) => {
         "esri/geometry/Polygon",
         "esri/widgets/Search",
         "esri/core/watchUtils",
-    ]).then(([Graphic, geometryEngine, projection,
+    ]).then(([Graphic, Extent, geometryEngine, projection,
                  SpatialReference, MapView, WebMap, QueryTask, Query,
                  Polygon, Search, watchUtils]) => {
 
@@ -58,16 +59,15 @@ window.onSignInHandler = (portal) => {
             mapView.on("click", function(event) {
                 let mapPoint = event.mapPoint;
                 console.debug(mapPoint);
-                let response = fetchData({
+                fetchData({
                     url: "https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/USA_PR_Counties_DroughtApp/FeatureServer/0",
-                    returnGeometry: false,
+                    returnGeometry: true,
                     outFields: ["*"],
                     geometry: event.mapPoint,
                     q: ""
-                });
-                response.then(response => {
+                }).then(response => {
                     if (response.features.length > 0) {
-                        console.debug("response1", response);
+                        console.debug("response", response);
                         let selectedFeature = response.features[0];
                         document.getElementsByClassName("selected-location-label")[0].innerHTML = `${selectedFeature.attributes["CountyName"]}, ${selectedFeature.attributes["STATE_NAME"]}`;
                         document.getElementsByClassName("selected-location-population")[0].innerHTML = `Population: ${selectedFeature.attributes["CountyPop2020"]}`;
@@ -77,10 +77,10 @@ window.onSignInHandler = (portal) => {
                             returnGeometry: false,
                             outFields: ["*"],
                             q: `CountyFIPS = '${selectedFeature.attributes["CountyFIPS"]}'`
-                        }).then(response => {
-                            if (response.features.length > 0) {
-                                console.debug("response2", response);
-                                let result = response.features[0];
+                        }).then(response2 => {
+                            if (response2.features.length > 0) {
+                                console.debug("response2", response2);
+                                let result = response2.features[0];
                                 document.getElementById("jobs").innerHTML = result.attributes["CountyLabor"];
                                 document.getElementById("totalSales").innerHTML = result.attributes["County_Total_Sales"];
                                 document.getElementById("cornSales").innerHTML = result.attributes["County_Corn_Value"];
@@ -90,10 +90,72 @@ window.onSignInHandler = (portal) => {
                                 document.getElementById("livestockSales").innerHTML = result.attributes["County_Livestock_Value"];
                             }
                         });
+
+                        //https://idpgis.ncep.noaa.gov/arcgis/rest/services/NWS_Climate_Outlooks/cpc_drought_outlk/MapServer/0
+                        fetchData({
+                            url: "https://idpgis.ncep.noaa.gov/arcgis/rest/services/NWS_Climate_Outlooks/cpc_drought_outlk/MapServer/0",
+                            returnGeometry: false,
+                            outFields: ["*"],
+                            spatialRel: "esriSpatialRelIntersects",
+                            orderByFields: "fid_persis desc, fid_improv desc, fid_dev desc, fid_remove desc",
+                            geometryType: "esriGeometryPolygon",
+                            geometry: selectedFeature.geometry,
+                            q: ""
+                        }).then(response3 => {
+                            if (response3.features.length > 0) {
+                                console.debug("response3", response3);
+                                let features = response3.features;
+                                if (features.length > 0) {
+                                    let feature = features[0];
+                                    document.getElementById("monthly-outlook-date").innerHTML = feature.attributes["fcst_date"];
+                                    if (feature.attributes["fid_improv"] === 1) {
+                                        document.getElementById("monthly-outlook-label").innerHTML = "Drought Improves";
+                                    } else if (feature.attributes["fid_persis"] === 1) {
+                                        document.getElementById("monthly-outlook-label").innerHTML = "Drought Persists";
+                                    } else if (feature.attributes["fid_remove"] === 1) {
+                                        document.getElementById("monthly-outlook-label").innerHTML = "Drought Removal Likely";
+                                    } else if (feature.attributes["fid_dev"] === 1) {
+                                        document.getElementById("monthly-outlook-label").innerHTML = "Drought Develops";
+                                    }
+                                }
+                            }
+                        });
+
+                        fetchData({
+                            url: "https://idpgis.ncep.noaa.gov/arcgis/rest/services/NWS_Climate_Outlooks/cpc_drought_outlk/MapServer/1",
+                            returnGeometry: false,
+                            outFields: ["*"],
+                            spatialRel: "esriSpatialRelIntersects",
+                            orderByFields: "fid_persis desc, fid_improv desc, fid_dev desc, fid_remove desc",
+                            geometryType: "esriGeometryPolygon",
+                            geometry: selectedFeature.geometry,
+                            q: ""
+                        }).then(response4 => {
+                            if (response4.features.length > 0) {
+                                console.debug("response4", response4);
+                                let features = response4.features;
+                                if (features.length > 0) {
+                                    let feature = features[0];
+                                    document.getElementById("seasonal-outlook-date").innerHTML = feature.attributes["fcst_date"];
+                                    if (feature.attributes["fid_improv"] === 1) {
+                                        document.getElementById("seasonal-outlook-label").innerHTML = "Drought Improves";
+                                    } else if (feature.attributes["fid_persis"] === 1) {
+                                        document.getElementById("seasonal-outlook-label").innerHTML = "Drought Persists";
+                                    } else if (feature.attributes["fid_remove"] === 1) {
+                                        document.getElementById("seasonal-outlook-label").innerHTML = "Drought Removal Likely";
+                                    } else if (feature.attributes["fid_dev"] === 1) {
+                                        document.getElementById("seasonal-outlook-label").innerHTML = "Drought Develops";
+                                    }
+                                }
+                            }
+                        });
                     }
                 });
             });
-            views.push(mapView);
+            views.push({
+                "id": view.container,
+                "view": mapView
+            });
         });
 
         /*const mainView = new MapView(config.mainView);
@@ -120,18 +182,18 @@ window.onSignInHandler = (portal) => {
             console.debug("NAVIGATING");
             mainView.navigation.mouseWheelZoomEnabled = true;
         });*/
-        /*watchUtils.whenTrue(mainView, "stationary", function() {
+        watchUtils.whenTrue(views[0].view, "stationary", function() {
             console.debug("STATIONARY");
             // Get the new center of the view only when view is stationary.
-            if (mainView.center) {
-                console.debug(mainView.center);
-            }
+            //if (views[1].view.center) {
+            //    console.debug(views[1].view.center);
+           // }
 
             // Get the new extent of the view only when view is stationary.
-            if (mainView.extent) {
-                console.debug(mainView.extent);
+            if (views[0].view.extent) {
+                console.debug(views[0].view.extent);
             }
-        });*/
+        });
 
         let searchWidget = new Search();
         searchWidget.on("search-complete", function(event) {
@@ -142,32 +204,32 @@ window.onSignInHandler = (portal) => {
                 const mainViewProGeom = projection.project(resultGeometry, new SpatialReference({
                     wkid: 5070
                 }));
-                let mainViewGeomEngResult = geometryEngine.intersects(mainViewProGeom, views[0].graphics.items[0].geometry);
+                let mainViewGeomEngResult = geometryEngine.intersects(mainViewProGeom, views[0].view.graphics.items[0].geometry);
 
                 const akViewProGeom = projection.project(resultGeometry, new SpatialReference({
                     wkid: 5936
                 }));
-                let akViewGeomEngResult = geometryEngine.intersects(akViewProGeom, views[1].graphics.items[0].geometry);
+                let akViewGeomEngResult = geometryEngine.intersects(akViewProGeom, views[1].view.graphics.items[0].geometry);
 
                 const hiViewProGeom = projection.project(resultGeometry, new SpatialReference({
                     wkid: 102007
                 }));
-                let hiViewGeomEngResult = geometryEngine.intersects(hiViewProGeom, views[2].graphics.items[0].geometry);
+                let hiViewGeomEngResult = geometryEngine.intersects(hiViewProGeom, views[2].view.graphics.items[0].geometry);
 
                 const prViewProGeom = projection.project(resultGeometry, new SpatialReference({
                     wkid: 5070
                 }));
-                let prViewGeomEngResult = geometryEngine.intersects(prViewProGeom, views[3].graphics.items[0].geometry);
+                let prViewGeomEngResult = geometryEngine.intersects(prViewProGeom, views[3].view.graphics.items[0].geometry);
 
                 if (mainViewGeomEngResult) {
                     // lower 48
-                    views[0].graphics.add(new Graphic(resultExtent, config.searchResultSymbol));
+                    views[0].view.graphics.add(new Graphic(resultExtent, config.searchResultSymbol));
                 } else if (akViewGeomEngResult) {
-                    views[1].graphics.add(new Graphic(resultExtent, config.searchResultSymbol));
+                    views[1].view.graphics.add(new Graphic(resultExtent, config.searchResultSymbol));
                 } else if (hiViewGeomEngResult) {
-                    views[2].graphics.add(new Graphic(resultExtent, config.searchResultSymbol));
+                    views[2].view.graphics.add(new Graphic(resultExtent, config.searchResultSymbol));
                 } else if(prViewGeomEngResult) {
-                    views[3].graphics.add(new Graphic(resultExtent, config.searchResultSymbol));
+                    views[3].view.graphics.add(new Graphic(resultExtent, config.searchResultSymbol));
                 } else {
                     alert("There are no results within the map's extent!");
                 }
@@ -176,69 +238,99 @@ window.onSignInHandler = (portal) => {
         });
 
         // Add the search widget to the top right corner of the view
-        views[0].ui.add(searchWidget, {
+        views[0].view.ui.add(searchWidget, {
             position: "top-right"
         });
 
-        document.getElementsByClassName("mini-map-container-icon")[0].addEventListener("click", event => {
-            const target = event.target;
-            const targetParent = target.parentElement;
-            if (calcite.hasClass(target, "icon-ui-minimize")) {
-                calcite.removeClass(target, "icon-ui-minimize");
-                calcite.addClass(target, "icon-ui-maximize");
-                targetParent.style.height = "1.5em";
-            } else {
-                calcite.removeClass(target, "icon-ui-maximize");
-                calcite.addClass(target, "icon-ui-minimize");
-                targetParent.style.height = "10em";
-            }
-        });
+        document.querySelectorAll(".inset-map-icon").forEach(item => {
+            item.addEventListener("click", event => {
+                console.debug(event);
+                let insetContainerIcon = event.target;
+                let insetContainer = event.target.parentElement;
+                let selectedID = event.target.dataset.id;
 
+                let mainContainerEle = document.getElementById("mainMapContainer");
+                let mainContainerMapId = mainContainerEle.dataset.id;
+                mainContainerEle.append(document.getElementById(selectedID));
+                mainContainerEle.setAttribute("data-id", selectedID);
 
-        views[0].on("click", function(event) {
-            let mapPoint = event.mapPoint;
-            console.debug(mapPoint);
-            let response = fetchData({
-                url: "https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/USA_PR_Counties_DroughtApp/FeatureServer/0",
-                returnGeometry: false,
-                outFields: ["*"],
-                geometry: event.mapPoint,
-                q: ""
-            });
-            response.then(response => {
-                if (response.features.length > 0) {
-                    console.debug("response1", response);
-                    let selectedFeature = response.features[0];
-                    document.getElementsByClassName("selected-location-label")[0].innerHTML = `${selectedFeature.attributes["CountyName"]}, ${selectedFeature.attributes["STATE_NAME"]}`;
-                    document.getElementsByClassName("selected-location-population")[0].innerHTML = `Population: ${selectedFeature.attributes["CountyPop2020"]}`;
+                insetContainer.setAttribute("data-id", mainContainerMapId);
+                insetContainerIcon.setAttribute("data-id", mainContainerMapId);
+                insetContainer.append(document.getElementById(mainContainerMapId));
 
-                    fetchData({
-                        url: "https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/USA_PR_Counties_DroughtApp/FeatureServer/0",
-                        returnGeometry: false,
-                        outFields: ["*"],
-                        q: `CountyFIPS = '${selectedFeature.attributes["CountyFIPS"]}'`
-                    }).then(response => {
-                        if (response.features.length > 0) {
-                            console.debug("response2", response);
-                            let result = response.features[0];
-                            document.getElementById("jobs").innerHTML = result.attributes["CountyLabor"];
-                            document.getElementById("totalSales").innerHTML = result.attributes["County_Total_Sales"];
-                            document.getElementById("cornSales").innerHTML = result.attributes["County_Corn_Value"];
-                            document.getElementById("soySales").innerHTML = result.attributes["County_Soy_Value"];
-                            document.getElementById("haySales").innerHTML = result.attributes["County_Hay_Value"];
-                            document.getElementById("wheatSales").innerHTML = result.attributes["County_WinterWheat_Value"];
-                            document.getElementById("livestockSales").innerHTML = result.attributes["County_Livestock_Value"];
-                        }
-                    });
+                views[0].view.ui.remove(searchWidget);
+                views[1].view.ui.remove(searchWidget);
+                views[2].view.ui.remove(searchWidget);
+                views[3].view.ui.remove(searchWidget);
 
-                    fetchData({
-                        url: "https://idpgis.ncep.noaa.gov/arcgis/rest/services/NWS_Climate_Outlooks/cpc_drought_outlk/MapServer/0",
-                        returnGeometry: false,
-                        outFields: ["*"],
-                    });
+                if (selectedID === "mainMapView") {
+                    setTimeout(function() {
+                        views[0].view.ui.add(searchWidget, {
+                            position: "top-right"
+                        });
+                        let ext = new Extent({
+                            xmin: -2991495.024884269,
+                            ymin: 252581.70093458006,
+                            xmax: 2841527.165071185,
+                            ymax: 3191062.7476635515,
+                            spatialReference: new SpatialReference({wkid:5070})
+                        });
+                        views[0].view.goTo(ext, {
+                            "duration": 500
+                        });
+                    }, 500);
+                } else if (selectedID === "akView") {
+                    setTimeout(function() {
+                        views[1].view.ui.add(searchWidget, {
+                            position: "top-right"
+                        });
+                        let ext = new Extent({
+                            xmax: 3475410.6485892846,
+                            xmin: -131660.68640217,
+                            ymax: 180833.21465040476,
+                            ymin: -2253261.915541197,
+                            spatialReference: new SpatialReference({wkid:5936})
+                        });
+                        views[1].view.goTo(ext, {
+                            "duration": 500
+                        });
+                    }, 500);
+                } else if (selectedID === "hiView") {
+                    setTimeout(function() {
+                        views[2].view.ui.add(searchWidget, {
+                            position: "top-right"
+                        });
+                        let ext = new Extent({
+                            xmax: 438254.12528946745,
+                            xmin: -530539.8459393329,
+                            ymax: 1094985.328358173,
+                            ymin: 608767.3014444704,
+                            spatialReference: new SpatialReference({wkid:102007})
+                        });
+                        views[2].view.goTo(ext, {
+                            "duration": 500
+                        });
+                    }, 500);
+                } else if (selectedID === "prView") {
+                    setTimeout(function() {
+                        views[3].view.ui.add(searchWidget, {
+                            position: "top-right"
+                        });
+                        let ext = new Extent({
+                            xmax: 3401648.6556114405,
+                            xmin: 2993043.359452082,
+                            ymax: 87926.33967047348,
+                            ymin: -117144.36347717477,
+                            spatialReference: new SpatialReference({wkid:5070})
+                        });
+                        views[3].view.goTo(ext, {
+                            "duration": 500
+                        });
+                    }, 500);
                 }
+
             });
-        });
+        })
 
         async function fetchData(params) {
             return await queryService(params);

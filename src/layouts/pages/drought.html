@@ -12,24 +12,24 @@
                 </div>
 
                 <div class="column-6">
-                    <div id="akViewcontainer" class="leader-half trailer-half mini-map-container">
-                        <div class="mini-map-container-icon icon-ui-minimize svg-icon-gray font-size--3">Alaska</div>
+                    <div class="leader-half trailer-half inset-map-container" data-id="akView">
+                        <div class="inset-map-icon icon-ui-minimize svg-icon-gray font-size--3" data-id="akView">Alaska</div>
                         <div id="akView"></div>
                     </div>
 
-                    <div id="hiViewcontainer" class="leader-half trailer-half mini-map-container">
-                        <div class="mini-map-container-icon icon-ui-minimize svg-icon-gray font-size--3">Hawaii</div>
+                    <div class="leader-half trailer-half inset-map-container" data-id="hiView">
+                        <div class="inset-map-icon icon-ui-minimize svg-icon-gray font-size--3" data-id="hiView">Hawaii</div>
                         <div id="hiView"></div>
                     </div>
 
-                    <div id="prViewcontainer" class="leader-half mini-map-container">
-                        <div class="mini-map-container-icon icon-ui-minimize svg-icon-gray font-size--3">Puerto Rico</div>
+                    <div class="leader-half inset-map-container" data-id="prView">
+                        <div class="inset-map-icon icon-ui-minimize svg-icon-gray font-size--3" data-id="prView">Puerto Rico</div>
                         <div id="prView"></div>
                     </div>
                 </div>
             </div>
 
-            <div id="mainMapContainer" class="column-18">
+            <div id="mainMapContainer" class="column-18" data-id="mainMapView">
                 <div id="mainMapView"></div>
             </div>
         </div>
@@ -51,8 +51,8 @@
                     </div>
                     <div class="column-4">
                         <div>Monthly Drought Outlook</div>
-                        <div>(xx/xx/xxxx)</div>
-                        <div class=" font-size-1">Drought Intensifies</div>
+                        <div id="monthly-outlook-date">(xx/xx/xxxx)</div>
+                        <div id="monthly-outlook-label"class=" font-size-1">Drought Intensifies</div>
                     </div>
                 </div>
                 <div class="column-4">
@@ -62,8 +62,8 @@
                     </div>
                     <div class="column-4">
                         <div>Seasonal Drought Outlook</div>
-                        <div>(xx/xx/xxxx)</div>
-                        <div class=" font-size-1">Drought Improves</div>
+                        <div id="seasonal-outlook-date">(xx/xx/xxxx)</div>
+                        <div id="seasonal-outlook-label" class=" font-size-1">Drought Improves</div>
                     </div>
                 </div>
                 <div class="column-4" style="line-height: 1.1;">
