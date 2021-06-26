@@ -34,6 +34,12 @@ body {
 
 }
 
+.selected-location-label {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
 #mainMapContainer {
   /*position: absolute;
   inset: 0px 0px 0px 500px;

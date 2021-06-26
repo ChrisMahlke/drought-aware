@@ -68,9 +68,37 @@ window.onSignInHandler = (portal) => {
                 }).then(response => {
                     if (response.features.length > 0) {
                         console.debug("response", response);
+
+                        if (response.features.length > 0) {
+
+                            for (const graphic of views[0].view.graphics){
+                                if (graphic.attributes === "SELECTED_COUNTY") {
+                                    views[0].view.graphics.remove(graphic);
+                                }
+                            }
+
+                            // Create a simple line symbol for rendering the line in the view
+                            const lineSymbol = {
+                                type: "simple-line",
+                                color: [153, 255, 255],
+                                width: 1
+                            };
+
+                            const polygonGraphic = new Graphic({
+                                geometry: response.features[0].geometry,
+                                symbol: lineSymbol,
+                                attributes: "SELECTED_COUNTY"
+                            });
+
+                            // Add the graphic to the view's default graphics view
+                            // If adding multiple graphics, use addMany and pass in the array of graphics.
+                            views[0].view.graphics.add(polygonGraphic);
+                            console.debug(views[0].view.graphics);
+                        }
+
                         let selectedFeature = response.features[0];
                         document.getElementsByClassName("selected-location-label")[0].innerHTML = `${selectedFeature.attributes["CountyName"]}, ${selectedFeature.attributes["STATE_NAME"]}`;
-                        document.getElementsByClassName("selected-location-population")[0].innerHTML = `Population: ${selectedFeature.attributes["CountyPop2020"]}`;
+                        document.getElementsByClassName("selected-location-population")[0].innerHTML = `Population: ${Number(selectedFeature.attributes["CountyPop2020"]).toLocaleString()}`;
 
                         fetchData({
                             url: "https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/USA_PR_Counties_DroughtApp/FeatureServer/0",
@@ -81,13 +109,13 @@ window.onSignInHandler = (portal) => {
                             if (response2.features.length > 0) {
                                 console.debug("response2", response2);
                                 let result = response2.features[0];
-                                document.getElementById("jobs").innerHTML = result.attributes["CountyLabor"];
-                                document.getElementById("totalSales").innerHTML = result.attributes["County_Total_Sales"];
-                                document.getElementById("cornSales").innerHTML = result.attributes["County_Corn_Value"];
-                                document.getElementById("soySales").innerHTML = result.attributes["County_Soy_Value"];
-                                document.getElementById("haySales").innerHTML = result.attributes["County_Hay_Value"];
-                                document.getElementById("wheatSales").innerHTML = result.attributes["County_WinterWheat_Value"];
-                                document.getElementById("livestockSales").innerHTML = result.attributes["County_Livestock_Value"];
+                                document.getElementById("jobs").innerHTML = Number(result.attributes["CountyLabor"]).toLocaleString();
+                                document.getElementById("totalSales").innerHTML = Number(result.attributes["County_Total_Sales"]).toLocaleString();
+                                document.getElementById("cornSales").innerHTML = Number(result.attributes["County_Corn_Value"]).toLocaleString();
+                                document.getElementById("soySales").innerHTML = Number(result.attributes["County_Soy_Value"]).toLocaleString();
+                                document.getElementById("haySales").innerHTML = Number(result.attributes["County_Hay_Value"]).toLocaleString();
+                                document.getElementById("wheatSales").innerHTML = Number(result.attributes["County_WinterWheat_Value"]).toLocaleString();
+                                document.getElementById("livestockSales").innerHTML = Number(result.attributes["County_Livestock_Value"]).toLocaleString();
                             }
                         });
 
@@ -107,15 +135,19 @@ window.onSignInHandler = (portal) => {
                                 let features = response3.features;
                                 if (features.length > 0) {
                                     let feature = features[0];
-                                    document.getElementById("monthly-outlook-date").innerHTML = feature.attributes["fcst_date"];
+                                    document.getElementById("monthly-outlook-date").innerHTML = feature.attributes["target"];
                                     if (feature.attributes["fid_improv"] === 1) {
                                         document.getElementById("monthly-outlook-label").innerHTML = "Drought Improves";
+                                        document.getElementById("monthly-outlook-label").style.color = "#87b178";
                                     } else if (feature.attributes["fid_persis"] === 1) {
                                         document.getElementById("monthly-outlook-label").innerHTML = "Drought Persists";
+                                        document.getElementById("monthly-outlook-label").style.color = "#6b4628";
                                     } else if (feature.attributes["fid_remove"] === 1) {
                                         document.getElementById("monthly-outlook-label").innerHTML = "Drought Removal Likely";
+                                        document.getElementById("monthly-outlook-label").style.color = "#78a0b1";
                                     } else if (feature.attributes["fid_dev"] === 1) {
                                         document.getElementById("monthly-outlook-label").innerHTML = "Drought Develops";
+                                        document.getElementById("monthly-outlook-label").style.color = "#6b4628";
                                     }
                                 }
                             }
@@ -136,15 +168,19 @@ window.onSignInHandler = (portal) => {
                                 let features = response4.features;
                                 if (features.length > 0) {
                                     let feature = features[0];
-                                    document.getElementById("seasonal-outlook-date").innerHTML = feature.attributes["fcst_date"];
+                                    document.getElementById("seasonal-outlook-date").innerHTML = feature.attributes["target"];
                                     if (feature.attributes["fid_improv"] === 1) {
                                         document.getElementById("seasonal-outlook-label").innerHTML = "Drought Improves";
+                                        document.getElementById("seasonal-outlook-label").style.color = "#87b178";
                                     } else if (feature.attributes["fid_persis"] === 1) {
                                         document.getElementById("seasonal-outlook-label").innerHTML = "Drought Persists";
+                                        document.getElementById("seasonal-outlook-label").style.color = "#6b4628";
                                     } else if (feature.attributes["fid_remove"] === 1) {
                                         document.getElementById("seasonal-outlook-label").innerHTML = "Drought Removal Likely";
+                                        document.getElementById("seasonal-outlook-label").style.color = "#78a0b1";
                                     } else if (feature.attributes["fid_dev"] === 1) {
                                         document.getElementById("seasonal-outlook-label").innerHTML = "Drought Develops";
+                                        document.getElementById("seasonal-outlook-label").style.color = "#6b4628";
                                     }
                                 }
                             }
