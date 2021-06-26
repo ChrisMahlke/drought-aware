@@ -30,7 +30,6 @@ window.onSignInHandler = (portal) => {
                  SpatialReference, MapView, WebMap, QueryTask, Query,
                  Polygon, Search, watchUtils]) => {
 
-        //if (portal === undefined) {
         let webmap = new WebMap({
             portalItem: {
                 id: config.webMapId
@@ -46,189 +45,14 @@ window.onSignInHandler = (portal) => {
             const mainViewGeometry = Polygon.fromExtent(mapView.extent);
             const graphic = new Graphic({
                 geometry: mainViewGeometry,
-                symbol: {
-                    type: "simple-fill",
-                    color: [128, 128, 128, 0.0],
-                    outline: {
-                        color: [128, 128, 128, 0.0],
-                        width: "0px"
-                    }
-                }
+                symbol: config.maskSymbol
             });
             mapView.graphics.add(graphic);
-            mapView.on("click", function(event) {
-                let mapPoint = event.mapPoint;
-                console.debug(mapPoint);
-                fetchData({
-                    url: "https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/USA_PR_Counties_DroughtApp/FeatureServer/0",
-                    returnGeometry: true,
-                    outFields: ["*"],
-                    geometry: event.mapPoint,
-                    q: ""
-                }).then(response => {
-                    if (response.features.length > 0) {
-                        console.debug("response", response);
-
-                        if (response.features.length > 0) {
-
-                            for (const graphic of views[0].view.graphics){
-                                if (graphic.attributes === "SELECTED_COUNTY") {
-                                    views[0].view.graphics.remove(graphic);
-                                }
-                            }
-
-                            // Create a simple line symbol for rendering the line in the view
-                            const lineSymbol = {
-                                type: "simple-line",
-                                color: [153, 255, 255],
-                                width: 1
-                            };
-
-                            const polygonGraphic = new Graphic({
-                                geometry: response.features[0].geometry,
-                                symbol: lineSymbol,
-                                attributes: "SELECTED_COUNTY"
-                            });
-
-                            // Add the graphic to the view's default graphics view
-                            // If adding multiple graphics, use addMany and pass in the array of graphics.
-                            views[0].view.graphics.add(polygonGraphic);
-                            console.debug(views[0].view.graphics);
-                        }
-
-                        let selectedFeature = response.features[0];
-                        document.getElementsByClassName("selected-location-label")[0].innerHTML = `${selectedFeature.attributes["CountyName"]}, ${selectedFeature.attributes["STATE_NAME"]}`;
-                        document.getElementsByClassName("selected-location-population")[0].innerHTML = `Population: ${Number(selectedFeature.attributes["CountyPop2020"]).toLocaleString()}`;
-
-                        fetchData({
-                            url: "https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/USA_PR_Counties_DroughtApp/FeatureServer/0",
-                            returnGeometry: false,
-                            outFields: ["*"],
-                            q: `CountyFIPS = '${selectedFeature.attributes["CountyFIPS"]}'`
-                        }).then(response2 => {
-                            if (response2.features.length > 0) {
-                                console.debug("response2", response2);
-                                let result = response2.features[0];
-                                document.getElementById("jobs").innerHTML = Number(result.attributes["CountyLabor"]).toLocaleString();
-                                document.getElementById("totalSales").innerHTML = Number(result.attributes["County_Total_Sales"]).toLocaleString();
-                                document.getElementById("cornSales").innerHTML = Number(result.attributes["County_Corn_Value"]).toLocaleString();
-                                document.getElementById("soySales").innerHTML = Number(result.attributes["County_Soy_Value"]).toLocaleString();
-                                document.getElementById("haySales").innerHTML = Number(result.attributes["County_Hay_Value"]).toLocaleString();
-                                document.getElementById("wheatSales").innerHTML = Number(result.attributes["County_WinterWheat_Value"]).toLocaleString();
-                                document.getElementById("livestockSales").innerHTML = Number(result.attributes["County_Livestock_Value"]).toLocaleString();
-                            }
-                        });
-
-                        //https://idpgis.ncep.noaa.gov/arcgis/rest/services/NWS_Climate_Outlooks/cpc_drought_outlk/MapServer/0
-                        fetchData({
-                            url: "https://idpgis.ncep.noaa.gov/arcgis/rest/services/NWS_Climate_Outlooks/cpc_drought_outlk/MapServer/0",
-                            returnGeometry: false,
-                            outFields: ["*"],
-                            spatialRel: "esriSpatialRelIntersects",
-                            orderByFields: "fid_persis desc, fid_improv desc, fid_dev desc, fid_remove desc",
-                            geometryType: "esriGeometryPolygon",
-                            geometry: selectedFeature.geometry,
-                            q: ""
-                        }).then(response3 => {
-                            if (response3.features.length > 0) {
-                                console.debug("response3", response3);
-                                let features = response3.features;
-                                if (features.length > 0) {
-                                    let feature = features[0];
-                                    document.getElementById("monthly-outlook-date").innerHTML = feature.attributes["target"];
-                                    if (feature.attributes["fid_improv"] === 1) {
-                                        document.getElementById("monthly-outlook-label").innerHTML = "Drought Improves";
-                                        document.getElementById("monthly-outlook-label").style.color = "#87b178";
-                                    } else if (feature.attributes["fid_persis"] === 1) {
-                                        document.getElementById("monthly-outlook-label").innerHTML = "Drought Persists";
-                                        document.getElementById("monthly-outlook-label").style.color = "#6b4628";
-                                    } else if (feature.attributes["fid_remove"] === 1) {
-                                        document.getElementById("monthly-outlook-label").innerHTML = "Drought Removal Likely";
-                                        document.getElementById("monthly-outlook-label").style.color = "#78a0b1";
-                                    } else if (feature.attributes["fid_dev"] === 1) {
-                                        document.getElementById("monthly-outlook-label").innerHTML = "Drought Develops";
-                                        document.getElementById("monthly-outlook-label").style.color = "#6b4628";
-                                    }
-                                }
-                            }
-                        });
-
-                        fetchData({
-                            url: "https://idpgis.ncep.noaa.gov/arcgis/rest/services/NWS_Climate_Outlooks/cpc_drought_outlk/MapServer/1",
-                            returnGeometry: false,
-                            outFields: ["*"],
-                            spatialRel: "esriSpatialRelIntersects",
-                            orderByFields: "fid_persis desc, fid_improv desc, fid_dev desc, fid_remove desc",
-                            geometryType: "esriGeometryPolygon",
-                            geometry: selectedFeature.geometry,
-                            q: ""
-                        }).then(response4 => {
-                            if (response4.features.length > 0) {
-                                console.debug("response4", response4);
-                                let features = response4.features;
-                                if (features.length > 0) {
-                                    let feature = features[0];
-                                    document.getElementById("seasonal-outlook-date").innerHTML = feature.attributes["target"];
-                                    if (feature.attributes["fid_improv"] === 1) {
-                                        document.getElementById("seasonal-outlook-label").innerHTML = "Drought Improves";
-                                        document.getElementById("seasonal-outlook-label").style.color = "#87b178";
-                                    } else if (feature.attributes["fid_persis"] === 1) {
-                                        document.getElementById("seasonal-outlook-label").innerHTML = "Drought Persists";
-                                        document.getElementById("seasonal-outlook-label").style.color = "#6b4628";
-                                    } else if (feature.attributes["fid_remove"] === 1) {
-                                        document.getElementById("seasonal-outlook-label").innerHTML = "Drought Removal Likely";
-                                        document.getElementById("seasonal-outlook-label").style.color = "#78a0b1";
-                                    } else if (feature.attributes["fid_dev"] === 1) {
-                                        document.getElementById("seasonal-outlook-label").innerHTML = "Drought Develops";
-                                        document.getElementById("seasonal-outlook-label").style.color = "#6b4628";
-                                    }
-                                }
-                            }
-                        });
-                    }
-                });
-            });
+            mapView.on("click", mapClickHandler);
             views.push({
                 "id": view.container,
                 "view": mapView
             });
-        });
-
-        /*const mainView = new MapView(config.mainView);
-        mainView.popup = null;
-        mainView.ui.components = [];
-        const viewMask = {
-            type: "simple-fill",
-            color: [128, 128, 128, 0.0],
-            outline: {
-                color: [128, 128, 128, 0.0],
-                width: "0px"
-            }
-        };
-        const mainViewGeometry = Polygon.fromExtent(mainView.extent);
-        const graphic = new Graphic({
-            geometry: mainViewGeometry,
-            symbol: viewMask
-        });
-        mainView.graphics.add(graphic);
-
-         */
-        // Watch view's stationary property for becoming true.
-        /*watchUtils.whenTrue(mainView, "navigating", function() {
-            console.debug("NAVIGATING");
-            mainView.navigation.mouseWheelZoomEnabled = true;
-        });*/
-        watchUtils.whenTrue(views[0].view, "stationary", function() {
-            console.debug("STATIONARY");
-            // Get the new center of the view only when view is stationary.
-            //if (views[1].view.center) {
-            //    console.debug(views[1].view.center);
-           // }
-
-            // Get the new extent of the view only when view is stationary.
-            if (views[0].view.extent) {
-                console.debug(views[0].view.extent);
-            }
         });
 
         let searchWidget = new Search();
@@ -364,9 +188,170 @@ window.onSignInHandler = (portal) => {
                         });
                     }, 500);
                 }
-
             });
         })
+
+        function mapClickHandler(event) {
+            fetchData({
+                url: config.agricultureImpactURL,
+                returnGeometry: true,
+                outFields: ["*"],
+                geometry: event.mapPoint,
+                q: ""
+            }).then(response => {
+
+                console.debug("response", response);
+
+                agricultureImpactResponseHandler(response).then(response => {
+
+                    updateSelectedLocationComponent(response);
+                    updateSelectedLocationPopulation(response);
+                    updateSelectedLocationAgrImpactComponent(response);
+
+                    let selectedFeature = response.features[0];
+
+                    fetchData({
+                        url: config.droughtURL + "1",
+                        returnGeometry: false,
+                        orderByFields: ["ddate DESC"],
+                        outFields: ["*"],
+                        q: `admin_fips = ${selectedFeature.attributes["CountyFIPS"]}`
+                    }).then(response => {
+                        console.debug("DROUGHT SERVICE", response);
+                    })
+
+                    fetchData({
+                        url: config.droughtOutlookURL + "0",
+                        returnGeometry: false,
+                        outFields: ["*"],
+                        spatialRel: "esriSpatialRelIntersects",
+                        orderByFields: ["fid_persis desc", "fid_improv desc", "fid_dev desc", "fid_remove desc"],
+                        geometryType: "esriGeometryPolygon",
+                        geometry: selectedFeature.geometry,
+                        q: ""
+                    }).then(monthlyDroughtOutlookResponseHandler);
+
+                    fetchData({
+                        url: config.droughtOutlookURL + "1",
+                        returnGeometry: false,
+                        outFields: ["*"],
+                        spatialRel: "esriSpatialRelIntersects",
+                        orderByFields: ["fid_persis desc", "fid_improv desc", "fid_dev desc", "fid_remove desc"],
+                        geometryType: "esriGeometryPolygon",
+                        geometry: selectedFeature.geometry,
+                        q: ""
+                    }).then(seasonalDroughtOutlookResponseHandler);
+                });
+            });
+        }
+
+        async function agricultureImpactResponseHandler(response) {
+            if (response.features.length > 0) {
+                for (const graphic of views[0].view.graphics){
+                    if (graphic.attributes === "SELECTED_COUNTY") {
+                        views[0].view.graphics.remove(graphic);
+                    }
+                }
+
+                const polygonGraphic = new Graphic({
+                    geometry: response.features[0].geometry,
+                    symbol: config.selectedGeographicSymbology,
+                    attributes: "SELECTED_COUNTY"
+                });
+
+                views[0].view.graphics.add(polygonGraphic);
+            } else {
+                // no features
+            }
+            return await response;
+        }
+
+        function monthlyDroughtOutlookResponseHandler(response) {
+            if (response.features.length > 0) {
+                const features = response.features;
+                if (features.length > 0) {
+                    let feature = features[0];
+                    document.getElementById("monthly-outlook-date").innerHTML = feature.attributes["target"];
+                    if (feature.attributes["fid_improv"] === 1) {
+                        document.getElementById("monthly-outlook-label").innerHTML = "Drought Improves";
+                        document.getElementById("monthly-outlook-label").style.color = "#87b178";
+                    } else if (feature.attributes["fid_persis"] === 1) {
+                        document.getElementById("monthly-outlook-label").innerHTML = "Drought Persists";
+                        document.getElementById("monthly-outlook-label").style.color = "#6b4628";
+                    } else if (feature.attributes["fid_remove"] === 1) {
+                        document.getElementById("monthly-outlook-label").innerHTML = "Drought Removal Likely";
+                        document.getElementById("monthly-outlook-label").style.color = "#78a0b1";
+                    } else if (feature.attributes["fid_dev"] === 1) {
+                        document.getElementById("monthly-outlook-label").innerHTML = "Drought Develops";
+                        document.getElementById("monthly-outlook-label").style.color = "#6b4628";
+                    }
+                }
+            } else {
+
+            }
+        }
+
+        function seasonalDroughtOutlookResponseHandler(response) {
+            if (response.features.length > 0) {
+                let features = response.features;
+                if (features.length > 0) {
+                    let feature = features[0];
+                    document.getElementById("seasonal-outlook-date").innerHTML = feature.attributes["target"];
+                    if (feature.attributes["fid_improv"] === 1) {
+                        document.getElementById("seasonal-outlook-label").innerHTML = "Drought Improves";
+                        document.getElementById("seasonal-outlook-label").style.color = "#87b178";
+                    } else if (feature.attributes["fid_persis"] === 1) {
+                        document.getElementById("seasonal-outlook-label").innerHTML = "Drought Persists";
+                        document.getElementById("seasonal-outlook-label").style.color = "#6b4628";
+                    } else if (feature.attributes["fid_remove"] === 1) {
+                        document.getElementById("seasonal-outlook-label").innerHTML = "Drought Removal Likely";
+                        document.getElementById("seasonal-outlook-label").style.color = "#78a0b1";
+                    } else if (feature.attributes["fid_dev"] === 1) {
+                        document.getElementById("seasonal-outlook-label").innerHTML = "Drought Develops";
+                        document.getElementById("seasonal-outlook-label").style.color = "#6b4628";
+                    }
+                }
+            } else {
+
+            }
+        }
+
+
+
+        function updateSelectedLocationComponent(response) {
+            if (response.features.length > 0) {
+                const selectedFeature = response.features[0];
+                document.getElementsByClassName("selected-location-label")[0].innerHTML = `${selectedFeature.attributes["CountyName"]}, ${selectedFeature.attributes["STATE_NAME"]}`;
+            } else {
+
+            }
+        }
+
+        function updateSelectedLocationPopulation(response) {
+            if (response.features.length > 0) {
+                const selectedFeature = response.features[0];
+                document.getElementsByClassName("selected-location-population")[0].innerHTML = `Population: ${Number(selectedFeature.attributes["CountyPop2020"]).toLocaleString()}`;
+            } else {
+
+            }
+        }
+
+        function updateSelectedLocationAgrImpactComponent(response) {
+            if (response.features.length > 0) {
+                const selectedFeature = response.features[0];
+                document.getElementById("jobs").innerHTML = Number(selectedFeature.attributes["CountyLabor"]).toLocaleString();
+                document.getElementById("totalSales").innerHTML = Number(selectedFeature.attributes["County_Total_Sales"]).toLocaleString();
+                document.getElementById("cornSales").innerHTML = Number(selectedFeature.attributes["County_Corn_Value"]).toLocaleString();
+                document.getElementById("soySales").innerHTML = Number(selectedFeature.attributes["County_Soy_Value"]).toLocaleString();
+                document.getElementById("haySales").innerHTML = Number(selectedFeature.attributes["County_Hay_Value"]).toLocaleString();
+                document.getElementById("wheatSales").innerHTML = Number(selectedFeature.attributes["County_WinterWheat_Value"]).toLocaleString();
+                document.getElementById("livestockSales").innerHTML = Number(selectedFeature.attributes["County_Livestock_Value"]).toLocaleString();
+            } else {
+
+            }
+        }
+
+
 
         async function fetchData(params) {
             return await queryService(params);
@@ -489,11 +474,7 @@ window.onSignInHandler = (portal) => {
                 console.log(error);
             }
         })();
-        //} else {
-        //    console.debug("SIGNED IN");
-        //}
 
-        // stops propagation of default behavior when an event fires
         function stopEvtPropagation(event) {
             event.stopPropagation();
         }
@@ -505,10 +486,43 @@ window.onSignInHandler = (portal) => {
             let query = new Query();
             query.returnGeometry = params.returnGeometry;
             query.outFields = params.outFields;
+            query.orderByFields = params.orderByFields;
             query.geometry = params.geometry;
             query.inSR = 102003;
             query.where = params.q;
             return queryTask.execute(query);
         }
+
+        /*const mainView = new MapView(config.mainView);
+        mainView.popup = null;
+        mainView.ui.components = [];
+        const viewMask = {
+            type: "simple-fill",
+            color: [128, 128, 128, 0.0],
+            outline: {
+                color: [128, 128, 128, 0.0],
+                width: "0px"
+            }
+        };
+        const mainViewGeometry = Polygon.fromExtent(mainView.extent);
+        const graphic = new Graphic({
+            geometry: mainViewGeometry,
+            symbol: viewMask
+        });
+        mainView.graphics.add(graphic);
+
+         */
+        // Watch view's stationary property for becoming true.
+        /*watchUtils.whenTrue(mainView, "navigating", function() {
+            console.debug("NAVIGATING");
+            mainView.navigation.mouseWheelZoomEnabled = true;
+        });*/
+        /*watchUtils.whenTrue(views[0].view, "stationary", function() {
+            console.debug("STATIONARY");
+            // Get the new extent of the view only when view is stationary.
+            if (views[0].view.extent) {
+                console.debug(views[0].view.extent);
+            }
+        });*/
     });
 }

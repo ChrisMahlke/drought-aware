@@ -1,5 +1,8 @@
 {
   "webMapId": "d94fc059145b409d86a0d3c9eb75e647",
+  "agricultureImpactURL": "https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/USA_PR_Counties_DroughtApp/FeatureServer/0",
+  "droughtOutlookURL": "https://idpgis.ncep.noaa.gov/arcgis/rest/services/NWS_Climate_Outlooks/cpc_drought_outlk/MapServer/",
+  "droughtURL": "https://services9.arcgis.com/RHVPKKiFTONKtxq3/ArcGIS/rest/services/US_Drought_Intensity_v1/FeatureServer/",
   "views": [
     {
       "container": "mainMapView",
@@ -84,6 +87,14 @@
       }
     }
   ],
+  "maskSymbol": {
+    "type": "simple-fill",
+    "color": [128, 128, 128, 0.0],
+    "outline": {
+      "color": [128, 128, 128, 0.0],
+      "width": "0px"
+    }
+  },
   "searchResultSymbol": {
     "type": "simple-marker",
     "style": "circle",
@@ -97,5 +108,10 @@
       ],
       "width": 1
     }
+  },
+  "selectedGeographicSymbology": {
+    "type": "simple-line",
+    "color": [153, 255, 255],
+    "width": 1
   }
 }
