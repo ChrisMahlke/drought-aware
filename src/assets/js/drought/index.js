@@ -6,6 +6,7 @@ import { loadCss, loadModules } from 'esri-loader';
 
 import * as calcite from "calcite-web";
 import * as d3 from "d3";
+import { format } from 'date-fns'
 
 window.onSignInHandler = (portal) => {
     // initialize calcite
@@ -36,8 +37,7 @@ window.onSignInHandler = (portal) => {
             }
         });
 
-        let views = [];
-        config.views.forEach(view => {
+        let views = config.views.map(view => {
             view.map = webmap;
             const mapView = new MapView(view);
             mapView.popup = null;
@@ -49,10 +49,10 @@ window.onSignInHandler = (portal) => {
             });
             mapView.graphics.add(graphic);
             mapView.on("click", mapClickHandler);
-            views.push({
+            return {
                 "id": view.container,
                 "view": mapView
-            });
+            };
         });
 
         let searchWidget = new Search();
@@ -204,7 +204,6 @@ window.onSignInHandler = (portal) => {
 
                 agricultureImpactResponseHandler(response).then(response => {
 
-                    updateSelectedLocationComponent(response);
                     updateSelectedLocationPopulation(response);
                     updateSelectedLocationAgrImpactComponent(response);
 
@@ -218,6 +217,31 @@ window.onSignInHandler = (portal) => {
                         q: `admin_fips = ${selectedFeature.attributes["CountyFIPS"]}`
                     }).then(response => {
                         console.debug("DROUGHT SERVICE", response);
+                        if (response.features.length > 0) {
+                            let mostRecentFeature = response.features[0].attributes;
+                            /*
+                            D0_D4: 100
+                            D1_D4: 100
+                            D2_D4: 69.68
+                            D3_D4: 29.16
+                            OBJECTID: 3604574
+                            admin_fips: "48043"
+                            d0: 0
+                            d1: 30.32
+                            d2: 40.52
+                            d3: 29.16
+                            d4: 0
+                            ddate: 1624320000000
+                            name: "Brewster County"
+                            nothing: 0
+                            period: "20210622"
+                            state_abbr: "TX"
+                             */
+                            updateSelectedLocationComponent(response);
+                            document.getElementById("current-drought-status-date").innerHTML = format(new Date(mostRecentFeature["ddate"]), "PPP");
+                        } else {
+
+                        }
                     })
 
                     fetchData({
@@ -321,7 +345,7 @@ window.onSignInHandler = (portal) => {
         function updateSelectedLocationComponent(response) {
             if (response.features.length > 0) {
                 const selectedFeature = response.features[0];
-                document.getElementsByClassName("selected-location-label")[0].innerHTML = `${selectedFeature.attributes["CountyName"]}, ${selectedFeature.attributes["STATE_NAME"]}`;
+                document.getElementsByClassName("selected-location-label")[0].innerHTML = `${selectedFeature.attributes["name"]}, ${selectedFeature.attributes["state_abbr"]}`;
             } else {
 
             }

@@ -42,7 +42,7 @@
   "dependencies": {
     "calcite-web": "github:Esri/calcite-web#v1.2.5",
     "d3": "^6.6.2",
-    "date-fns": "^2.19.0",
+    "date-fns": "^2.22.1",
     "es6-promise": "^4.2.8",
     "esri-loader": "^3.0.0"
   }
