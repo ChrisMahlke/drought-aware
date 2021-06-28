@@ -513,7 +513,7 @@ window.onSignInHandler = (portal) => {
 
                 g.append("g")
                     .attr("class", "y-axis")
-                    .call(d3.axisLeft(y).ticks(null, "s"))
+                    .call(d3.axisLeft(y).ticks(5))
                     .append("text")
                     .attr("x", 2)
                     .attr("y", y(y.ticks().pop()) + 0.5)
