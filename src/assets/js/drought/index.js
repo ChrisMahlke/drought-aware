@@ -55,6 +55,8 @@ window.onSignInHandler = (portal) => {
             };
         });
 
+        let selectedView = views[0];
+
         let searchWidget = new Search();
         searchWidget.on("search-complete", function(event) {
             projection.load().then(function (evt) {
@@ -84,12 +86,16 @@ window.onSignInHandler = (portal) => {
                 if (mainViewGeomEngResult) {
                     // lower 48
                     views[0].view.graphics.add(new Graphic(resultExtent, config.searchResultSymbol));
+                    document.getElementsByClassName("inset-map-icon")[3].click();
                 } else if (akViewGeomEngResult) {
                     views[1].view.graphics.add(new Graphic(resultExtent, config.searchResultSymbol));
+                    document.getElementsByClassName("inset-map-icon")[0].click();
                 } else if (hiViewGeomEngResult) {
                     views[2].view.graphics.add(new Graphic(resultExtent, config.searchResultSymbol));
+                    document.getElementsByClassName("inset-map-icon")[1].click();
                 } else if(prViewGeomEngResult) {
                     views[3].view.graphics.add(new Graphic(resultExtent, config.searchResultSymbol));
+                    document.getElementsByClassName("inset-map-icon")[2].click();
                 } else {
                     alert("There are no results within the map's extent!");
                 }
@@ -124,8 +130,9 @@ window.onSignInHandler = (portal) => {
                 views[3].view.ui.remove(searchWidget);
 
                 if (selectedID === "mainMapView") {
+                    selectedView = views[0];
                     setTimeout(function() {
-                        views[0].view.ui.add(searchWidget, {
+                        selectedView.view.ui.add(searchWidget, {
                             position: "top-right"
                         });
                         let ext = new Extent({
@@ -135,13 +142,14 @@ window.onSignInHandler = (portal) => {
                             ymax: 3191062.7476635515,
                             spatialReference: new SpatialReference({wkid:5070})
                         });
-                        views[0].view.goTo(ext, {
+                        selectedView.view.goTo(ext, {
                             "duration": 500
                         });
                     }, 500);
                 } else if (selectedID === "akView") {
+                    selectedView = views[1];
                     setTimeout(function() {
-                        views[1].view.ui.add(searchWidget, {
+                        selectedView.view.ui.add(searchWidget, {
                             position: "top-right"
                         });
                         let ext = new Extent({
@@ -151,13 +159,14 @@ window.onSignInHandler = (portal) => {
                             ymin: -2253261.915541197,
                             spatialReference: new SpatialReference({wkid:5936})
                         });
-                        views[1].view.goTo(ext, {
+                        selectedView.view.goTo(ext, {
                             "duration": 500
                         });
                     }, 500);
                 } else if (selectedID === "hiView") {
+                    selectedView = views[2];
                     setTimeout(function() {
-                        views[2].view.ui.add(searchWidget, {
+                        selectedView.view.ui.add(searchWidget, {
                             position: "top-right"
                         });
                         let ext = new Extent({
@@ -167,13 +176,14 @@ window.onSignInHandler = (portal) => {
                             ymin: 608767.3014444704,
                             spatialReference: new SpatialReference({wkid:102007})
                         });
-                        views[2].view.goTo(ext, {
+                        selectedView.view.goTo(ext, {
                             "duration": 500
                         });
                     }, 500);
                 } else if (selectedID === "prView") {
+                    selectedView = views[3];
                     setTimeout(function() {
-                        views[3].view.ui.add(searchWidget, {
+                        selectedView.view.ui.add(searchWidget, {
                             position: "top-right"
                         });
                         let ext = new Extent({
@@ -183,7 +193,7 @@ window.onSignInHandler = (portal) => {
                             ymin: -117144.36347717477,
                             spatialReference: new SpatialReference({wkid:5070})
                         });
-                        views[3].view.goTo(ext, {
+                        selectedView.view.goTo(ext, {
                             "duration": 500
                         });
                     }, 500);
@@ -202,7 +212,7 @@ window.onSignInHandler = (portal) => {
         let height = 80;
         let keys = ["d0", "d1", "d2", "d3", "d4", "nothing"];
         // create the svg
-        let svg = d3.select("#chart").append("svg").attr("width", width).attr("height", height + 25);
+        let svg = d3.select("#chart").append("svg").attr("width", width + 25).attr("height", height + 25);
         let g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
         // set x scale
         let x = d3.scaleBand().range([0, width]);
@@ -369,9 +379,9 @@ window.onSignInHandler = (portal) => {
 
         async function agricultureImpactResponseHandler(response) {
             if (response.features.length > 0) {
-                for (const graphic of views[0].view.graphics){
+                for (const graphic of selectedView.view.graphics){
                     if (graphic.attributes === "SELECTED_COUNTY") {
-                        views[0].view.graphics.remove(graphic);
+                        selectedView.view.graphics.remove(graphic);
                     }
                 }
 
@@ -381,7 +391,7 @@ window.onSignInHandler = (portal) => {
                     attributes: "SELECTED_COUNTY"
                 });
 
-                views[0].view.graphics.add(polygonGraphic);
+                selectedView.view.graphics.add(polygonGraphic);
             } else {
                 // no features
             }
