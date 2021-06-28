@@ -191,6 +191,26 @@ window.onSignInHandler = (portal) => {
             });
         })
 
+
+        let margin = {
+            top: 5,
+            right: 0,
+            bottom: 10,
+            left: 25
+        };
+        let width = 700;
+        let height = 125;
+        let keys = ["d0", "d1", "d2", "d3", "d4", "nothing"];
+        // create the svg
+        let svg = d3.select("#chart").append("svg").attr("width", width).attr("height", height + 25);
+        let g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        // set x scale
+        let x = d3.scaleBand().range([0, width]);
+        // set y scale
+        let y = d3.scaleLinear().range([height, 0]);
+        // set the colors
+        let z = d3.scaleOrdinal().range(["#b2a077", "#ccaa5b", "#e4985a", "#e28060", "#b24543", "rgba(57,57,57,0.11)"]);
+
         function mapClickHandler(event) {
             fetchData({
                 url: config.agricultureImpactURL,
@@ -212,31 +232,81 @@ window.onSignInHandler = (portal) => {
                     fetchData({
                         url: config.droughtURL + "1",
                         returnGeometry: false,
-                        orderByFields: ["ddate DESC"],
+                        orderByFields: ["ddate ASC"],
                         outFields: ["*"],
                         q: `admin_fips = ${selectedFeature.attributes["CountyFIPS"]}`
                     }).then(response => {
                         console.debug("DROUGHT SERVICE", response);
                         if (response.features.length > 0) {
-                            let mostRecentFeature = response.features[0].attributes;
-                            /*
-                            D0_D4: 100
-                            D1_D4: 100
-                            D2_D4: 69.68
-                            D3_D4: 29.16
-                            OBJECTID: 3604574
-                            admin_fips: "48043"
-                            d0: 0
-                            d1: 30.32
-                            d2: 40.52
-                            d3: 29.16
-                            d4: 0
-                            ddate: 1624320000000
-                            name: "Brewster County"
-                            nothing: 0
-                            period: "20210622"
-                            state_abbr: "TX"
-                             */
+
+                            const features = response.features;
+                            const inputDataset = features.map(feature => {
+                                return {
+                                    date: new Date(feature.attributes.ddate),
+                                    d0: feature.attributes.d0,
+                                    d1: feature.attributes.d1,
+                                    d2: feature.attributes.d2,
+                                    d3: feature.attributes.d3,
+                                    d4: feature.attributes.d4,
+                                    nothing: feature.attributes.nothing,
+                                    total: 100
+                                };
+                            });
+
+                            x.domain(inputDataset.map(d => {
+                                return d.date;
+                            }));
+                            y.domain([0, d3.max(inputDataset, d => {
+                                return d.total;
+                            })]);
+                            z.domain(keys);
+
+                            // update the bars
+                            let bars = d3.selectAll(".bars");
+                            bars.selectAll("g")
+                                .data(d3.stack().keys(keys)(inputDataset))
+                                .attr("fill", d => {
+                                    return z(d.key);
+                                })
+                                .selectAll("rect")
+                                .data(d => {
+                                    return d;
+                                })
+                                .attr("x", function(d) {
+                                    return x(d.data.date);
+                                })
+                                .attr("y", function(d) {
+                                    return y(d[1]);
+                                })
+                                .attr("height", function(d) {
+                                    return y(d[0]) - y(d[1]);
+                                })
+                                .attr("width", x.bandwidth());
+
+                            let mostRecentFeature = response.features[response.features.length - 1].attributes;
+                            let drought = {
+                                nothing : mostRecentFeature["nothing"],
+                                d0 : mostRecentFeature["d0"],
+                                d1 : mostRecentFeature["d1"],
+                                d2 : mostRecentFeature["d2"],
+                                d3 : mostRecentFeature["d3"],
+                                d4 : mostRecentFeature["d4"]
+                            };
+                            let condition = highestValueAndKey(drought);
+                            let key = condition["key"];
+                            if (key === "nothing") {
+                                document.getElementById("current-drought-status-value").innerHTML = "No Drought";
+                            } else if (key === "d0") {
+                                document.getElementById("current-drought-status-value").innerHTML = "Abnormally Dry";
+                            } else if (key === "d1") {
+                                document.getElementById("current-drought-status-value").innerHTML = "Moderate Drought";
+                            } else if (key === "d2") {
+                                document.getElementById("current-drought-status-value").innerHTML = "Severe Drought";
+                            } else if (key === "d3") {
+                                document.getElementById("current-drought-status-value").innerHTML = "Extreme Drought";
+                            } else if (key === "d4") {
+                                document.getElementById("current-drought-status-value").innerHTML = "Exceptional Drought";
+                            }
                             updateSelectedLocationComponent(response);
                             document.getElementById("current-drought-status-date").innerHTML = format(new Date(mostRecentFeature["ddate"]), "PPP");
                         } else {
@@ -267,6 +337,15 @@ window.onSignInHandler = (portal) => {
                     }).then(seasonalDroughtOutlookResponseHandler);
                 });
             });
+        }
+
+        function highestValueAndKey(obj) {
+            let [highestItems] = Object.entries(obj).sort(([ ,v1], [ ,v2]) => v2 - v1);
+            console.debug(`key: ${highestItems[0]}\tvalue: ${highestItems[1]}`);
+            return {
+                "key": highestItems[0],
+                "value": highestItems[1]
+            }
         }
 
         async function agricultureImpactResponseHandler(response) {
@@ -340,8 +419,6 @@ window.onSignInHandler = (portal) => {
             }
         }
 
-
-
         function updateSelectedLocationComponent(response) {
             if (response.features.length > 0) {
                 const selectedFeature = response.features[0];
@@ -375,18 +452,16 @@ window.onSignInHandler = (portal) => {
             }
         }
 
-
-
         async function fetchData(params) {
             return await queryService(params);
         }
+
 
         (async function() {
             try {
                 //const jsonResponse = await d3.json("data.json");
                 let features = jsonResponse.features;
-                let inputDataset = [];
-                inputDataset = features.map(feature => {
+                let inputDataset = features.map(feature => {
                     return {
                         date: new Date(feature.attributes.ddate),
                         d0: feature.attributes.d0,
@@ -398,29 +473,14 @@ window.onSignInHandler = (portal) => {
                         total: 100
                     };
                 });
-                //console.debug(inputDataset)
-                let margin = {
-                    top: 5,
-                    right: 0,
-                    bottom: 10,
-                    left: 25
-                };
-                let width = 700;
-                let height = 125;
-
-                const chartElement = d3.select("#chart");
-                // create the svg
-                let svg = chartElement.append("svg").attr("width", width).attr("height", height + 25);
-                let g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
                 // set x scale
-                let x = d3.scaleBand().range([0, width]);
+                //let x = d3.scaleBand().range([0, width]);
                 // set y scale
-                let y = d3.scaleLinear().range([height, 0]);
+                //let y = d3.scaleLinear().range([height, 0]);
                 // set the colors
-                let z = d3.scaleOrdinal().range(["#b2a077", "#ccaa5b", "#e4985a", "#e28060", "#b24543", "rgba(57,57,57,0.11)"]);
+                //let z = d3.scaleOrdinal().range(["#b2a077", "#ccaa5b", "#e4985a", "#e28060", "#b24543", "rgba(57,57,57,0.11)"]);
 
-                let keys = ["d0", "d1", "d2", "d3", "d4", "nothing"];
                 x.domain(inputDataset.map(d => {
                     return d.date;
                 }));
@@ -454,7 +514,6 @@ window.onSignInHandler = (portal) => {
                     .attr("width", x.bandwidth());
 
                 let xScale = d3.scaleTime().domain([new Date(inputDataset[0].date), new Date(inputDataset[inputDataset.length - 1].date)]).range([0, width]);
-
                 g.append("g")
                     .attr("class", "x-axis")
                     .attr("transform", "translate(0," + height + ")")
@@ -493,7 +552,7 @@ window.onSignInHandler = (portal) => {
                     }
                 }
 
-                svg.call(zoom)
+                svg.call(zoom);
             } catch(error) {
                 console.log(error);
             }
@@ -516,37 +575,5 @@ window.onSignInHandler = (portal) => {
             query.where = params.q;
             return queryTask.execute(query);
         }
-
-        /*const mainView = new MapView(config.mainView);
-        mainView.popup = null;
-        mainView.ui.components = [];
-        const viewMask = {
-            type: "simple-fill",
-            color: [128, 128, 128, 0.0],
-            outline: {
-                color: [128, 128, 128, 0.0],
-                width: "0px"
-            }
-        };
-        const mainViewGeometry = Polygon.fromExtent(mainView.extent);
-        const graphic = new Graphic({
-            geometry: mainViewGeometry,
-            symbol: viewMask
-        });
-        mainView.graphics.add(graphic);
-
-         */
-        // Watch view's stationary property for becoming true.
-        /*watchUtils.whenTrue(mainView, "navigating", function() {
-            console.debug("NAVIGATING");
-            mainView.navigation.mouseWheelZoomEnabled = true;
-        });*/
-        /*watchUtils.whenTrue(views[0].view, "stationary", function() {
-            console.debug("STATIONARY");
-            // Get the new extent of the view only when view is stationary.
-            if (views[0].view.extent) {
-                console.debug(views[0].view.extent);
-            }
-        });*/
     });
 }
