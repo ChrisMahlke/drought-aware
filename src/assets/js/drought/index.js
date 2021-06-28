@@ -266,7 +266,7 @@ window.onSignInHandler = (portal) => {
                             }).then(response => {
                                 console.debug("RESPONSE", response);
                                 let responseDate = response.features[0].attributes.ddate;
-                                const consecutiveWeeks = differenceInWeeks(new Date(selectedDate), new Date(responseDate));
+                                const consecutiveWeeks = differenceInWeeks(new Date(selectedDate), new Date(responseDate)) - 1;
                                 console.debug(consecutiveWeeks)
                                 document.getElementById("consecutive-weeks").innerHTML = consecutiveWeeks.toString();
                             });
