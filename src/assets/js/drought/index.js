@@ -199,7 +199,7 @@ window.onSignInHandler = (portal) => {
             left: 25
         };
         let width = 700;
-        let height = 125;
+        let height = 80;
         let keys = ["d0", "d1", "d2", "d3", "d4", "nothing"];
         // create the svg
         let svg = d3.select("#chart").append("svg").attr("width", width).attr("height", height + 25);
@@ -456,7 +456,6 @@ window.onSignInHandler = (portal) => {
             return await queryService(params);
         }
 
-
         (async function() {
             try {
                 //const jsonResponse = await d3.json("data.json");
@@ -473,13 +472,6 @@ window.onSignInHandler = (portal) => {
                         total: 100
                     };
                 });
-
-                // set x scale
-                //let x = d3.scaleBand().range([0, width]);
-                // set y scale
-                //let y = d3.scaleLinear().range([height, 0]);
-                // set the colors
-                //let z = d3.scaleOrdinal().range(["#b2a077", "#ccaa5b", "#e4985a", "#e28060", "#b24543", "rgba(57,57,57,0.11)"]);
 
                 x.domain(inputDataset.map(d => {
                     return d.date;
