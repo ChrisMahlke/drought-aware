@@ -6,7 +6,7 @@ import { loadCss, loadModules } from 'esri-loader';
 
 import * as calcite from "calcite-web";
 import * as d3 from "d3";
-import { format } from 'date-fns'
+import { differenceInWeeks, format } from 'date-fns'
 
 window.onSignInHandler = (portal) => {
     // initialize calcite
@@ -238,7 +238,6 @@ window.onSignInHandler = (portal) => {
                     }).then(response => {
                         console.debug("DROUGHT SERVICE", response);
                         if (response.features.length > 0) {
-
                             const features = response.features;
                             const inputDataset = features.map(feature => {
                                 return {
@@ -252,6 +251,26 @@ window.onSignInHandler = (portal) => {
                                     total: 100
                                 };
                             });
+
+                            const selectedDate = response.features[response.features.length - 1].attributes.ddate;
+                            console.debug("selectedDate", selectedDate);
+                            let formattedSelectedDate = format(selectedDate, "P");
+                            console.debug("formattedSelectedDate", formattedSelectedDate);
+
+                            fetchData({
+                                url: "https://services9.arcgis.com/RHVPKKiFTONKtxq3/ArcGIS/rest/services/US_Drought_Intensity_v1/FeatureServer/" + "1",
+                                returnGeometry: false,
+                                outFields: ["*"],
+                                orderByFields: ["ddate desc"],
+                                q: `name = '${features[0].attributes["name"]}' AND state_abbr = '${features[0].attributes["state_abbr"]}' AND D2_D4 = 0 AND ddate <= date '${formattedSelectedDate}'`
+                            }).then(response => {
+                                console.debug("RESPONSE", response);
+                                let responseDate = response.features[0].attributes.ddate;
+                                const consecutiveWeeks = differenceInWeeks(new Date(selectedDate), new Date(responseDate));
+                                console.debug(consecutiveWeeks)
+                                document.getElementById("consecutive-weeks").innerHTML = consecutiveWeeks.toString();
+                            });
+
 
                             x.domain(inputDataset.map(d => {
                                 return d.date;
@@ -312,7 +331,7 @@ window.onSignInHandler = (portal) => {
                         } else {
 
                         }
-                    })
+                    });
 
                     fetchData({
                         url: config.droughtOutlookURL + "0",
