@@ -3,7 +3,7 @@
 
         <div class="column-24">
             <div class="column-6">
-                <div class="column-6">
+                <div class="column-6" style="background-color: red">
                     <div class="font-size-5" style="color: #6f3f14;">Esri Drought Aware</div>
                     <div class="font-size--1" style="color: #a67a53;">Statistics and impacts of drought in the U.S.A.</div>
                     <div class="font-size--3" style="color: #6c6c6c;">Source: NOAA, Census, USDA</div>
@@ -11,7 +11,7 @@
                     <div class="btn btn-transparent sign-out-btn hide">Sign Out</div>
                 </div>
 
-                <div class="column-6">
+                <div class="column-6" style="background-color: blue">
                     <div class="leader-half trailer-half inset-map-container" data-id="akView">
                         <div class="inset-map-icon icon-ui-minimize svg-icon-gray font-size--3" data-id="akView">Alaska</div>
                         <div id="akView"></div>
@@ -29,12 +29,18 @@
                 </div>
             </div>
 
-            <div id="mainMapContainer" class="column-18" data-id="mainMapView">
+            <div id="mainMapContainer" class="column-18" data-id="mainMapView" style="background-color: green">
+                <fieldset class="radio-group">
+                    <input class="radio-group-input location-radio-grp" type="radio" id="county-location" name="location-radio-grp" checked/>
+                    <label class="radio-group-label" for="county-location">County</label>
+                    <input class="radio-group-input location-radio-grp" type="radio" id="state-location" name="location-radio-grp"/>
+                    <label class="radio-group-label" for="state-location">State</label>
+                </fieldset>
                 <div id="mainMapView"></div>
             </div>
         </div>
 
-        <div class="column-24">
+        <div class="column-24" style="background-color: yellow">
             <div id="location-container" class="column-8 post-16">
                 <div class="selected-location-label column-4 font-size-1">San Bernardino, California</div>
                 <div class="selected-location-population column-4 font-size-1">Population: 1,427,003</div>
@@ -42,7 +48,7 @@
         </div>
 
         <div id="data-container" class="column-24">
-            <div id="data-text-container" class="column-12 leader-quarter font-size--3">
+            <div style="background-color: #99F095" id="data-text-container" class="column-12 leader-quarter font-size--3">
                 <div class="column-4">
                     <div class="column-4 trailer-half">
                         <div>Current Drought Status</div>
@@ -79,7 +85,7 @@
                     </div>
                 </div>
             </div>
-            <div id="data-chart-container" class="column-12">
+            <div style="background-color: #e4985a" id="data-chart-container" class="column-12">
                 <div id="chart"></div>
                 <div class="legend-container column-12 leader-half">
                     <span class="">

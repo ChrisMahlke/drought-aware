@@ -144,3 +144,10 @@ body {
 .exceptional-drought {
   background: #b24543;
 }
+
+.main-map-loader {
+  position: absolute;
+  left: 60%;
+  z-index: 100;
+  top: 15%;
+}

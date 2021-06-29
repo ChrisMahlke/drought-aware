@@ -1,5 +1,5 @@
 import "../../style/drought.scss";
-import jsonResponse from ".//data.json";
+import jsonResponse from './data.json';
 import config from './config.json';
 
 import { loadCss, loadModules } from 'esri-loader';
@@ -31,6 +31,32 @@ window.onSignInHandler = (portal) => {
                  SpatialReference, MapView, WebMap, QueryTask, Query,
                  Polygon, Search, watchUtils]) => {
 
+        let selectedView = null;
+        let selected = {
+            "view": null,
+            "fips": null,
+            "extent": null
+        };
+
+        let margin = {
+            top: 5,
+            right: 0,
+            bottom: 10,
+            left: 25
+        };
+        let width = 700;
+        let height = 80;
+        let keys = ["d0", "d1", "d2", "d3", "d4", "nothing"];
+        // create the svg
+        let svg = d3.select("#chart").append("svg").attr("width", width + 25).attr("height", height + 25);
+        let g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        // set x scale
+        let x = d3.scaleBand().range([0, width]);
+        // set y scale
+        let y = d3.scaleLinear().range([height, 0]);
+        // set the colors
+        let z = d3.scaleOrdinal().range(["#b2a077", "#ccaa5b", "#e4985a", "#e28060", "#b24543", "rgba(57,57,57,0.11)"]);
+
         let webmap = new WebMap({
             portalItem: {
                 id: config.webMapId
@@ -55,7 +81,7 @@ window.onSignInHandler = (portal) => {
             };
         });
 
-        let selectedView = views[0];
+        selectedView = views[0];
 
         let searchWidget = new Search();
         searchWidget.on("search-complete", function(event) {
@@ -102,8 +128,6 @@ window.onSignInHandler = (portal) => {
 
             });
         });
-
-        // Add the search widget to the top right corner of the view
         views[0].view.ui.add(searchWidget, {
             position: "top-right"
         });
@@ -201,25 +225,11 @@ window.onSignInHandler = (portal) => {
             });
         })
 
-
-        let margin = {
-            top: 5,
-            right: 0,
-            bottom: 10,
-            left: 25
-        };
-        let width = 700;
-        let height = 80;
-        let keys = ["d0", "d1", "d2", "d3", "d4", "nothing"];
-        // create the svg
-        let svg = d3.select("#chart").append("svg").attr("width", width + 25).attr("height", height + 25);
-        let g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-        // set x scale
-        let x = d3.scaleBand().range([0, width]);
-        // set y scale
-        let y = d3.scaleLinear().range([height, 0]);
-        // set the colors
-        let z = d3.scaleOrdinal().range(["#b2a077", "#ccaa5b", "#e4985a", "#e28060", "#b24543", "rgba(57,57,57,0.11)"]);
+        document.querySelectorAll(".location-radio-grp").forEach(item => {
+            item.addEventListener("click", event => {
+                console.debug(event);
+            });
+        });
 
         function mapClickHandler(event) {
             fetchData({
