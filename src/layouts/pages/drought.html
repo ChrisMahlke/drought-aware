@@ -1,116 +1,140 @@
-<div class="grid-container">
-    <div class="column-24">
+<!-- Drawer -->
+<div class="drawer drawer-right js-drawer" data-drawer="top-nav" tabindex="0">
+    <nav class="drawer-nav" role="navigation">
+        <aside class="side-nav">
+            <h2 class="side-nav-title">About</h2>
+            <a href="/" class="side-nav-link">Alaska</a>
+            <a href="/" class="side-nav-link">Hawaii</a>
+            <a href="/" class="side-nav-link">Puerto Rico</a>
+        </aside>
+    </nav>
+</div>
 
-        <div class="column-24">
-            <div class="column-6">
-                <div class="column-6" style="background-color: red">
-                    <div class="font-size-5" style="color: #6f3f14;">Esri Drought Aware</div>
-                    <div class="font-size--1" style="color: #a67a53;">Statistics and impacts of drought in the U.S.A.</div>
-                    <div class="font-size--3" style="color: #6c6c6c;">Source: NOAA, Census, USDA</div>
-                    <div class="btn btn-transparent sign-in-btn hide">Sign In</div>
-                    <div class="btn btn-transparent sign-out-btn hide">Sign Out</div>
+<div class="wrapper">
+    <div id="mb-header">
+        <div id="mb-header-menu-btn" class="btn btn-large js-drawer-toggle icon-ui-menu" data-drawer="top-nav"></div>
+    </div>
+
+    <div id="content-container">
+
+        <div id="inset-map-container">
+            <div id="inset-map-content">
+
+                <div id="app-header" class="box data-box">
+                    <div id="appTitle">
+                        Esri Drought Aware <calcite-icon icon="information" scale="s"></calcite-icon>
+                    </div>
+                    <div id="subTitle">Statistics and impacts of drought in the U.S.A.</div>
+                    <div id="dataSource">Source: NOAA, Census, USDA</div>
+                    <div class="sign-in-btn hide"></div>
+                    <div class="sign-out-btn hide"></div>
                 </div>
 
-                <div class="column-6" style="background-color: blue">
-                    <div class="leader-half trailer-half inset-map-container" data-id="akView">
-                        <div class="inset-map-icon icon-ui-minimize svg-icon-gray font-size--3" data-id="akView">Alaska</div>
-                        <div id="akView"></div>
-                    </div>
-
-                    <div class="leader-half trailer-half inset-map-container" data-id="hiView">
-                        <div class="inset-map-icon icon-ui-minimize svg-icon-gray font-size--3" data-id="hiView">Hawaii</div>
-                        <div id="hiView"></div>
-                    </div>
-
-                    <div class="leader-half inset-map-container" data-id="prView">
-                        <div class="inset-map-icon icon-ui-minimize svg-icon-gray font-size--3" data-id="prView">Puerto Rico</div>
-                        <div id="prView"></div>
-                    </div>
+                <div id="ak-container" class="box">
+                    <div class="inset-map-icon icon-ui-minimize svg-icon-gray font-size--3" data-id="akView">Alaska</div>
+                    <div id="akView"></div>
                 </div>
-            </div>
 
-            <div id="mainMapContainer" class="column-18" data-id="mainMapView" style="background-color: green">
-                <fieldset class="radio-group">
-                    <input class="radio-group-input location-radio-grp" type="radio" id="county-location" name="location-radio-grp" checked/>
-                    <label class="radio-group-label" for="county-location">County</label>
-                    <input class="radio-group-input location-radio-grp" type="radio" id="state-location" name="location-radio-grp"/>
-                    <label class="radio-group-label" for="state-location">State</label>
-                </fieldset>
-                <div id="mainMapView"></div>
+                <div id="hi-container" class="box">
+                    <div class="inset-map-icon icon-ui-minimize svg-icon-gray font-size--3" data-id="akView">Hawaii</div>
+                    <div id="hiView"></div>
+                </div>
+
+                <div id="pr-container" class="box">
+                    <div class="inset-map-icon icon-ui-minimize svg-icon-gray font-size--3" data-id="akView">Puerto Rico</div>
+                    <div id="prView"></div>
+                </div>
             </div>
         </div>
 
-        <div class="column-24" style="background-color: yellow">
-            <div id="location-container" class="column-8 post-16">
-                <div class="selected-location-label column-4 font-size-1">San Bernardino, California</div>
-                <div class="selected-location-population column-4 font-size-1">Population: 1,427,003</div>
+        <div id="mainMapContainer">
+            <div id="mainMapView">
+                <div id="administrativeAreaToggle" class="esri-widget">
+                    <fieldset class="radio-group">
+                        <input id="county" class="radio-group-input" type="radio" name="framework" checked/>
+                        <label class="radio-group-label" for="county">County Info</label>
+                        <input id="state" class="radio-group-input" type="radio" name="framework"/>
+                        <label class="radio-group-label" for="state">State Info</label>
+                    </fieldset>
+                </div>
             </div>
         </div>
 
-        <div id="data-container" class="column-24">
-            <div style="background-color: #99F095" id="data-text-container" class="column-12 leader-quarter font-size--3">
-                <div class="column-4">
-                    <div class="column-4 trailer-half">
-                        <div>Current Drought Status</div>
-                        <div id="current-drought-status-date">(xx/xx/xxxx)</div>
-                        <div id="current-drought-status-value" class=" font-size-1">Moderate Drought</div>
-                    </div>
-                    <div class="column-4">
-                        <div>Monthly Drought Outlook</div>
-                        <div id="monthly-outlook-date">(xx/xx/xxxx)</div>
-                        <div id="monthly-outlook-label"class="font-size-1 avenir-demi">Drought Intensifies</div>
-                    </div>
-                </div>
-                <div class="column-4">
-                    <div class="column-4 trailer-half">
-                        <div>Consecutive Weeks of Severe Drought</div>
-                        <div id="consecutive-weeks" class="font-size-1">12</div>
-                    </div>
-                    <div class="column-4">
-                        <div>Seasonal Drought Outlook</div>
-                        <div id="seasonal-outlook-date">(xx/xx/xxxx)</div>
-                        <div id="seasonal-outlook-label" class=" font-size-1 avenir-demi">Drought Improves</div>
-                    </div>
-                </div>
-                <div class="column-4">
-                    <div class="font-size-1">Agricultural Impact</div>
-                    <div style="line-height: 1.1;">
-                        <div>Jobs: <span id="jobs"></span></div>
-                        <div>Total Sales: <span id="totalSales"></span></div>
-                        <div>Corn: <span id="cornSales"></span></div>
-                        <div>Soy: <span id="soySales"></span></div>
-                        <div>Hay: <span id="haySales"></span></div>
-                        <div>Winter Wheat: <span id="wheatSales"></span></div>
-                        <div>Livestock: <span id="livestockSales"></span></div>
-                    </div>
-                </div>
+        <div id="dataContainer" class="hide animate-in-up">
+            <div class="data-box" style="width: 30vw; background-color: #d6d2c4; color: #393939; padding-top: .25em; padding-bottom: .25em;">
+                <span id="selectedLocation" style="font-size: 1.2em; padding-right: 1em;">San Bernardino County, CA</span>
+                <span id="population" style="font-size: .85em;">Population: 11,438,340</span>
             </div>
-            <div style="background-color: #e4985a" id="data-chart-container" class="column-12">
-                <div id="chart"></div>
-                <div class="legend-container column-12 leader-half">
-                    <span class="">
-                        <div class="chart-legend-color-container abnormally-dry"></div>
-                        <div class="chart-legend-label-container">Abnormally Dry</div>
-                    </span>
-                    <span class="">
-                        <div class="chart-legend-color-container moderate-drought"></div>
-                        <div class="chart-legend-label-container">Moderate Drought</div>
-                    </span>
-                    <span class="">
-                        <div class="chart-legend-color-container severe-drought"></div>
-                        <div class="chart-legend-label-container">Severe Drought</div>
-                    </span>
-                    <span class="">
-                        <div class="chart-legend-color-container extreme-drought"></div>
-                        <div class="chart-legend-label-container">Extreme Drought</div>
-                    </span>
-                    <span class="">
-                        <div class="chart-legend-color-container exceptional-drought"></div>
-                        <div class="chart-legend-label-container">Exceptional Drought</div>
-                    </span>
+            <div id="dataContainerContent">
+                <div class="data-container-content-box font-size--3">
+                    <div class="trailer-1 data-box">
+                        <div class="font-size--1">Current Drought Status</div>
+                        <div id="currentDroughtStatusDate" class="font-size--3">June 12, 2021</div>
+                        <div id="currentDroughtStatus" class="font-size-1 avenir-demi">Moderate Drought</div>
+                    </div>
+
+                    <div class=" data-box">
+                        <div class="font-size--1">Monthly Drought Outlook</div>
+                        <div id="monthlyOutlookDate" class="font-size--3">June 12, 2021</div>
+                        <div id="monthlyOutlookLabel" class="font-size-1 avenir-demi">Drought Intensifies</div>
+                    </div>
                 </div>
-            </div>
+
+                <div class="data-container-content-box font-size--3">
+                    <div class="trailer-1 data-box">
+                        <div class="font-size--1">Consecutive Weeks of</div>
+                        <div class="font-size--3">Severe Drought</div>
+                        <div id="consecutiveWeeks" class="font-size-1 avenir-demi">24</div>
+                    </div>
+                    <div class="data-box">
+                        <div class="font-size--1">Seasonal Drought Outlook</div>
+                        <div id="seasonalOutlookDate" class="font-size--3">June 12, 2021</div>
+                        <div id="seasonalOutlookLabel" class="font-size-1 avenir-demi">Drought Improves</div>
+                    </div>
+                </div>
+
+                <div class="data-container-content-box font-size--3 data-box">
+                    <div class="font-size--1">Agricultural Impact</div>
+                    <div>Jobs <span id="jobs"></span></div>
+                    <div>Total Sales <span id="totalSales"></span></div>
+                    <div>Corn <span id="cornSales"></span></div>
+                    <div>Soy <span id="soySales"></span></div>
+                    <div>Hay <span id="haySales"></span></div>
+                    <div>Winter Wheat <span id="wheatSales"></span></div>
+                    <div>Livestock <span id="livestockSales"></span></div>
+                </div>
+
+                <div class="data-container-content-chart-box">
+                    <div class="chart-legend">
+                        <div id="chart"></div>
+                    </div>
+                    <div class="chart-legend">
+                        <ul class="flex-container longhand">
+                            <li class="flex-item">
+                                <div class="chart-legend-color-container abnormally-dry"></div>
+                                <div class="chart-legend-label-container font-size--3">Abnormally Dry</div>
+                            </li>
+                            <li class="flex-item">
+                                <div class="chart-legend-color-container moderate-drought"></div>
+                                <div class="chart-legend-label-container font-size--3">Moderate Drought</div>
+                            </li>
+                            <li class="flex-item">
+                                <div class="chart-legend-color-container severe-drought"></div>
+                                <div class="chart-legend-label-container font-size--3">Severe Drought</div>
+                            </li>
+                            <li class="flex-item">
+                                <div class="chart-legend-color-container extreme-drought"></div>
+                                <div class="chart-legend-label-container font-size--3">Extreme Drought</div>
+                            </li>
+                            <li class="flex-item">
+                                <div class="chart-legend-color-container exceptional-drought"></div>
+                                <div class="chart-legend-label-container font-size--3">Exceptional Drought</div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
+
     </div>
 </div>

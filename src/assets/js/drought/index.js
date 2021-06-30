@@ -1,4 +1,4 @@
-import "../../style/drought.scss";
+import "../../style/index.scss";
 import jsonResponse from './data.json';
 import config from './config.json';
 
@@ -112,16 +112,16 @@ window.onSignInHandler = (portal) => {
                 if (mainViewGeomEngResult) {
                     // lower 48
                     views[0].view.graphics.add(new Graphic(resultExtent, config.searchResultSymbol));
-                    document.getElementsByClassName("inset-map-icon")[3].click();
+                    //document.getElementsByClassName("inset-map-icon")[3].click();
                 } else if (akViewGeomEngResult) {
                     views[1].view.graphics.add(new Graphic(resultExtent, config.searchResultSymbol));
-                    document.getElementsByClassName("inset-map-icon")[0].click();
+                    //document.getElementsByClassName("inset-map-icon")[0].click();
                 } else if (hiViewGeomEngResult) {
                     views[2].view.graphics.add(new Graphic(resultExtent, config.searchResultSymbol));
-                    document.getElementsByClassName("inset-map-icon")[1].click();
+                    //document.getElementsByClassName("inset-map-icon")[1].click();
                 } else if(prViewGeomEngResult) {
                     views[3].view.graphics.add(new Graphic(resultExtent, config.searchResultSymbol));
-                    document.getElementsByClassName("inset-map-icon")[2].click();
+                    //document.getElementsByClassName("inset-map-icon")[2].click();
                 } else {
                     alert("There are no results within the map's extent!");
                 }
@@ -232,6 +232,10 @@ window.onSignInHandler = (portal) => {
         });
 
         function mapClickHandler(event) {
+
+            let dataContainerEle = document.getElementById("dataContainer");
+            calcite.removeClass(dataContainerEle, "hide");
+
             fetchData({
                 url: config.agricultureImpactURL,
                 returnGeometry: true,
@@ -239,9 +243,6 @@ window.onSignInHandler = (portal) => {
                 geometry: event.mapPoint,
                 q: ""
             }).then(response => {
-
-                console.debug("response", response);
-
                 agricultureImpactResponseHandler(response).then(response => {
 
                     updateSelectedLocationPopulation(response);
@@ -256,7 +257,6 @@ window.onSignInHandler = (portal) => {
                         outFields: ["*"],
                         q: `admin_fips = ${selectedFeature.attributes["CountyFIPS"]}`
                     }).then(response => {
-                        console.debug("DROUGHT SERVICE", response);
                         if (response.features.length > 0) {
                             const features = response.features;
                             const inputDataset = features.map(feature => {
@@ -273,9 +273,7 @@ window.onSignInHandler = (portal) => {
                             });
 
                             const selectedDate = response.features[response.features.length - 1].attributes.ddate;
-                            console.debug("selectedDate", selectedDate);
                             let formattedSelectedDate = format(selectedDate, "P");
-                            console.debug("formattedSelectedDate", formattedSelectedDate);
 
                             fetchData({
                                 url: "https://services9.arcgis.com/RHVPKKiFTONKtxq3/ArcGIS/rest/services/US_Drought_Intensity_v1/FeatureServer/" + "1",
@@ -284,11 +282,17 @@ window.onSignInHandler = (portal) => {
                                 orderByFields: ["ddate desc"],
                                 q: `name = '${features[0].attributes["name"]}' AND state_abbr = '${features[0].attributes["state_abbr"]}' AND D2_D4 = 0 AND ddate <= date '${formattedSelectedDate}'`
                             }).then(response => {
-                                console.debug("RESPONSE", response);
                                 let responseDate = response.features[0].attributes.ddate;
                                 const consecutiveWeeks = differenceInWeeks(new Date(selectedDate), new Date(responseDate)) - 1;
-                                console.debug(consecutiveWeeks)
-                                document.getElementById("consecutive-weeks").innerHTML = consecutiveWeeks.toString();
+
+                                document.getElementById("consecutiveWeeks").innerHTML = consecutiveWeeks.toString();
+                                if (consecutiveWeeks < 1) {
+                                    document.getElementById("consecutiveWeeks").style.color = "#393939";
+                                } else if (consecutiveWeeks > 0 && consecutiveWeeks < 8) {
+                                    document.getElementById("consecutiveWeeks").style.color = "#e4985a";
+                                } else if (consecutiveWeeks > 8) {
+                                    document.getElementById("consecutiveWeeks").style.color = "#b24543";
+                                }
                             });
 
 
@@ -334,20 +338,26 @@ window.onSignInHandler = (portal) => {
                             let condition = highestValueAndKey(drought);
                             let key = condition["key"];
                             if (key === "nothing") {
-                                document.getElementById("current-drought-status-value").innerHTML = "No Drought";
+                                document.getElementById("currentDroughtStatus").innerHTML = "No Drought";
+                                document.getElementById("currentDroughtStatus").style.color = "";
                             } else if (key === "d0") {
-                                document.getElementById("current-drought-status-value").innerHTML = "Abnormally Dry";
+                                document.getElementById("currentDroughtStatus").innerHTML = "Abnormally Dry";
+                                document.getElementById("currentDroughtStatus").style.color = "#b2a077";
                             } else if (key === "d1") {
-                                document.getElementById("current-drought-status-value").innerHTML = "Moderate Drought";
+                                document.getElementById("currentDroughtStatus").innerHTML = "Moderate Drought";
+                                document.getElementById("currentDroughtStatus").style.color = "#ccaa5b";
                             } else if (key === "d2") {
-                                document.getElementById("current-drought-status-value").innerHTML = "Severe Drought";
+                                document.getElementById("currentDroughtStatus").innerHTML = "Severe Drought";
+                                document.getElementById("currentDroughtStatus").style.color = "#e4985a";
                             } else if (key === "d3") {
-                                document.getElementById("current-drought-status-value").innerHTML = "Extreme Drought";
+                                document.getElementById("currentDroughtStatus").innerHTML = "Extreme Drought";
+                                document.getElementById("currentDroughtStatus").style.color = "#e28060";
                             } else if (key === "d4") {
-                                document.getElementById("current-drought-status-value").innerHTML = "Exceptional Drought";
+                                document.getElementById("currentDroughtStatus").innerHTML = "Exceptional Drought";
+                                document.getElementById("currentDroughtStatus").style.color = "#b24543";
                             }
                             updateSelectedLocationComponent(response);
-                            document.getElementById("current-drought-status-date").innerHTML = format(new Date(mostRecentFeature["ddate"]), "PPP");
+                            document.getElementById("currentDroughtStatusDate").innerHTML = format(new Date(mostRecentFeature["ddate"]), "PPP");
                         } else {
 
                         }
@@ -413,23 +423,24 @@ window.onSignInHandler = (portal) => {
                 const features = response.features;
                 if (features.length > 0) {
                     let feature = features[0];
-                    document.getElementById("monthly-outlook-date").innerHTML = feature.attributes["target"];
+                    document.getElementById("monthlyOutlookDate").innerHTML = feature.attributes["target"];
                     if (feature.attributes["fid_improv"] === 1) {
-                        document.getElementById("monthly-outlook-label").innerHTML = "Drought Improves";
-                        document.getElementById("monthly-outlook-label").style.color = "#87b178";
+                        document.getElementById("monthlyOutlookLabel").innerHTML = "Drought Improves";
+                        document.getElementById("monthlyOutlookLabel").style.color = "#87b178";
                     } else if (feature.attributes["fid_persis"] === 1) {
-                        document.getElementById("monthly-outlook-label").innerHTML = "Drought Persists";
-                        document.getElementById("monthly-outlook-label").style.color = "#6b4628";
+                        document.getElementById("monthlyOutlookLabel").innerHTML = "Drought Persists";
+                        document.getElementById("monthlyOutlookLabel").style.color = "#6b4628";
                     } else if (feature.attributes["fid_remove"] === 1) {
-                        document.getElementById("monthly-outlook-label").innerHTML = "Drought Removal Likely";
-                        document.getElementById("monthly-outlook-label").style.color = "#78a0b1";
+                        document.getElementById("monthlyOutlookLabel").innerHTML = "Drought Removal Likely";
+                        document.getElementById("monthlyOutlookLabel").style.color = "#78a0b1";
                     } else if (feature.attributes["fid_dev"] === 1) {
-                        document.getElementById("monthly-outlook-label").innerHTML = "Drought Develops";
-                        document.getElementById("monthly-outlook-label").style.color = "#6b4628";
+                        document.getElementById("monthlyOutlookLabel").innerHTML = "Drought Develops";
+                        document.getElementById("monthlyOutlookLabel").style.color = "#6b4628";
                     }
                 }
             } else {
-
+                document.getElementById("monthlyOutlookDate").innerHTML = "";
+                document.getElementById("monthlyOutlookLabel").innerHTML = "";
             }
         }
 
@@ -438,30 +449,32 @@ window.onSignInHandler = (portal) => {
                 let features = response.features;
                 if (features.length > 0) {
                     let feature = features[0];
-                    document.getElementById("seasonal-outlook-date").innerHTML = feature.attributes["target"];
+                    document.getElementById("seasonalOutlookDate").innerHTML = feature.attributes["target"];
                     if (feature.attributes["fid_improv"] === 1) {
-                        document.getElementById("seasonal-outlook-label").innerHTML = "Drought Improves";
-                        document.getElementById("seasonal-outlook-label").style.color = "#87b178";
+                        document.getElementById("seasonalOutlookLabel").innerHTML = "Drought Improves";
+                        document.getElementById("seasonalOutlookLabel").style.color = "#87b178";
                     } else if (feature.attributes["fid_persis"] === 1) {
-                        document.getElementById("seasonal-outlook-label").innerHTML = "Drought Persists";
-                        document.getElementById("seasonal-outlook-label").style.color = "#6b4628";
+                        document.getElementById("seasonalOutlookLabel").innerHTML = "Drought Persists";
+                        document.getElementById("seasonalOutlookLabel").style.color = "#6b4628";
                     } else if (feature.attributes["fid_remove"] === 1) {
-                        document.getElementById("seasonal-outlook-label").innerHTML = "Drought Removal Likely";
-                        document.getElementById("seasonal-outlook-label").style.color = "#78a0b1";
+                        document.getElementById("seasonalOutlookLabel").innerHTML = "Drought Removal Likely";
+                        document.getElementById("seasonalOutlookLabel").style.color = "#78a0b1";
                     } else if (feature.attributes["fid_dev"] === 1) {
-                        document.getElementById("seasonal-outlook-label").innerHTML = "Drought Develops";
-                        document.getElementById("seasonal-outlook-label").style.color = "#6b4628";
+                        document.getElementById("seasonalOutlookLabel").innerHTML = "Drought Develops";
+                        document.getElementById("seasonalOutlookLabel").style.color = "#6b4628";
                     }
                 }
             } else {
-
+                document.getElementById("seasonalOutlookDate").innerHTML = "";
+                document.getElementById("seasonalOutlookLabel").innerHTML = "";
             }
         }
 
         function updateSelectedLocationComponent(response) {
             if (response.features.length > 0) {
                 const selectedFeature = response.features[0];
-                document.getElementsByClassName("selected-location-label")[0].innerHTML = `${selectedFeature.attributes["name"]}, ${selectedFeature.attributes["state_abbr"]}`;
+                console.debug("selectedFeature", selectedFeature);
+                document.getElementById("selectedLocation").innerHTML = `${selectedFeature.attributes["name"]}, ${selectedFeature.attributes["state_abbr"]}`;
             } else {
 
             }
@@ -470,7 +483,7 @@ window.onSignInHandler = (portal) => {
         function updateSelectedLocationPopulation(response) {
             if (response.features.length > 0) {
                 const selectedFeature = response.features[0];
-                document.getElementsByClassName("selected-location-population")[0].innerHTML = `Population: ${Number(selectedFeature.attributes["CountyPop2020"]).toLocaleString()}`;
+                document.getElementById("population").innerHTML = `Population: ${Number(selectedFeature.attributes["CountyPop2020"]).toLocaleString()}`;
             } else {
 
             }

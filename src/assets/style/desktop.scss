@@ -1,0 +1,204 @@
+@import '~calcite-web/dist/css/calcite-web.min.css';
+
+.esri-view .esri-view-surface--inset-outline:focus::after {
+  outline: none !important;
+}
+
+body {
+  background-color: #cac5b1 !important;
+}
+
+#mb-header {
+  display: none;
+}
+
+#content-container {
+  display: flex;
+}
+
+#inset-map-container {
+  height: 100vh;
+  width: 25vw; /* A fixed width as the default */
+}
+
+#inset-map-content {
+  height: 70vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+#appTitle {
+  color: #6f3f14;
+  font-size: 2.5em;
+}
+
+#subTitle {
+  color: #a67a53;
+  font-size: .85em;
+}
+
+#dataSource {
+  color: #6c6c6c;
+  font-size: .7em;
+}
+
+
+
+
+/* Container for the main map */
+#mainMapContainer {
+  flex-grow: 1; /* Set the middle element to grow and stretch */
+}
+
+.box {
+  width: 100%;
+  height: 100%;
+}
+
+#dataContainer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  /*height: 30vh;*/
+  /*max-height: 250px;*/
+}
+
+#administrativeAreaToggle {
+  z-index: 99;
+  position: absolute;
+  top: 10px;
+  right: 275px;
+  background-color: transparent;
+}
+
+#app-header {
+  height: 20vh;
+}
+
+#mainMapDiv {
+  padding: 0;
+  margin: 0;
+  height: 70vh;
+  width: 100%;
+}
+
+#akViewDiv {
+  padding: 0;
+  margin: 0;
+  height: 30vh;
+  width: 100%;
+}
+
+#hiViewDiv {
+  padding: 0;
+  margin: 0;
+  height: 100%;
+  width: 100%;
+}
+
+#prViewDiv {
+  padding: 0;
+  margin: 0;
+  height: 100%;
+  width: 100%;
+}
+
+#dataContainerContent {
+  display: flex;
+  justify-content: space-around;
+  flex-flow: row wrap;
+  align-items: stretch;
+  background-color: #dddacf;
+  padding-top: 0.75em;
+  padding-bottom: 1em;
+}
+
+.data-container-content-box {
+  flex-basis: 200px;
+}
+
+.data-container-content-chart-box {
+  flex-grow: 4;
+}
+
+.data-box {
+  padding-left: 1em;
+}
+
+#chart {
+  /*width: 100%;*/
+}
+
+#chart > svg {
+  /*width: 100%;*/
+}
+
+.chart-legend-color-container {
+  height: 5px;
+  width: 25px;
+  float: left;
+  margin-top: .5em;
+}
+
+.chart-legend-label-container {
+  float: left;
+}
+
+.abnormally-dry {
+  background: #b2a077;
+}
+
+.moderate-drought {
+  background: #ccaa5b;
+}
+
+.severe-drought {
+  background: #e4985a;
+}
+
+.extreme-drought {
+  background: #e28060;
+}
+
+.exceptional-drought {
+  background: #b24543;
+}
+
+.flex-container {
+  list-style: none;
+  -ms-box-orient: horizontal;
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -moz-flex;
+  display: -webkit-flex;
+  display: flex;
+}
+
+.longhand {
+  -webkit-flex-flow: wrap row;
+  flex-flow: wrap row;
+}
+
+.longhand li {
+
+}
+
+.flex-item {
+  text-align: center;
+  margin-right: 1em;
+}
+
+.chart-legend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media only screen and (max-width: 480px) {
+  .inset-map-container {
+    display: none;
+  }
+}
