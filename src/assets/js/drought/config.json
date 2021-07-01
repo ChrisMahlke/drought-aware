@@ -1,8 +1,16 @@
 {
-  "webMapId": "d94fc059145b409d86a0d3c9eb75e647",
-  "agricultureImpactURL": "https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/USA_PR_Counties_DroughtApp/FeatureServer/0",
+  "webMapId": "ab5bf0057f11443ca86d78e7d1998da5",
+
+  "county_boundary": "https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/USA_Counties_Generalized/FeatureServer/0",
+  "county_boundary_outfields": ["FIPS", "NAME", "STATE_NAME"],
+
+  "state_boundary": "https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/USA_States_Generalized/FeatureServer/0",
+  "state_boundary_outfields": ["STATE_FIPS", "STATE_NAME", "STATE_ABBR"],
+
+  "agricultureImpactURL": "https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/USA_PR_Counties_DroughtApp/FeatureServer/",
   "droughtOutlookURL": "https://idpgis.ncep.noaa.gov/arcgis/rest/services/NWS_Climate_Outlooks/cpc_drought_outlk/MapServer/",
   "droughtURL": "https://services9.arcgis.com/RHVPKKiFTONKtxq3/ArcGIS/rest/services/US_Drought_Intensity_v1/FeatureServer/",
+
   "views": [
     {
       "container": "mainMapView",
@@ -87,6 +95,7 @@
       }
     }
   ],
+
   "maskSymbol": {
     "type": "simple-fill",
     "color": [128, 128, 128, 0.0],
@@ -113,5 +122,22 @@
     "type": "simple-line",
     "color": [153, 255, 255],
     "width": 1
+  },
+
+  "selected": {
+    "adminAreaId": "county",
+    "mapPoint": {}
+  },
+
+  "chart": {
+    "margin": {
+      "top": 5,
+      "right": 0,
+      "bottom": 10,
+      "left": 25
+    },
+    "width": 700,
+    "height": 80,
+    "keys": ["d0", "d1", "d2", "d3", "d4", "nothing"]
   }
 }

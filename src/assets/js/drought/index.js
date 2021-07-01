@@ -6,6 +6,7 @@ import { loadCss, loadModules } from 'esri-loader';
 
 import * as calcite from "calcite-web";
 import * as d3 from "d3";
+import * as UrlParams from "url-params";
 import { differenceInWeeks, format } from 'date-fns'
 
 window.onSignInHandler = (portal) => {
@@ -32,28 +33,21 @@ window.onSignInHandler = (portal) => {
                  Polygon, Search, watchUtils]) => {
 
         let selectedView = null;
-        let selected = {
-            "view": null,
-            "fips": null,
-            "extent": null
+        //
+        let boundaryQuery = {
+            url: config.county_boundary,
+            returnGeometry: true,
+            outFields: config.county_boundary_outfields,
+            geometry: config.selected.mapPoint,
+            q: ""
         };
-
-        let margin = {
-            top: 5,
-            right: 0,
-            bottom: 10,
-            left: 25
-        };
-        let width = 700;
-        let height = 80;
-        let keys = ["d0", "d1", "d2", "d3", "d4", "nothing"];
         // create the svg
-        let svg = d3.select("#chart").append("svg").attr("width", width + 25).attr("height", height + 25);
-        let g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        let svg = d3.select("#chart").append("svg").attr("width", config.chart.width + 25).attr("height", config.chart.height + 25);
+        let g = svg.append("g").attr("transform", "translate(" + config.chart.margin.left + "," + config.chart.margin.top + ")");
         // set x scale
-        let x = d3.scaleBand().range([0, width]);
+        let x = d3.scaleBand().range([0, config.chart.width]);
         // set y scale
-        let y = d3.scaleLinear().range([height, 0]);
+        let y = d3.scaleLinear().range([config.chart.height, 0]);
         // set the colors
         let z = d3.scaleOrdinal().range(["#b2a077", "#ccaa5b", "#e4985a", "#e28060", "#b24543", "rgba(57,57,57,0.11)"]);
 
@@ -225,28 +219,67 @@ window.onSignInHandler = (portal) => {
             });
         })
 
-        document.querySelectorAll(".location-radio-grp").forEach(item => {
+        document.querySelectorAll(".radio-group-input").forEach(item => {
             item.addEventListener("click", event => {
-                console.debug(event);
+                config.selected.adminAreaId = event.target.id;
+                if (config.selected.adminAreaId === "county") {
+                    boundaryQuery.url = config.county_boundary;
+                    boundaryQuery.outFields = config.county_boundary_outfields;
+                } else if (config.selected.adminAreaId === "state") {
+                    boundaryQuery.url = config.state_boundary;
+                    boundaryQuery.outFields = config.state_boundary_outfields;
+                }
             });
         });
 
         function mapClickHandler(event) {
-
+            config.selected.mapPoint = event.mapPoint;
+            // un-hide the visualization container
             let dataContainerEle = document.getElementById("dataContainer");
             calcite.removeClass(dataContainerEle, "hide");
 
+            // 0) Determine correct admin area (county or state) to use for querying data
+            //      - apply geometry (boundary) to map
+            //
+            // 1) Fetch the agricultural data (return geometry)
+            //      - pass in geometry (map point) and return geometry
+            //          -- update population
+            //          -- update agricultural impact
+            //
+            // 2) Fetch the drought data based on FIPS (no geometry)
+            //      - Tables (state is 0, county is 1)
+            //      - sort by date
+            //      - pass in q parameter based on admin selection (county or state)
+            // 2a)      -- Fetch the drought data based on county, state, and D2_D4 date data
+            //              --- update consecutive weeks of severe drought
+            //          -- update chart
+            //          -- update current drought status
+            //          -- update current drought status date
+            //          -- update location
+            //
+            // 3) Fetch monthly outlook data (spatial query based on county or state)
+            //      - update monthly drought
+            //
+            // 4) Fetch seasonal outlook data (spatial query based on county or state)
+            //      - update seasonal drought
+
+            boundaryQuery.geometry = config.selected.mapPoint;
+            // apply geometry
+            fetchData(boundaryQuery).then(retrieveGeometryResponseHandler);
+
+            /*
             fetchData({
-                url: config.agricultureImpactURL,
+                url: config.agricultureImpactURL + "0",
                 returnGeometry: true,
                 outFields: ["*"],
-                geometry: event.mapPoint,
+                geometry: config.selected.mapPoint,
                 q: ""
             }).then(response => {
+                // apply geometry (boundary selection)
                 agricultureImpactResponseHandler(response).then(response => {
 
                     updateSelectedLocationPopulation(response);
-                    updateSelectedLocationAgrImpactComponent(response);
+                    updateAgriculturalImpactComponent(response);
 
                     let selectedFeature = response.features[0];
 
@@ -274,12 +307,11 @@ window.onSignInHandler = (portal) => {
 
                             const selectedDate = response.features[response.features.length - 1].attributes.ddate;
                             let formattedSelectedDate = format(selectedDate, "P");
-
                             fetchData({
-                                url: "https://services9.arcgis.com/RHVPKKiFTONKtxq3/ArcGIS/rest/services/US_Drought_Intensity_v1/FeatureServer/" + "1",
+                                url: config.droughtURL + "1",
                                 returnGeometry: false,
-                                outFields: ["*"],
                                 orderByFields: ["ddate desc"],
+                                outFields: ["*"],
                                 q: `name = '${features[0].attributes["name"]}' AND state_abbr = '${features[0].attributes["state_abbr"]}' AND D2_D4 = 0 AND ddate <= date '${formattedSelectedDate}'`
                             }).then(response => {
                                 let responseDate = response.features[0].attributes.ddate;
@@ -295,69 +327,9 @@ window.onSignInHandler = (portal) => {
                                 }
                             });
 
-
-                            x.domain(inputDataset.map(d => {
-                                return d.date;
-                            }));
-                            y.domain([0, d3.max(inputDataset, d => {
-                                return d.total;
-                            })]);
-                            z.domain(keys);
-
-                            // update the bars
-                            let bars = d3.selectAll(".bars");
-                            bars.selectAll("g")
-                                .data(d3.stack().keys(keys)(inputDataset))
-                                .attr("fill", d => {
-                                    return z(d.key);
-                                })
-                                .selectAll("rect")
-                                .data(d => {
-                                    return d;
-                                })
-                                .attr("x", function(d) {
-                                    return x(d.data.date);
-                                })
-                                .attr("y", function(d) {
-                                    return y(d[1]);
-                                })
-                                .attr("height", function(d) {
-                                    return y(d[0]) - y(d[1]);
-                                })
-                                .attr("width", x.bandwidth());
-
-                            let mostRecentFeature = response.features[response.features.length - 1].attributes;
-                            let drought = {
-                                nothing : mostRecentFeature["nothing"],
-                                d0 : mostRecentFeature["d0"],
-                                d1 : mostRecentFeature["d1"],
-                                d2 : mostRecentFeature["d2"],
-                                d3 : mostRecentFeature["d3"],
-                                d4 : mostRecentFeature["d4"]
-                            };
-                            let condition = highestValueAndKey(drought);
-                            let key = condition["key"];
-                            if (key === "nothing") {
-                                document.getElementById("currentDroughtStatus").innerHTML = "No Drought";
-                                document.getElementById("currentDroughtStatus").style.color = "";
-                            } else if (key === "d0") {
-                                document.getElementById("currentDroughtStatus").innerHTML = "Abnormally Dry";
-                                document.getElementById("currentDroughtStatus").style.color = "#b2a077";
-                            } else if (key === "d1") {
-                                document.getElementById("currentDroughtStatus").innerHTML = "Moderate Drought";
-                                document.getElementById("currentDroughtStatus").style.color = "#ccaa5b";
-                            } else if (key === "d2") {
-                                document.getElementById("currentDroughtStatus").innerHTML = "Severe Drought";
-                                document.getElementById("currentDroughtStatus").style.color = "#e4985a";
-                            } else if (key === "d3") {
-                                document.getElementById("currentDroughtStatus").innerHTML = "Extreme Drought";
-                                document.getElementById("currentDroughtStatus").style.color = "#e28060";
-                            } else if (key === "d4") {
-                                document.getElementById("currentDroughtStatus").innerHTML = "Exceptional Drought";
-                                document.getElementById("currentDroughtStatus").style.color = "#b24543";
-                            }
+                            updateChart(inputDataset);
+                            updateCurrentDroughtStatus(response);
                             updateSelectedLocationComponent(response);
-                            document.getElementById("currentDroughtStatusDate").innerHTML = format(new Date(mostRecentFeature["ddate"]), "PPP");
                         } else {
 
                         }
@@ -386,6 +358,7 @@ window.onSignInHandler = (portal) => {
                     }).then(seasonalDroughtOutlookResponseHandler);
                 });
             });
+            */
         }
 
         function highestValueAndKey(obj) {
@@ -397,10 +370,10 @@ window.onSignInHandler = (portal) => {
             }
         }
 
-        async function agricultureImpactResponseHandler(response) {
+        async function retrieveGeometryResponseHandler(response) {
             if (response.features.length > 0) {
                 for (const graphic of selectedView.view.graphics){
-                    if (graphic.attributes === "SELECTED_COUNTY") {
+                    if (graphic.attributes === "BOUNDARY") {
                         selectedView.view.graphics.remove(graphic);
                     }
                 }
@@ -408,7 +381,7 @@ window.onSignInHandler = (portal) => {
                 const polygonGraphic = new Graphic({
                     geometry: response.features[0].geometry,
                     symbol: config.selectedGeographicSymbology,
-                    attributes: "SELECTED_COUNTY"
+                    attributes: "BOUNDARY"
                 });
 
                 selectedView.view.graphics.add(polygonGraphic);
@@ -489,7 +462,7 @@ window.onSignInHandler = (portal) => {
             }
         }
 
-        function updateSelectedLocationAgrImpactComponent(response) {
+        function updateAgriculturalImpactComponent(response) {
             if (response.features.length > 0) {
                 const selectedFeature = response.features[0];
                 document.getElementById("jobs").innerHTML = Number(selectedFeature.attributes["CountyLabor"]).toLocaleString();
@@ -504,13 +477,83 @@ window.onSignInHandler = (portal) => {
             }
         }
 
+        function updateCurrentDroughtStatus(response) {
+            let mostRecentFeature = response.features[response.features.length - 1].attributes;
+            let drought = {
+                nothing : mostRecentFeature["nothing"],
+                d0 : mostRecentFeature["d0"],
+                d1 : mostRecentFeature["d1"],
+                d2 : mostRecentFeature["d2"],
+                d3 : mostRecentFeature["d3"],
+                d4 : mostRecentFeature["d4"]
+            };
+            let condition = highestValueAndKey(drought);
+            let key = condition["key"];
+            let label = "";
+            let color = "";
+            if (key === "nothing") {
+                label = "No Drought";
+                color = "";
+            } else if (key === "d0") {
+                label = "Abnormally Dry";
+                color = "#b2a077";
+            } else if (key === "d1") {
+                label = "Moderate Drought";
+                color = "#ccaa5b";
+            } else if (key === "d2") {
+                label = "Severe Drought";
+                color = "#e4985a";
+            } else if (key === "d3") {
+                label = "Extreme Drought";
+                color = "#e28060";
+            } else if (key === "d4") {
+                label = "Exceptional Drought";
+                color = "#b24543";
+            }
+            document.getElementById("currentDroughtStatus").innerHTML = label;
+            document.getElementById("currentDroughtStatus").style.color = color;
+            document.getElementById("currentDroughtStatusDate").innerHTML = format(new Date(mostRecentFeature["ddate"]), "PPP");
+        }
+
+        function updateChart(inputDataset) {
+            x.domain(inputDataset.map(d => {
+                return d.date;
+            }));
+            y.domain([0, d3.max(inputDataset, d => {
+                return d.total;
+            })]);
+            z.domain(config.chart.keys);
+
+            // update the bars
+            let bars = d3.selectAll(".bars");
+            bars.selectAll("g")
+                .data(d3.stack().keys(config.chart.keys)(inputDataset))
+                .attr("fill", d => {
+                    return z(d.key);
+                })
+                .selectAll("rect")
+                .data(d => {
+                    return d;
+                })
+                .attr("x", function(d) {
+                    return x(d.data.date);
+                })
+                .attr("y", function(d) {
+                    return y(d[1]);
+                })
+                .attr("height", function(d) {
+                    return y(d[0]) - y(d[1]);
+                })
+                .attr("width", x.bandwidth());
+        }
+
         async function fetchData(params) {
             return await queryService(params);
         }
 
+
         (async function() {
             try {
-                //const jsonResponse = await d3.json("data.json");
                 let features = jsonResponse.features;
                 let inputDataset = features.map(feature => {
                     return {
@@ -531,12 +574,12 @@ window.onSignInHandler = (portal) => {
                 y.domain([0, d3.max(inputDataset, d => {
                     return d.total;
                 })]);
-                z.domain(keys);
+                z.domain(config.chart.keys);
 
                 g.append("g")
                     .attr("class", "bars")
                     .selectAll("g")
-                    .data(d3.stack().keys(keys)(inputDataset))
+                    .data(d3.stack().keys(config.chart.keys)(inputDataset))
                     .enter().append("g")
                     .attr("fill", d => {
                         return z(d.key);
@@ -557,10 +600,10 @@ window.onSignInHandler = (portal) => {
                     })
                     .attr("width", x.bandwidth());
 
-                let xScale = d3.scaleTime().domain([new Date(inputDataset[0].date), new Date(inputDataset[inputDataset.length - 1].date)]).range([0, width]);
+                let xScale = d3.scaleTime().domain([new Date(inputDataset[0].date), new Date(inputDataset[inputDataset.length - 1].date)]).range([0, config.chart.width]);
                 g.append("g")
                     .attr("class", "x-axis")
-                    .attr("transform", "translate(0," + height + ")")
+                    .attr("transform", "translate(0," + config.chart.height + ")")
                     .call(d3.axisBottom(xScale));
 
                 g.append("g")
@@ -574,8 +617,8 @@ window.onSignInHandler = (portal) => {
                     .attr("font-weight", "bold")
                     .attr("text-anchor", "start");
 
-                function zoom(svg) {
-                    const extent = [[margin.left, margin.top], [width - margin.right, height - margin.top]];
+                /*function zoom(svg) {
+                    const extent = [[config.chart.margin.left, config.chart.margin.top], [config.chart.width - config.chart.margin.right, config.chart.height - config.chart.margin.top]];
                     svg.call(d3.zoom()
                         .scaleExtent([1, 15])
                         .translateExtent(extent)
@@ -583,20 +626,20 @@ window.onSignInHandler = (portal) => {
                         .on("zoom", zoomed));
 
                     function zoomed(event) {
-                        x.range([0, width].map(d => event.transform.applyX(d)));
+                        x.range([0, config.chart.width].map(d => event.transform.applyX(d)));
                         svg.selectAll(".bars rect").attr("x", d => x(d.data.date)).attr("width", x.bandwidth());
                         //let xScale = d3.scaleTime().domain([new Date(inputDataset[0].date), new Date(inputDataset[inputDataset.length - 1].date)]).range([x.range()[0], x.range()[1]]);
                         console.debug(x.doamin())
-                        let xScale = d3.scaleTime().domain([inputDataset[0].date, inputDataset[inputDataset.length - 1].date]).range([0, width]);
+                        let xScale = d3.scaleTime().domain([inputDataset[0].date, inputDataset[inputDataset.length - 1].date]).range([0, config.chart.width]);
                         g.append("g")
                             .attr("class", "x-axis")
-                            .attr("transform", "translate(0," + height + ")")
+                            .attr("transform", "translate(0," + config.chart.height + ")")
                             .call(d3.axisBottom(xScale));
                         svg.selectAll(".x-axis").call(xScale);
                     }
                 }
 
-                svg.call(zoom);
+                svg.call(zoom);*/
             } catch(error) {
                 console.log(error);
             }

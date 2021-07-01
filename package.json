@@ -45,6 +45,7 @@
     "d3": "^6.6.2",
     "date-fns": "^2.22.1",
     "es6-promise": "^4.2.8",
-    "esri-loader": "^3.0.0"
+    "esri-loader": "^3.0.0",
+    "url-params": "^1.0.2"
   }
 }
