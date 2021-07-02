@@ -34,7 +34,7 @@ window.onSignInHandler = (portal) => {
 
         let selectedView = null;
         //
-        let boundaryQuery = {
+        config.boundaryQuery = {
             url: config.county_boundary,
             returnGeometry: true,
             outFields: config.county_boundary_outfields,
@@ -223,11 +223,11 @@ window.onSignInHandler = (portal) => {
             item.addEventListener("click", event => {
                 config.selected.adminAreaId = event.target.id;
                 if (config.selected.adminAreaId === "county") {
-                    boundaryQuery.url = config.county_boundary;
-                    boundaryQuery.outFields = config.county_boundary_outfields;
+                    config.boundaryQuery.url = config.county_boundary;
+                    config.boundaryQuery.outFields = config.county_boundary_outfields;
                 } else if (config.selected.adminAreaId === "state") {
-                    boundaryQuery.url = config.state_boundary;
-                    boundaryQuery.outFields = config.state_boundary_outfields;
+                    config.boundaryQuery.url = config.state_boundary;
+                    config.boundaryQuery.outFields = config.state_boundary_outfields;
                 }
             });
         });
@@ -263,25 +263,146 @@ window.onSignInHandler = (portal) => {
             // 4) Fetch seasonal outlook data (spatial query based on county or state)
             //      - update seasonal drought
 
-            boundaryQuery.geometry = config.selected.mapPoint;
+            config.boundaryQuery.geometry = config.selected.mapPoint;
             // apply geometry
-            fetchData(boundaryQuery).then(retrieveGeometryResponseHandler);
+            fetchData(config.boundaryQuery).then(retrieveGeometryResponseHandler).then(response => {
+                console.debug(response.features[0].attributes);
+                config.selected.state_name = response.features[0].attributes["STATE_NAME"];
+                let selectedFeature = response.features[0];
+
+                // Agriculture + Population
+                let agrQuery = "";
+                if (config.selected.adminAreaId === "county") {
+                    config.selected.county_fips = response.features[0].attributes["FIPS"];
+                    agrQuery = `CountyFIPS = '${config.selected.county_fips}'`;
+                } else if (config.selected.adminAreaId === "state") {
+                    config.selected.state_fips = response.features[0].attributes["STATE_FIPS"];
+                    agrQuery = `SateFIPS = '${config.selected.state_fips}'`;
+                }
+                fetchData({
+                    url: config.agricultureImpactURL,
+                    returnGeometry: false,
+                    outFields: ["*"],
+                    q: agrQuery
+                }).then(response => {
+                    if (response.features.length > 0) {
+                        updateAgriculturalImpactComponent(response);
+                    }
+                });
+
+
+
+                // Drought
+                let droughtQueryLayerId = "";
+                let droughtQuery = "";
+                if (config.selected.adminAreaId === "county") {
+                    droughtQueryLayerId = "1";
+                    droughtQuery = `admin_fips = ${config.selected.county_fips}`;
+                } else {
+                    droughtQueryLayerId = "0";
+                    droughtQuery = `admin_fips  = ${config.selected.state_fips}`;
+                }
+                fetchData({
+                    url: config.droughtURL + droughtQueryLayerId,
+                    returnGeometry: false,
+                    orderByFields: ["ddate DESC"],
+                    outFields: ["*"],
+                    q: droughtQuery
+                }).then(response => {
+                    if (response.features.length > 0) {
+                        let features = response.features;
+                        let inputDataset = features.map(feature => {
+                            return {
+                                date: new Date(feature.attributes.ddate),
+                                d0: feature.attributes.d0,
+                                d1: feature.attributes.d1,
+                                d2: feature.attributes.d2,
+                                d3: feature.attributes.d3,
+                                d4: feature.attributes.d4,
+                                nothing: feature.attributes.nothing,
+                                total: 100
+                            };
+                        });
+                        inputDataset.reverse();
+
+                        let selectedDate = response.features[0].attributes.ddate;
+                        let formattedSelectedDate = format(selectedDate, "P");
+                        console.debug("formattedSelectedDate", formattedSelectedDate)
+
+                        let consecutiveWeeksQuery = "";
+                        if (config.selected.adminAreaId === "county") {
+                            consecutiveWeeksQuery = `name = '${features[0].attributes["name"]}' AND state_abbr = '${features[0].attributes["state_abbr"]}' AND D2_D4 = 0 AND ddate <= date '${formattedSelectedDate}'`;
+                        } else {
+                            consecutiveWeeksQuery = `state_abbr = '${features[0].attributes["state_abbr"]}' AND D2_D4 = 0 AND ddate <= date '${formattedSelectedDate}'`
+                        }
+                        fetchData({
+                            url: config.droughtURL + droughtQueryLayerId,
+                            returnGeometry: false,
+                            orderByFields: ["ddate desc"],
+                            outFields: ["*"],
+                            q: consecutiveWeeksQuery
+                        }).then(response => {
+                            let responseDate = response.features[0].attributes.ddate;
+                            console.debug("selectedDate", selectedDate);
+                            console.debug("responseDate", responseDate);
+                            const consecutiveWeeks = differenceInWeeks(new Date(selectedDate), new Date(responseDate)) - 1;
+
+                            document.getElementById("consecutiveWeeks").innerHTML = consecutiveWeeks.toString();
+                            if (consecutiveWeeks < 1) {
+                                document.getElementById("consecutiveWeeks").style.color = "#393939";
+                            } else if (consecutiveWeeks > 0 && consecutiveWeeks < 8) {
+                                document.getElementById("consecutiveWeeks").style.color = "#e4985a";
+                            } else if (consecutiveWeeks > 8) {
+                                document.getElementById("consecutiveWeeks").style.color = "#b24543";
+                            }
+                        });
+                        updateChart(inputDataset);
+                        updateCurrentDroughtStatus(response);
+                        updateSelectedLocationComponent(response);
+                    } else {
+
+                    }
+                });
+
+
+
+                fetchData({
+                    url: config.droughtOutlookURL + "0",
+                    returnGeometry: false,
+                    outFields: ["*"],
+                    spatialRel: "esriSpatialRelIntersects",
+                    orderByFields: ["fid_persis desc", "fid_improv desc", "fid_dev desc", "fid_remove desc"],
+                    geometryType: "esriGeometryPolygon",
+                    geometry: selectedFeature.geometry,
+                    q: ""
+                }).then(monthlyDroughtOutlookResponseHandler);
+
+                fetchData({
+                    url: config.droughtOutlookURL + "1",
+                    returnGeometry: false,
+                    outFields: ["*"],
+                    spatialRel: "esriSpatialRelIntersects",
+                    orderByFields: ["fid_persis desc", "fid_improv desc", "fid_dev desc", "fid_remove desc"],
+                    geometryType: "esriGeometryPolygon",
+                    geometry: selectedFeature.geometry,
+                    q: ""
+                }).then(seasonalDroughtOutlookResponseHandler);
+            });
+
 
             /*
             fetchData({
-                url: config.agricultureImpactURL + "0",
+                url: config.agricultureImpactURL,
                 returnGeometry: true,
                 outFields: ["*"],
                 geometry: config.selected.mapPoint,
                 q: ""
             }).then(response => {
-                // apply geometry (boundary selection)
-                agricultureImpactResponseHandler(response).then(response => {
 
                     updateSelectedLocationPopulation(response);
                     updateAgriculturalImpactComponent(response);
 
-                    let selectedFeature = response.features[0];
+
 
                     fetchData({
                         url: config.droughtURL + "1",
@@ -356,9 +477,10 @@ window.onSignInHandler = (portal) => {
                         geometry: selectedFeature.geometry,
                         q: ""
                     }).then(seasonalDroughtOutlookResponseHandler);
-                });
+
             });
             */
+
         }
 
         function highestValueAndKey(obj) {
@@ -389,6 +511,50 @@ window.onSignInHandler = (portal) => {
                 // no features
             }
             return await response;
+        }
+
+        function updateAgriculturalImpactComponent(response) {
+            const selectedFeature = response.features[0];
+            let labor = "CountyLabor";
+            let total_sales = "County_Total_Sales";
+            let corn = "County_Corn_Value";
+            let soy = "County_Soy_Value";
+            let hay = "County_Hay_Value";
+            let winter = "County_WinterWheat_Value";
+            let livestock = "County_Livestock_Value";
+            let population = "CountyPop2020";
+            if (config.selected.adminAreaId !== "county") {
+                labor = "StateLabor";
+                total_sales = "State_Total_Sales";
+                corn = "State_Corn_Value";
+                soy = "State_Soy_Value";
+                hay = "State_Hay_Value";
+                winter = "State_WinterWheat_Value";
+                livestock = "State_Livestock_Value";
+                population = "StatePop2020";
+            }
+            document.getElementById("jobs").innerHTML = Number(selectedFeature.attributes[labor]).toLocaleString();
+            document.getElementById("totalSales").innerHTML = Number(selectedFeature.attributes[total_sales]).toLocaleString();
+            document.getElementById("cornSales").innerHTML = Number(selectedFeature.attributes[corn]).toLocaleString();
+            document.getElementById("soySales").innerHTML = Number(selectedFeature.attributes[soy]).toLocaleString();
+            document.getElementById("haySales").innerHTML = Number(selectedFeature.attributes[hay]).toLocaleString();
+            document.getElementById("wheatSales").innerHTML = Number(selectedFeature.attributes[winter]).toLocaleString();
+            document.getElementById("livestockSales").innerHTML = Number(selectedFeature.attributes[livestock]).toLocaleString();
+            // population
+            document.getElementById("population").innerHTML = `Population: ${Number(selectedFeature.attributes[population]).toLocaleString()}`;
+        }
+
+
+
+
+        function updateSelectedLocationComponent(response) {
+            const selectedFeature = response.features[0];
+            let label = `${selectedFeature.attributes["name"]}, ${config.selected.state_name}`;
+            if (config.selected.adminAreaId !== "county") {
+                label = `${config.selected.state_name}`;
+            }
+            document.getElementById("selectedLocation").innerHTML = label;
+
         }
 
         function monthlyDroughtOutlookResponseHandler(response) {
@@ -443,16 +609,6 @@ window.onSignInHandler = (portal) => {
             }
         }
 
-        function updateSelectedLocationComponent(response) {
-            if (response.features.length > 0) {
-                const selectedFeature = response.features[0];
-                console.debug("selectedFeature", selectedFeature);
-                document.getElementById("selectedLocation").innerHTML = `${selectedFeature.attributes["name"]}, ${selectedFeature.attributes["state_abbr"]}`;
-            } else {
-
-            }
-        }
-
         function updateSelectedLocationPopulation(response) {
             if (response.features.length > 0) {
                 const selectedFeature = response.features[0];
@@ -462,23 +618,8 @@ window.onSignInHandler = (portal) => {
             }
         }
 
-        function updateAgriculturalImpactComponent(response) {
-            if (response.features.length > 0) {
-                const selectedFeature = response.features[0];
-                document.getElementById("jobs").innerHTML = Number(selectedFeature.attributes["CountyLabor"]).toLocaleString();
-                document.getElementById("totalSales").innerHTML = Number(selectedFeature.attributes["County_Total_Sales"]).toLocaleString();
-                document.getElementById("cornSales").innerHTML = Number(selectedFeature.attributes["County_Corn_Value"]).toLocaleString();
-                document.getElementById("soySales").innerHTML = Number(selectedFeature.attributes["County_Soy_Value"]).toLocaleString();
-                document.getElementById("haySales").innerHTML = Number(selectedFeature.attributes["County_Hay_Value"]).toLocaleString();
-                document.getElementById("wheatSales").innerHTML = Number(selectedFeature.attributes["County_WinterWheat_Value"]).toLocaleString();
-                document.getElementById("livestockSales").innerHTML = Number(selectedFeature.attributes["County_Livestock_Value"]).toLocaleString();
-            } else {
-
-            }
-        }
-
         function updateCurrentDroughtStatus(response) {
-            let mostRecentFeature = response.features[response.features.length - 1].attributes;
+            let mostRecentFeature = response.features[0].attributes;
             let drought = {
                 nothing : mostRecentFeature["nothing"],
                 d0 : mostRecentFeature["d0"],
