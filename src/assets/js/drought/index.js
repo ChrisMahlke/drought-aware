@@ -69,6 +69,15 @@ window.onSignInHandler = (portal) => {
             });
             mapView.graphics.add(graphic);
             mapView.on("click", mapClickHandler);
+
+            // Watch view's stationary property for becoming true.
+            //watchUtils.whenTrue(mapView, "stationary", function() {
+                // Get the new extent of the view only when view is stationary.
+            //    if (mapView.extent) {
+            //        console.debug(mapView.extent);
+            //    }
+            //});
+
             return {
                 "id": view.container,
                 "view": mapView
@@ -267,7 +276,6 @@ window.onSignInHandler = (portal) => {
             config.boundaryQuery.geometry = config.selected.mapPoint;
             // apply geometry
             fetchData(config.boundaryQuery).then(retrieveGeometryResponseHandler).then(response => {
-                console.debug(response);
                 let selectedFeature = response.features[0];
                 config.selected.state_name = selectedFeature.attributes["STATE_NAME"];
 
@@ -328,7 +336,6 @@ window.onSignInHandler = (portal) => {
 
                         let selectedDate = response.features[0].attributes.ddate;
                         let formattedSelectedDate = format(selectedDate, "P");
-                        console.debug("formattedSelectedDate", formattedSelectedDate)
 
                         let consecutiveWeeksQuery = "";
                         if (config.selected.adminAreaId === "county") {
@@ -366,10 +373,8 @@ window.onSignInHandler = (portal) => {
                     }
                 });
 
-
-
                 fetchData({
-                    url: config.droughtOutlookURL + "0",
+                    url: config.monthlyDroughtOutlookURL,
                     returnGeometry: false,
                     outFields: ["*"],
                     spatialRel: "esriSpatialRelIntersects",
@@ -380,7 +385,7 @@ window.onSignInHandler = (portal) => {
                 }).then(monthlyDroughtOutlookResponseHandler);
 
                 fetchData({
-                    url: config.droughtOutlookURL + "1",
+                    url: config.seasonalDroughtOutlookURL,
                     returnGeometry: false,
                     outFields: ["*"],
                     spatialRel: "esriSpatialRelIntersects",
@@ -457,29 +462,6 @@ window.onSignInHandler = (portal) => {
 
                         }
                     });
-
-                    fetchData({
-                        url: config.droughtOutlookURL + "0",
-                        returnGeometry: false,
-                        outFields: ["*"],
-                        spatialRel: "esriSpatialRelIntersects",
-                        orderByFields: ["fid_persis desc", "fid_improv desc", "fid_dev desc", "fid_remove desc"],
-                        geometryType: "esriGeometryPolygon",
-                        geometry: selectedFeature.geometry,
-                        q: ""
-                    }).then(monthlyDroughtOutlookResponseHandler);
-
-                    fetchData({
-                        url: config.droughtOutlookURL + "1",
-                        returnGeometry: false,
-                        outFields: ["*"],
-                        spatialRel: "esriSpatialRelIntersects",
-                        orderByFields: ["fid_persis desc", "fid_improv desc", "fid_dev desc", "fid_remove desc"],
-                        geometryType: "esriGeometryPolygon",
-                        geometry: selectedFeature.geometry,
-                        q: ""
-                    }).then(seasonalDroughtOutlookResponseHandler);
-
             });
             */
 
@@ -571,17 +553,17 @@ window.onSignInHandler = (portal) => {
                 const features = response.features;
                 if (features.length > 0) {
                     let feature = features[0];
-                    monthlyOutlookDate.innerHTML = feature.attributes["target"];
-                    if (feature.attributes["fid_improv"] === 1) {
+                    monthlyOutlookDate.innerHTML = feature.attributes["Target"];
+                    if (feature.attributes["FID_improv"] === 1) {
                         monthlyOutlookLabel.innerHTML = "Drought Improves";
                         monthlyOutlookLabel.style.color = "#87b178";
-                    } else if (feature.attributes["fid_persis"] === 1) {
+                    } else if (feature.attributes["FID_persis"] === 1) {
                         monthlyOutlookLabel.innerHTML = "Drought Persists";
                         monthlyOutlookLabel.style.color = "#6b4628";
-                    } else if (feature.attributes["fid_remove"] === 1) {
+                    } else if (feature.attributes["FID_remove"] === 1) {
                         monthlyOutlookLabel.innerHTML = "Drought Removal Likely";
                         monthlyOutlookLabel.style.color = "#78a0b1";
-                    } else if (feature.attributes["fid_dev"] === 1) {
+                    } else if (feature.attributes["FID_dev"] === 1) {
                         monthlyOutlookLabel.innerHTML = "Drought Develops";
                         monthlyOutlookLabel.style.color = "#6b4628";
                     }
@@ -602,17 +584,17 @@ window.onSignInHandler = (portal) => {
             let features = response.features;
             if (features.length > 0) {
                 let feature = features[0];
-                seasonalOutlookDateEle.innerHTML = feature.attributes["target"];
-                if (feature.attributes["fid_improv"] === 1) {
+                seasonalOutlookDateEle.innerHTML = feature.attributes["Target"];
+                if (feature.attributes["FID_improv"] === 1) {
                     seasonalOutlookLabelEle.innerHTML = "Drought Improves";
                     seasonalOutlookLabelEle.style.color = "#87b178";
-                } else if (feature.attributes["fid_persis"] === 1) {
+                } else if (feature.attributes["FID_persis"] === 1) {
                     seasonalOutlookLabelEle.innerHTML = "Drought Persists";
                     seasonalOutlookLabelEle.style.color = "#6b4628";
-                } else if (feature.attributes["fid_remove"] === 1) {
+                } else if (feature.attributes["FID_remove"] === 1) {
                     seasonalOutlookLabelEle.innerHTML = "Drought Removal Likely";
                     seasonalOutlookLabelEle.style.color = "#78a0b1";
-                } else if (feature.attributes["fid_dev"] === 1) {
+                } else if (feature.attributes["FID_dev"] === 1) {
                     seasonalOutlookLabelEle.innerHTML = "Drought Develops";
                     seasonalOutlookLabelEle.style.color = "#6b4628";
                 }
@@ -633,7 +615,6 @@ window.onSignInHandler = (portal) => {
 
         function updateCurrentDroughtStatus(response) {
             let mostRecentFeature = response.features[0].attributes;
-            console.debug("mostRecentFeature", mostRecentFeature);
             let drought = {
                 d0 : mostRecentFeature["d0"],
                 d1 : mostRecentFeature["d1"],

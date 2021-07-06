@@ -1,3 +1,7 @@
+html, body {
+  background-color: #cac5b1;
+}
+
 .mobile-header {
   display: none;
 }
@@ -46,6 +50,7 @@
 
 .app-header {
   height: 20vh;
+  padding-left: .5em;
 }
 
 #mainMapDiv {
@@ -81,10 +86,15 @@
   justify-content: space-around;
   flex-flow: row nowrap;
   align-items: stretch;
+  bottom: 0;
+  position: absolute;
+  right: 0;
+  left: 0;
 }
 
 .data-container-content-box {
   flex-basis: 230px;
+  padding-left: .5em;
 }
 
 .data-container-content-chart-box {
@@ -108,6 +118,7 @@
 
 .chart-legend-label-container {
   float: left;
+  padding-left: .25em;
 }
 
 .abnormally-dry {
@@ -159,6 +170,25 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.location-container {
+  padding-left: .5em;
+  padding-bottom: .35em;
+  position: absolute;
+  left: 0;
+  bottom: 162px;
+  background-color: #d6d2c4;
+  color: #393939;
+}
+
+#selectedLocation {
+  float: left;
+  margin-right: 1.5em;
+}
+
+#population {
+  float: left;
 }
 
 @media only screen and (max-width: 480px) {

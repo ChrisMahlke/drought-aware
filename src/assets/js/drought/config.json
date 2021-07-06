@@ -8,7 +8,10 @@
   "state_boundary_outfields": ["STATE_FIPS", "STATE_NAME", "STATE_ABBR"],
 
   "agricultureImpactURL": "https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/USA_PR_Counties_DroughtApp/FeatureServer/0",
-  "droughtOutlookURL": "https://idpgis.ncep.noaa.gov/arcgis/rest/services/NWS_Climate_Outlooks/cpc_drought_outlk/MapServer/",
+
+  "monthlyDroughtOutlookURL": "https://services.arcgis.com/bDAhvQYMG4WL8O5o/ArcGIS/rest/services/mdo_polygons/FeatureServer/0",
+  "seasonalDroughtOutlookURL": "https://services.arcgis.com/bDAhvQYMG4WL8O5o/ArcGIS/rest/services/sdo_polygons/FeatureServer/0",
+
   "droughtURL": "https://services9.arcgis.com/RHVPKKiFTONKtxq3/ArcGIS/rest/services/US_Drought_Intensity_v1/FeatureServer/",
 
   "views": [
@@ -38,10 +41,10 @@
       "map": null,
       "zoom": 3,
       "extent": {
-        "xmax": 4191180.8494873047,
-        "xmin": -1268170.3602294922,
-        "ymax": -4732.474365234375,
-        "ymin": -2042041.3806152344,
+        "xmax": 3827432.808245468,
+        "xmin": -320000.91011457774,
+        "ymax": 45676.62532637059,
+        "ymin": -2277754.829461718,
         "spatialReference": {
           "wkid": 5936
         }
@@ -58,10 +61,10 @@
       "map": null,
       "zoom": 3,
       "extent": {
-        "xmax": 1066548.3935737323,
-        "xmin": -1071564.2119570363,
-        "ymax": 1244590.8751008501,
-        "ymin": 446694.62580656924,
+        "xmax": 1276645.7620453902,
+        "xmin": -1290060.488316002,
+        "ymax": 1178974.4072312545,
+        "ymin": 540657.4077958297,
         "spatialReference": {
           "wkid": 102007
         }
@@ -78,10 +81,10 @@
       "map": null,
       "zoom": 3,
       "extent": {
-        "xmin": 2979131.20455834,
-        "ymin": -149630.81150056463,
-        "xmax": 3433834.4375183396,
-        "ymax": 110260.77268655399,
+        "xmax": 3540627.086646676,
+        "xmin": 2869602.8545438247,
+        "ymax": 66446.81318132428,
+        "ymin": -100430.94087566764,
         "spatialReference": {
           "wkid": 5070
         }

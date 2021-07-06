@@ -20,9 +20,9 @@
         <div class="inset-map-container">
             <div id="inset-map-content">
                 <div class="box app-header">
-                    <div style="font-size: 2.5em;">Esri Drought Aware</div>
-                    <div style="font-size: .85em;">Statistics and impacts of drought in the U.S.A.</div>
-                    <div style="font-size: .7em;">Source: NOAA, Census, USDA</div>
+                    <div style="font-size: 2.5em; color: #6f3f14;">Esri Drought Aware</div>
+                    <div style="font-size: .85em; color: #a67a53;">statistics and impacts of drought in the U.S.A.</div>
+                    <div style="font-size: .7em; color: #6c6c6c;">Source: NOAA, Census, USDA</div>
                 </div>
                 <div class="box ak-container">
                     <div id="akViewDiv"></div>
@@ -50,12 +50,12 @@
         </div>
 
         <div class="data-container hide">
-            <div style="padding-bottom: .35em">
-                <span id="selectedLocation">San Bernardino County, CA</span>
-                <span id="population">Population: 2,539,342</span>
+            <div class="location-container">
+                <div id="selectedLocation">San Bernardino County, CA</div>
+                <div id="population">Population: 2,539,342</div>
             </div>
             <div id="data-container-content">
-                <div class="data-container-content-box font-size--3">
+                <div class="data-container-content-box font-size--3" style="background-color: #dddacf;">
                     <div class="trailer-1">
                         <div class="font-size--1">Current Drought Status</div>
                         <div id="currentDroughtStatusDate" class="font-size--3">June 12, 2021</div>
@@ -69,7 +69,7 @@
                     </div>
                 </div>
 
-                <div class="data-container-content-box font-size--3">
+                <div class="data-container-content-box font-size--3" style="background-color: #dddacf;">
                     <div class="trailer-1">
                         <div class="font-size--1">Consecutive Weeks of</div>
                         <div class="font-size--3">Severe Drought</div>
@@ -77,13 +77,13 @@
                     </div>
                     <div>
                         <div class="font-size--1">Seasonal Drought Outlook</div>
-                        <div class="font-size--3">June 12, 2021</div>
-                        <div class="font-size-1 avenir-demi">Drought Removal Likely</div>
+                        <div id="seasonalOutlookDate" class="font-size--3">June 12, 2021</div>
+                        <div id="seasonalOutlookLabel" class="font-size-1 avenir-demi">Drought Removal Likely</div>
                     </div>
                 </div>
 
-                <div class="data-container-content-box font-size--3">
-                    <div class="font-size--1">Agricultural Impact</div>
+                <div class="data-container-content-box font-size--3" style="background-color: #dddacf;">
+                    <div class="font-size-1">Agricultural Impact</div>
                     <div>Jobs <span id="jobs"></span></div>
                     <div>Total Sales <span id="totalSales"></span></div>
                     <div>Corn <span id="cornSales"></span></div>
@@ -93,7 +93,7 @@
                     <div>Livestock <span id="livestockSales"></span></div>
                 </div>
 
-                <div class="data-container-content-chart-box">
+                <div class="data-container-content-chart-box" style="background-color: #dddacf; color: #393939;">
                     <div class="chart-legend">
                         <div id="chart"></div>
                     </div>
