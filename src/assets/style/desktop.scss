@@ -1,22 +1,12 @@
-@import '~calcite-web/dist/css/calcite-web.min.css';
-
-.esri-view .esri-view-surface--inset-outline:focus::after {
-  outline: none !important;
-}
-
-body {
-  background-color: #cac5b1 !important;
-}
-
-#mb-header {
+.mobile-header {
   display: none;
 }
 
-#content-container {
+.content-container {
   display: flex;
 }
 
-#inset-map-container {
+.inset-map-container {
   height: 100vh;
   width: 25vw; /* A fixed width as the default */
 }
@@ -28,26 +18,7 @@ body {
   flex-direction: column;
 }
 
-#appTitle {
-  color: #6f3f14;
-  font-size: 2.5em;
-}
-
-#subTitle {
-  color: #a67a53;
-  font-size: .85em;
-}
-
-#dataSource {
-  color: #6c6c6c;
-  font-size: .7em;
-}
-
-
-
-
-/* Container for the main map */
-#mainMapContainer {
+.main-map-container {
   flex-grow: 1; /* Set the middle element to grow and stretch */
 }
 
@@ -56,13 +27,13 @@ body {
   height: 100%;
 }
 
-#dataContainer {
+.data-container {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  /*height: 30vh;*/
-  /*max-height: 250px;*/
+  height: 30vh;
+  max-height: 250px;
 }
 
 #administrativeAreaToggle {
@@ -73,7 +44,7 @@ body {
   background-color: transparent;
 }
 
-#app-header {
+.app-header {
   height: 20vh;
 }
 
@@ -105,26 +76,19 @@ body {
   width: 100%;
 }
 
-#dataContainerContent {
+#data-container-content {
   display: flex;
   justify-content: space-around;
-  flex-flow: row wrap;
+  flex-flow: row nowrap;
   align-items: stretch;
-  background-color: #dddacf;
-  padding-top: 0.75em;
-  padding-bottom: 1em;
 }
 
 .data-container-content-box {
-  flex-basis: 200px;
+  flex-basis: 230px;
 }
 
 .data-container-content-chart-box {
   flex-grow: 4;
-}
-
-.data-box {
-  padding-left: 1em;
 }
 
 #chart {

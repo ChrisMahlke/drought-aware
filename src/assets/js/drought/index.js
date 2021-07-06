@@ -1,4 +1,4 @@
-import "../../style/index.scss";
+import "../../style/desktop.scss";
 import jsonResponse from './data.json';
 import config from './config.json';
 
@@ -126,6 +126,7 @@ window.onSignInHandler = (portal) => {
             position: "top-right"
         });
 
+        /*
         document.querySelectorAll(".inset-map-icon").forEach(item => {
             item.addEventListener("click", event => {
                 console.debug(event);
@@ -218,7 +219,7 @@ window.onSignInHandler = (portal) => {
                 }
             });
         })
-
+        */
         document.querySelectorAll(".radio-group-input").forEach(item => {
             item.addEventListener("click", event => {
                 config.selected.adminAreaId = event.target.id;
@@ -235,7 +236,7 @@ window.onSignInHandler = (portal) => {
         function mapClickHandler(event) {
             config.selected.mapPoint = event.mapPoint;
             // un-hide the visualization container
-            let dataContainerEle = document.getElementById("dataContainer");
+            let dataContainerEle = document.getElementsByClassName("data-container")[0];
             calcite.removeClass(dataContainerEle, "hide");
 
             // 0) Determine correct admin area (county or state) to use for querying data
@@ -266,9 +267,9 @@ window.onSignInHandler = (portal) => {
             config.boundaryQuery.geometry = config.selected.mapPoint;
             // apply geometry
             fetchData(config.boundaryQuery).then(retrieveGeometryResponseHandler).then(response => {
-                console.debug(response.features[0].attributes);
-                config.selected.state_name = response.features[0].attributes["STATE_NAME"];
+                console.debug(response);
                 let selectedFeature = response.features[0];
+                config.selected.state_name = selectedFeature.attributes["STATE_NAME"];
 
                 // Agriculture + Population
                 let agrQuery = "";
@@ -347,13 +348,14 @@ window.onSignInHandler = (portal) => {
                             console.debug("responseDate", responseDate);
                             const consecutiveWeeks = differenceInWeeks(new Date(selectedDate), new Date(responseDate)) - 1;
 
-                            document.getElementById("consecutiveWeeks").innerHTML = consecutiveWeeks.toString();
+                            let consecutiveWeeksElement = document.getElementById("consecutiveWeeks");
+                            consecutiveWeeksElement.innerHTML = consecutiveWeeks.toString();
                             if (consecutiveWeeks < 1) {
-                                document.getElementById("consecutiveWeeks").style.color = "#393939";
+                                consecutiveWeeksElement.style.color = "#393939";
                             } else if (consecutiveWeeks > 0 && consecutiveWeeks < 8) {
-                                document.getElementById("consecutiveWeeks").style.color = "#e4985a";
+                                consecutiveWeeksElement.style.color = "#e4985a";
                             } else if (consecutiveWeeks > 8) {
-                                document.getElementById("consecutiveWeeks").style.color = "#b24543";
+                                consecutiveWeeksElement.style.color = "#b24543";
                             }
                         });
                         updateChart(inputDataset);
@@ -513,6 +515,10 @@ window.onSignInHandler = (portal) => {
             return await response;
         }
 
+        /**
+         *
+         * @param response
+         */
         function updateAgriculturalImpactComponent(response) {
             const selectedFeature = response.features[0];
             let labor = "CountyLabor";
@@ -544,9 +550,6 @@ window.onSignInHandler = (portal) => {
             document.getElementById("population").innerHTML = `Population: ${Number(selectedFeature.attributes[population]).toLocaleString()}`;
         }
 
-
-
-
         function updateSelectedLocationComponent(response) {
             const selectedFeature = response.features[0];
             let label = `${selectedFeature.attributes["name"]}, ${config.selected.state_name}`;
@@ -557,55 +560,65 @@ window.onSignInHandler = (portal) => {
 
         }
 
+        /**
+         *
+         * @param response
+         */
         function monthlyDroughtOutlookResponseHandler(response) {
+            let monthlyOutlookDate = document.getElementById("monthlyOutlookDate");
+            let monthlyOutlookLabel = document.getElementById("monthlyOutlookLabel");
             if (response.features.length > 0) {
                 const features = response.features;
                 if (features.length > 0) {
                     let feature = features[0];
-                    document.getElementById("monthlyOutlookDate").innerHTML = feature.attributes["target"];
+                    monthlyOutlookDate.innerHTML = feature.attributes["target"];
                     if (feature.attributes["fid_improv"] === 1) {
-                        document.getElementById("monthlyOutlookLabel").innerHTML = "Drought Improves";
-                        document.getElementById("monthlyOutlookLabel").style.color = "#87b178";
+                        monthlyOutlookLabel.innerHTML = "Drought Improves";
+                        monthlyOutlookLabel.style.color = "#87b178";
                     } else if (feature.attributes["fid_persis"] === 1) {
-                        document.getElementById("monthlyOutlookLabel").innerHTML = "Drought Persists";
-                        document.getElementById("monthlyOutlookLabel").style.color = "#6b4628";
+                        monthlyOutlookLabel.innerHTML = "Drought Persists";
+                        monthlyOutlookLabel.style.color = "#6b4628";
                     } else if (feature.attributes["fid_remove"] === 1) {
-                        document.getElementById("monthlyOutlookLabel").innerHTML = "Drought Removal Likely";
-                        document.getElementById("monthlyOutlookLabel").style.color = "#78a0b1";
+                        monthlyOutlookLabel.innerHTML = "Drought Removal Likely";
+                        monthlyOutlookLabel.style.color = "#78a0b1";
                     } else if (feature.attributes["fid_dev"] === 1) {
-                        document.getElementById("monthlyOutlookLabel").innerHTML = "Drought Develops";
-                        document.getElementById("monthlyOutlookLabel").style.color = "#6b4628";
+                        monthlyOutlookLabel.innerHTML = "Drought Develops";
+                        monthlyOutlookLabel.style.color = "#6b4628";
                     }
                 }
             } else {
-                document.getElementById("monthlyOutlookDate").innerHTML = "";
-                document.getElementById("monthlyOutlookLabel").innerHTML = "";
+                monthlyOutlookDate.innerHTML = "";
+                monthlyOutlookLabel.innerHTML = "";
             }
         }
 
+        /**
+         *
+         * @param response
+         */
         function seasonalDroughtOutlookResponseHandler(response) {
-            if (response.features.length > 0) {
-                let features = response.features;
-                if (features.length > 0) {
-                    let feature = features[0];
-                    document.getElementById("seasonalOutlookDate").innerHTML = feature.attributes["target"];
-                    if (feature.attributes["fid_improv"] === 1) {
-                        document.getElementById("seasonalOutlookLabel").innerHTML = "Drought Improves";
-                        document.getElementById("seasonalOutlookLabel").style.color = "#87b178";
-                    } else if (feature.attributes["fid_persis"] === 1) {
-                        document.getElementById("seasonalOutlookLabel").innerHTML = "Drought Persists";
-                        document.getElementById("seasonalOutlookLabel").style.color = "#6b4628";
-                    } else if (feature.attributes["fid_remove"] === 1) {
-                        document.getElementById("seasonalOutlookLabel").innerHTML = "Drought Removal Likely";
-                        document.getElementById("seasonalOutlookLabel").style.color = "#78a0b1";
-                    } else if (feature.attributes["fid_dev"] === 1) {
-                        document.getElementById("seasonalOutlookLabel").innerHTML = "Drought Develops";
-                        document.getElementById("seasonalOutlookLabel").style.color = "#6b4628";
-                    }
+            let seasonalOutlookDateEle = document.getElementById("seasonalOutlookDate");
+            let seasonalOutlookLabelEle = document.getElementById("seasonalOutlookLabel");
+            let features = response.features;
+            if (features.length > 0) {
+                let feature = features[0];
+                seasonalOutlookDateEle.innerHTML = feature.attributes["target"];
+                if (feature.attributes["fid_improv"] === 1) {
+                    seasonalOutlookLabelEle.innerHTML = "Drought Improves";
+                    seasonalOutlookLabelEle.style.color = "#87b178";
+                } else if (feature.attributes["fid_persis"] === 1) {
+                    seasonalOutlookLabelEle.innerHTML = "Drought Persists";
+                    seasonalOutlookLabelEle.style.color = "#6b4628";
+                } else if (feature.attributes["fid_remove"] === 1) {
+                    seasonalOutlookLabelEle.innerHTML = "Drought Removal Likely";
+                    seasonalOutlookLabelEle.style.color = "#78a0b1";
+                } else if (feature.attributes["fid_dev"] === 1) {
+                    seasonalOutlookLabelEle.innerHTML = "Drought Develops";
+                    seasonalOutlookLabelEle.style.color = "#6b4628";
                 }
             } else {
-                document.getElementById("seasonalOutlookDate").innerHTML = "";
-                document.getElementById("seasonalOutlookLabel").innerHTML = "";
+                seasonalOutlookDateEle.innerHTML = "";
+                seasonalOutlookLabelEle.innerHTML = "";
             }
         }
 
@@ -620,8 +633,8 @@ window.onSignInHandler = (portal) => {
 
         function updateCurrentDroughtStatus(response) {
             let mostRecentFeature = response.features[0].attributes;
+            console.debug("mostRecentFeature", mostRecentFeature);
             let drought = {
-                nothing : mostRecentFeature["nothing"],
                 d0 : mostRecentFeature["d0"],
                 d1 : mostRecentFeature["d1"],
                 d2 : mostRecentFeature["d2"],
@@ -632,7 +645,7 @@ window.onSignInHandler = (portal) => {
             let key = condition["key"];
             let label = "";
             let color = "";
-            if (key === "nothing") {
+            if (mostRecentFeature["nothing"] === 100) {
                 label = "No Drought";
                 color = "";
             } else if (key === "d0") {
@@ -651,8 +664,9 @@ window.onSignInHandler = (portal) => {
                 label = "Exceptional Drought";
                 color = "#b24543";
             }
-            document.getElementById("currentDroughtStatus").innerHTML = label;
-            document.getElementById("currentDroughtStatus").style.color = color;
+            let currentDroughtStatusElement = document.getElementById("currentDroughtStatus");
+            currentDroughtStatusElement.innerHTML = label;
+            currentDroughtStatusElement.style.color = color;
             document.getElementById("currentDroughtStatusDate").innerHTML = format(new Date(mostRecentFeature["ddate"]), "PPP");
         }
 

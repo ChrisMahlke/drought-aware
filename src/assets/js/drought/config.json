@@ -13,9 +13,8 @@
 
   "views": [
     {
-      "container": "mainMapView",
+      "container": "mainMapDiv",
       "map": null,
-      "zoom": 2,
       "extent": {
         "xmin": -2991495.024884269,
         "ymin": 252581.70093458006,
@@ -30,12 +29,12 @@
       },
       "constraints": {
         "rotationEnabled": false,
-        "minScale": 40000000,
+        "minScale": 60000000,
         "maxScale": 0
       }
     },
     {
-      "container": "akView",
+      "container": "akViewDiv",
       "map": null,
       "zoom": 3,
       "extent": {
@@ -55,7 +54,7 @@
       }
     },
     {
-      "container": "hiView",
+      "container": "hiViewDiv",
       "map": null,
       "zoom": 3,
       "extent": {
@@ -75,7 +74,7 @@
       }
     },
     {
-      "container": "prView",
+      "container": "prViewDiv",
       "map": null,
       "zoom": 3,
       "extent": {

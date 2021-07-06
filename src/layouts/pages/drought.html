@@ -11,89 +11,78 @@
 </div>
 
 <div class="wrapper">
-    <div id="mb-header">
-        <div id="mb-header-menu-btn" class="btn btn-large js-drawer-toggle icon-ui-menu" data-drawer="top-nav"></div>
+    <div class="mobile-header">
+        <div class="mobile-header-menu-btn btn btn-large js-drawer-toggle icon-ui-menu" data-drawer="top-nav"></div>
+        <div class="btn btn-small sign-in-btn">Sign In</div>
+        <div class="btn btn-small sign-out-btn hide">Sign Out</div>
     </div>
-
-    <div id="content-container">
-
-        <div id="inset-map-container">
+    <div class="content-container">
+        <div class="inset-map-container">
             <div id="inset-map-content">
-
-                <div id="app-header" class="box data-box">
-                    <div id="appTitle">
-                        Esri Drought Aware <calcite-icon icon="information" scale="s"></calcite-icon>
-                    </div>
-                    <div id="subTitle">Statistics and impacts of drought in the U.S.A.</div>
-                    <div id="dataSource">Source: NOAA, Census, USDA</div>
-                    <div class="sign-in-btn hide"></div>
-                    <div class="sign-out-btn hide"></div>
+                <div class="box app-header">
+                    <div style="font-size: 2.5em;">Esri Drought Aware</div>
+                    <div style="font-size: .85em;">Statistics and impacts of drought in the U.S.A.</div>
+                    <div style="font-size: .7em;">Source: NOAA, Census, USDA</div>
                 </div>
-
-                <div id="ak-container" class="box">
-                    <div class="inset-map-icon icon-ui-minimize svg-icon-gray font-size--3" data-id="akView">Alaska</div>
-                    <div id="akView"></div>
+                <div class="box ak-container">
+                    <div id="akViewDiv"></div>
                 </div>
-
-                <div id="hi-container" class="box">
-                    <div class="inset-map-icon icon-ui-minimize svg-icon-gray font-size--3" data-id="akView">Hawaii</div>
-                    <div id="hiView"></div>
+                <div class="box hi-container">
+                    <div id="hiViewDiv"></div>
                 </div>
-
-                <div id="pr-container" class="box">
-                    <div class="inset-map-icon icon-ui-minimize svg-icon-gray font-size--3" data-id="akView">Puerto Rico</div>
-                    <div id="prView"></div>
+                <div class="box pr-container">
+                    <div id="prViewDiv"></div>
                 </div>
             </div>
         </div>
 
-        <div id="mainMapContainer">
-            <div id="mainMapView">
+        <div class="main-map-container main-map">
+            <div id="mainMapDiv">
                 <div id="administrativeAreaToggle" class="esri-widget">
                     <fieldset class="radio-group">
-                        <input id="county" class="radio-group-input" type="radio" name="framework" checked/>
-                        <label class="radio-group-label" for="county">County Info</label>
-                        <input id="state" class="radio-group-input" type="radio" name="framework"/>
-                        <label class="radio-group-label" for="state">State Info</label>
+                        <input class="radio-group-input" type="radio" id="county" name="adminboundary" data-admin-area-id="county" checked/>
+                        <label class="radio-group-label" for="county">County</label>
+                        <input class="radio-group-input" type="radio" id="state" name="adminboundary" data-admin-area-id="state"/>
+                        <label class="radio-group-label" for="state">State</label>
                     </fieldset>
                 </div>
             </div>
         </div>
 
-        <div id="dataContainer" class="hide animate-in-up">
-            <div class="data-box" style="width: 30vw; background-color: #d6d2c4; color: #393939; padding-top: .25em; padding-bottom: .25em;">
-                <span id="selectedLocation" style="font-size: 1.2em; padding-right: 1em;">San Bernardino County, CA</span>
-                <span id="population" style="font-size: .85em;">Population: 11,438,340</span>
+        <div class="data-container hide">
+            <div style="padding-bottom: .35em">
+                <span id="selectedLocation">San Bernardino County, CA</span>
+                <span id="population">Population: 2,539,342</span>
             </div>
-            <div id="dataContainerContent">
+            <div id="data-container-content">
                 <div class="data-container-content-box font-size--3">
-                    <div class="trailer-1 data-box">
+                    <div class="trailer-1">
                         <div class="font-size--1">Current Drought Status</div>
-                        <div id="currentDroughtStatusDate" class="font-size--3"></div>
-                        <div id="currentDroughtStatus" class="font-size-1 avenir-demi"></div>
+                        <div id="currentDroughtStatusDate" class="font-size--3">June 12, 2021</div>
+                        <div id="currentDroughtStatus" class="font-size-1 avenir-demi">Moderate Drought</div>
                     </div>
 
-                    <div class=" data-box">
+                    <div>
                         <div class="font-size--1">Monthly Drought Outlook</div>
-                        <div id="monthlyOutlookDate" class="font-size--3"></div>
-                        <div id="monthlyOutlookLabel" class="font-size-1 avenir-demi"></div>
+                        <div id="monthlyOutlookDate" class="font-size--3">June 12, 2021</div>
+                        <div id="monthlyOutlookLabel" class="font-size-1 avenir-demi">Drought Intensifies</div>
                     </div>
                 </div>
 
                 <div class="data-container-content-box font-size--3">
-                    <div class="trailer-1 data-box">
+                    <div class="trailer-1">
                         <div class="font-size--1">Consecutive Weeks of</div>
                         <div class="font-size--3">Severe Drought</div>
-                        <div id="consecutiveWeeks" class="font-size-1 avenir-demi"></div>
+                        <div id="consecutiveWeeks" class="font-size-1 avenir-demi">24</div>
                     </div>
-                    <div class="data-box">
+                    <div>
                         <div class="font-size--1">Seasonal Drought Outlook</div>
-                        <div id="seasonalOutlookDate" class="font-size--3"></div>
-                        <div id="seasonalOutlookLabel" class="font-size-1 avenir-demi"></div>
+                        <div class="font-size--3">June 12, 2021</div>
+                        <div class="font-size-1 avenir-demi">Drought Removal Likely</div>
                     </div>
                 </div>
 
-                <div class="data-container-content-box font-size--3 data-box">
+                <div class="data-container-content-box font-size--3">
                     <div class="font-size--1">Agricultural Impact</div>
                     <div>Jobs <span id="jobs"></span></div>
                     <div>Total Sales <span id="totalSales"></span></div>
