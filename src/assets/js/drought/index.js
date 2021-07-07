@@ -33,9 +33,8 @@ window.onSignInHandler = (portal) => {
                  SpatialReference, MapView, WebMap, QueryTask, Query,
                  Polygon, Search, watchUtils]) => {
 
-        const params = new URLSearchParams(location.search);
-        const selectedAdmin = params.get("admin") || "county";
-
+        let params = new URLSearchParams(location.search);
+        let selectedAdmin = params.get("admin") || "county";
         params.set("admin", selectedAdmin);
 
         //window.history.replaceState({}, '', `${location.pathname}?${params}`);
@@ -129,10 +128,11 @@ window.onSignInHandler = (portal) => {
             // Get the new extent of the view only when view is stationary.
             const currentExtent = selectedView.view.extent;
             if (currentExtent) {
-                params.set('xmin', currentExtent.xmin);
-                params.set('ymin', currentExtent.ymin);
-                params.set('xmax', currentExtent.xmax);
-                params.set('ymax', currentExtent.ymax);
+                const params = new URLSearchParams(location.search);
+                params.set("xmin", currentExtent.xmin);
+                params.set("ymin", currentExtent.ymin);
+                params.set("xmax", currentExtent.xmax);
+                params.set("ymax", currentExtent.ymax);
                 window.history.replaceState({}, '', `${location.pathname}?${params}`);
             }
         });
@@ -186,7 +186,7 @@ window.onSignInHandler = (portal) => {
             position: "top-right"
         });
 
-
+        mapClickHandler(null);
 
         /*
         document.querySelectorAll(".inset-map-icon").forEach(item => {
@@ -294,7 +294,7 @@ window.onSignInHandler = (portal) => {
                 }
 
                 const params = new URLSearchParams(location.search);
-                params.set('admin', config.selected.adminAreaId);
+                params.set("admin", config.selected.adminAreaId);
                 window.history.replaceState({}, '', `${location.pathname}?${params}`);
             });
         });
@@ -305,13 +305,16 @@ window.onSignInHandler = (portal) => {
             calcite.removeClass(dataContainerEle, "hide");
 
             if (event !== null) {
-                //config.selected.mapPoint = event.mapPoint;
-                config.boundaryQuery.geometry = event.mapPoint;//config.selected.mapPoint;
+                config.boundaryQuery.geometry = event.mapPoint;
+                //params.set("xmin", params.get("xmin"));
+                //params.set("ymin", params.get("ymin"));
+                //params.set("xmax", params.get("xmax"));
+                //params.set("ymax", params.get("ymax"));
+                const params = new URLSearchParams(location.search);
+                params.set("x", event.mapPoint.x);
+                params.set("y", event.mapPoint.y);
+                window.history.replaceState({}, '', `${location.pathname}?${params}`);
             }
-
-            params.set("x", event.mapPoint.x);
-            params.set("y", event.mapPoint.y);
-            window.history.replaceState({}, '', `${location.pathname}?${params}`);
 
             // 0) Determine correct admin area (county or state) to use for querying data
             //      - apply geometry (boundary) to map
@@ -416,8 +419,6 @@ window.onSignInHandler = (portal) => {
                             q: consecutiveWeeksQuery
                         }).then(response => {
                             let responseDate = response.features[0].attributes.ddate;
-                            console.debug("selectedDate", selectedDate);
-                            console.debug("responseDate", responseDate);
                             const consecutiveWeeks = differenceInWeeks(new Date(selectedDate), new Date(responseDate)) - 1;
 
                             let consecutiveWeeksElement = document.getElementById("consecutiveWeeks");
