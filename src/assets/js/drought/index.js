@@ -300,13 +300,17 @@ window.onSignInHandler = (portal) => {
         });
 
         function mapClickHandler(event) {
-            config.selected.mapPoint = event.mapPoint;
             // un-hide the visualization container
             let dataContainerEle = document.getElementsByClassName("data-container")[0];
             calcite.removeClass(dataContainerEle, "hide");
 
-            params.set("x", config.selected.mapPoint.x);
-            params.set("y", config.selected.mapPoint.y);
+            if (event !== null) {
+                //config.selected.mapPoint = event.mapPoint;
+                config.boundaryQuery.geometry = event.mapPoint;//config.selected.mapPoint;
+            }
+
+            params.set("x", event.mapPoint.x);
+            params.set("y", event.mapPoint.y);
             window.history.replaceState({}, '', `${location.pathname}?${params}`);
 
             // 0) Determine correct admin area (county or state) to use for querying data
@@ -334,7 +338,7 @@ window.onSignInHandler = (portal) => {
             // 4) Fetch seasonal outlook data (spatial query based on county or state)
             //      - update seasonal drought
 
-            config.boundaryQuery.geometry = config.selected.mapPoint;
+
             // apply geometry
             fetchData(config.boundaryQuery).then(retrieveGeometryResponseHandler).then(response => {
                 let selectedFeature = response.features[0];
@@ -456,76 +460,6 @@ window.onSignInHandler = (portal) => {
                     q: ""
                 }).then(seasonalDroughtOutlookResponseHandler);
             });
-
-
-            /*
-            fetchData({
-                url: config.agricultureImpactURL,
-                returnGeometry: true,
-                outFields: ["*"],
-                geometry: config.selected.mapPoint,
-                q: ""
-            }).then(response => {
-
-                    updateSelectedLocationPopulation(response);
-                    updateAgriculturalImpactComponent(response);
-
-
-
-                    fetchData({
-                        url: config.droughtURL + "1",
-                        returnGeometry: false,
-                        orderByFields: ["ddate ASC"],
-                        outFields: ["*"],
-                        q: `admin_fips = ${selectedFeature.attributes["CountyFIPS"]}`
-                    }).then(response => {
-                        if (response.features.length > 0) {
-                            const features = response.features;
-                            const inputDataset = features.map(feature => {
-                                return {
-                                    date: new Date(feature.attributes.ddate),
-                                    d0: feature.attributes.d0,
-                                    d1: feature.attributes.d1,
-                                    d2: feature.attributes.d2,
-                                    d3: feature.attributes.d3,
-                                    d4: feature.attributes.d4,
-                                    nothing: feature.attributes.nothing,
-                                    total: 100
-                                };
-                            });
-
-                            const selectedDate = response.features[response.features.length - 1].attributes.ddate;
-                            let formattedSelectedDate = format(selectedDate, "P");
-                            fetchData({
-                                url: config.droughtURL + "1",
-                                returnGeometry: false,
-                                orderByFields: ["ddate desc"],
-                                outFields: ["*"],
-                                q: `name = '${features[0].attributes["name"]}' AND state_abbr = '${features[0].attributes["state_abbr"]}' AND D2_D4 = 0 AND ddate <= date '${formattedSelectedDate}'`
-                            }).then(response => {
-                                let responseDate = response.features[0].attributes.ddate;
-                                const consecutiveWeeks = differenceInWeeks(new Date(selectedDate), new Date(responseDate)) - 1;
-
-                                document.getElementById("consecutiveWeeks").innerHTML = consecutiveWeeks.toString();
-                                if (consecutiveWeeks < 1) {
-                                    document.getElementById("consecutiveWeeks").style.color = "#393939";
-                                } else if (consecutiveWeeks > 0 && consecutiveWeeks < 8) {
-                                    document.getElementById("consecutiveWeeks").style.color = "#e4985a";
-                                } else if (consecutiveWeeks > 8) {
-                                    document.getElementById("consecutiveWeeks").style.color = "#b24543";
-                                }
-                            });
-
-                            updateChart(inputDataset);
-                            updateCurrentDroughtStatus(response);
-                            updateSelectedLocationComponent(response);
-                        } else {
-
-                        }
-                    });
-            });
-            */
-
         }
 
         function highestValueAndKey(obj) {
