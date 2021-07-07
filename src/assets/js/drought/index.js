@@ -16,6 +16,7 @@ window.onSignInHandler = (portal) => {
     loadCss();
 
     loadModules([
+        "esri/geometry/Point",
         "esri/Graphic",
         "esri/geometry/Extent",
         "esri/geometry/geometryEngine",
@@ -28,19 +29,50 @@ window.onSignInHandler = (portal) => {
         "esri/geometry/Polygon",
         "esri/widgets/Search",
         "esri/core/watchUtils",
-    ]).then(([Graphic, Extent, geometryEngine, projection,
+    ]).then(([Point, Graphic, Extent, geometryEngine, projection,
                  SpatialReference, MapView, WebMap, QueryTask, Query,
                  Polygon, Search, watchUtils]) => {
 
+        const params = new URLSearchParams(location.search);
+        const selectedAdmin = params.get("admin") || "county";
+
+        params.set("admin", selectedAdmin);
+
+        //window.history.replaceState({}, '', `${location.pathname}?${params}`);
+
+        config.selected.adminAreaId = selectedAdmin;
+        if (config.selected.adminAreaId === "county") {
+            config.boundaryQuery = {
+                url: config.county_boundary,
+                returnGeometry: true,
+                outFields: config.county_boundary_outfields,
+                geometry: null,
+                q: ""
+            };
+
+        } else if (config.selected.adminAreaId === "state") {
+            document.getElementById("county").checked = false;
+            document.getElementById("state").checked = true;
+            config.boundaryQuery = {
+                url: config.state_boundary,
+                returnGeometry: true,
+                outFields: config.state_boundary_outfields,
+                geometry: null,
+                q: ""
+            };
+        }
+
+        config.boundaryQuery.geometry = new Point({
+            "x": parseInt(params.get("x")),
+            "y": parseInt(params.get("y")),
+            "spatialReference": {
+                "wkid": 5070
+            },
+            "type": "point"
+        });
+
         let selectedView = null;
         //
-        config.boundaryQuery = {
-            url: config.county_boundary,
-            returnGeometry: true,
-            outFields: config.county_boundary_outfields,
-            geometry: config.selected.mapPoint,
-            q: ""
-        };
         // create the svg
         let svg = d3.select("#chart").append("svg").attr("width", config.chart.width + 25).attr("height", config.chart.height + 25);
         let g = svg.append("g").attr("transform", "translate(" + config.chart.margin.left + "," + config.chart.margin.top + ")");
@@ -57,7 +89,19 @@ window.onSignInHandler = (portal) => {
             }
         });
 
-        let views = config.views.map(view => {
+        let views = config.views.map((view, i) => {
+            if (i === 0) {
+                view.extent = {
+                    "xmin": params.get("xmin") || -2991495.024884269,
+                    "ymin": params.get("ymin") || 252581.70093458006,
+                    "xmax": params.get("xmax") || 2841527.165071185,
+                    "ymax": params.get("ymax") || 3191062.7476635515,
+                    "spatialReference": {
+                        "wkid": 5070
+                    }
+                }
+            }
+
             view.map = webmap;
             const mapView = new MapView(view);
             mapView.popup = null;
@@ -70,21 +114,28 @@ window.onSignInHandler = (portal) => {
             mapView.graphics.add(graphic);
             mapView.on("click", mapClickHandler);
 
-            // Watch view's stationary property for becoming true.
-            //watchUtils.whenTrue(mapView, "stationary", function() {
-                // Get the new extent of the view only when view is stationary.
-            //    if (mapView.extent) {
-            //        console.debug(mapView.extent);
-            //    }
-            //});
-
             return {
                 "id": view.container,
                 "view": mapView
             };
         });
 
+
+
+
         selectedView = views[0];
+        // Watch view's stationary property for becoming true.
+        watchUtils.whenTrue(selectedView.view, "stationary", function() {
+            // Get the new extent of the view only when view is stationary.
+            const currentExtent = selectedView.view.extent;
+            if (currentExtent) {
+                params.set('xmin', currentExtent.xmin);
+                params.set('ymin', currentExtent.ymin);
+                params.set('xmax', currentExtent.xmax);
+                params.set('ymax', currentExtent.ymax);
+                window.history.replaceState({}, '', `${location.pathname}?${params}`);
+            }
+        });
 
         let searchWidget = new Search();
         searchWidget.on("search-complete", function(event) {
@@ -134,6 +185,8 @@ window.onSignInHandler = (portal) => {
         views[0].view.ui.add(searchWidget, {
             position: "top-right"
         });
+
+
 
         /*
         document.querySelectorAll(".inset-map-icon").forEach(item => {
@@ -239,6 +292,10 @@ window.onSignInHandler = (portal) => {
                     config.boundaryQuery.url = config.state_boundary;
                     config.boundaryQuery.outFields = config.state_boundary_outfields;
                 }
+
+                const params = new URLSearchParams(location.search);
+                params.set('admin', config.selected.adminAreaId);
+                window.history.replaceState({}, '', `${location.pathname}?${params}`);
             });
         });
 
@@ -247,6 +304,10 @@ window.onSignInHandler = (portal) => {
             // un-hide the visualization container
             let dataContainerEle = document.getElementsByClassName("data-container")[0];
             calcite.removeClass(dataContainerEle, "hide");
+
+            params.set("x", config.selected.mapPoint.x);
+            params.set("y", config.selected.mapPoint.y);
+            window.history.replaceState({}, '', `${location.pathname}?${params}`);
 
             // 0) Determine correct admin area (county or state) to use for querying data
             //      - apply geometry (boundary) to map
