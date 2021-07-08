@@ -1,5 +1,5 @@
 {
-  "webMapId": "ab5bf0057f11443ca86d78e7d1998da5",
+  "webMapId": "5092421a7bb94444851915c78e8fab14",
 
   "county_boundary": "https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/USA_Counties_Generalized/FeatureServer/0",
   "county_boundary_outfields": ["FIPS", "NAME", "STATE_NAME"],

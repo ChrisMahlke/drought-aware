@@ -16,6 +16,8 @@ window.onSignInHandler = (portal) => {
     loadCss();
 
     loadModules([
+        "esri/layers/FeatureLayer",
+        "esri/TimeExtent",
         "esri/geometry/Point",
         "esri/Graphic",
         "esri/geometry/Extent",
@@ -29,17 +31,17 @@ window.onSignInHandler = (portal) => {
         "esri/geometry/Polygon",
         "esri/widgets/Search",
         "esri/core/watchUtils",
-    ]).then(([Point, Graphic, Extent, geometryEngine, projection,
+    ]).then(([FeatureLayer, TimeExtent, Point, Graphic, Extent, geometryEngine, projection,
                  SpatialReference, MapView, WebMap, QueryTask, Query,
                  Polygon, Search, watchUtils]) => {
 
         let params = new URLSearchParams(location.search);
-        let selectedAdmin = params.get("admin") || "county";
-        params.set("admin", selectedAdmin);
+        let selectedX = parseInt(params.get("x"));
+        let selectedY = parseInt(params.get("y"))
+        config.selected.adminAreaId = params.get("admin") || "county";
+        params.set("admin", config.selected.adminAreaId);
+        window.history.replaceState({}, '', `${location.pathname}?${params}`);
 
-        //window.history.replaceState({}, '', `${location.pathname}?${params}`);
-
-        config.selected.adminAreaId = selectedAdmin;
         if (config.selected.adminAreaId === "county") {
             config.boundaryQuery = {
                 url: config.county_boundary,
@@ -62,8 +64,8 @@ window.onSignInHandler = (portal) => {
         }
 
         config.boundaryQuery.geometry = new Point({
-            "x": parseInt(params.get("x")),
-            "y": parseInt(params.get("y")),
+            "x": selectedX,
+            "y": selectedY,
             "spatialReference": {
                 "wkid": 5070
             },
@@ -88,6 +90,51 @@ window.onSignInHandler = (portal) => {
             }
         });
 
+        //const fl = new FeatureLayer({
+        //    url: "https://services9.arcgis.com/RHVPKKiFTONKtxq3/ArcGIS/rest/services/US_Drought_Intensity_v1/FeatureServer/2"
+        //});
+
+        /*const table = new FeatureLayer({
+            portalItem: { // autocasts as esri/portal/PortalItem
+                id: "9731f9062afd45f2be7b3bf2e050fbfa"
+            }
+        });
+        webmap.add(table)*/
+
+        // Load all resources but ignore if one or more of them failed to load
+        webmap.loadAll()
+            .catch(function(error) {
+                // Ignore any failed resources
+                console.debug("ERROR", error);
+            })
+            .then(function() {
+                console.debug("ALL LOADED");
+            });
+
+        webmap.load()
+            .then(function() {
+                // load the basemap to get its layers created
+                return webmap.basemap.load();
+            })
+            .then(function() {
+                // grab all the layers and load them
+                const allLayers = webmap.allLayers;
+                const promises = allLayers.map(function(layer) {
+                    return layer.load();
+                });
+                return Promise.all(promises.toArray());
+            })
+            .then(function(layers) {
+                // each layer load promise resolves with the layer
+                console.debug("All " + layers.length + " layers loaded");
+                layers.forEach(layer => {
+                    console.debug(layer);
+                });
+            })
+            .catch(function(error) {
+                console.error(error);
+            });
+
         let views = config.views.map((view, i) => {
             if (i === 0) {
                 view.extent = {
@@ -100,7 +147,6 @@ window.onSignInHandler = (portal) => {
                     }
                 }
             }
-
             view.map = webmap;
             const mapView = new MapView(view);
             mapView.popup = null;
@@ -113,14 +159,14 @@ window.onSignInHandler = (portal) => {
             mapView.graphics.add(graphic);
             mapView.on("click", mapClickHandler);
 
+            mapView
+                .when(maintainFixedExtent);
+
             return {
                 "id": view.container,
                 "view": mapView
             };
         });
-
-
-
 
         selectedView = views[0];
         // Watch view's stationary property for becoming true.
@@ -186,7 +232,9 @@ window.onSignInHandler = (portal) => {
             position: "top-right"
         });
 
-        mapClickHandler(null);
+        if (!isNaN(selectedX) & !isNaN(selectedY)) {
+            mapClickHandler(null);
+        }
 
         /*
         document.querySelectorAll(".inset-map-icon").forEach(item => {
@@ -306,10 +354,6 @@ window.onSignInHandler = (portal) => {
 
             if (event !== null) {
                 config.boundaryQuery.geometry = event.mapPoint;
-                //params.set("xmin", params.get("xmin"));
-                //params.set("ymin", params.get("ymin"));
-                //params.set("xmax", params.get("xmax"));
-                //params.set("ymax", params.get("ymax"));
                 const params = new URLSearchParams(location.search);
                 params.set("x", event.mapPoint.x);
                 params.set("y", event.mapPoint.y);
@@ -647,7 +691,10 @@ window.onSignInHandler = (portal) => {
             document.getElementById("currentDroughtStatusDate").innerHTML = format(new Date(mostRecentFeature["ddate"]), "PPP");
         }
 
+
+
         function updateChart(inputDataset) {
+            console.debug(new Date(inputDataset[0].date).getTime());
             x.domain(inputDataset.map(d => {
                 return d.date;
             }));
@@ -676,7 +723,46 @@ window.onSignInHandler = (portal) => {
                 .attr("height", function(d) {
                     return y(d[0]) - y(d[1]);
                 })
-                .attr("width", x.bandwidth());
+                .attr("width", x.bandwidth())
+                .attr("date", function(d) {
+                    return new Date(d.data.date).getTime();
+                })
+                .attr("d0", function(d) {
+                    return d.data.d0;
+                })
+                .attr("d1", function(d) {
+                    return d.data.d1;
+                })
+                .attr("d2", function(d) {
+                    return d.data.d2;
+                })
+                .attr("d3", function(d) {
+                    return d.data.d3;
+                })
+                .attr("d4", function(d) {
+                    return d.data.d4;
+                })
+                .on("click", function(d) {
+                    console.debug(parseInt(d.target.attributes["date"].nodeValue));
+                    let endDate = new Date(parseInt(d.target.attributes["date"].nodeValue));
+                    // Start Date:
+                    // one week prior to the end date
+                    let startDate = new Date(endDate.getTime() - (60 * 60 * 24 * 7 * 1000));
+                    console.debug(startDate);
+                    console.debug(endDate);
+                    const timeExtent = new TimeExtent({
+                        start: startDate,
+                        end: endDate
+                    });
+                    // set the map's time extent
+                    webmap.setTimeExtent(timeExtent);
+                    //1046736000000
+                    /*console.debug(d.target.attributes.getNamedItem("d0"));
+                    console.debug(d.target.attributes.getNamedItem("d1"));
+                    console.debug(d.target.attributes.getNamedItem("d2"));
+                    console.debug(d.target.attributes.getNamedItem("d3"));
+                    console.debug(d.target.attributes.getNamedItem("d4"));*/
+                });
         }
 
         async function fetchData(params) {
@@ -793,6 +879,56 @@ window.onSignInHandler = (portal) => {
             query.inSR = 102003;
             query.where = params.q;
             return queryTask.execute(query);
+        }
+
+        function maintainFixedExtent(view) {
+            let fixedExtent = view.extent.clone();
+            // keep a fixed extent in the view
+            // when the view size changes
+            view.on("resize", function() {
+                view.extent = fixedExtent;
+            });
+            return view;
+        }
+
+        function disableNavigation(view) {
+            view.popup.dockEnabled = true;
+            // Removes the zoom action on the popup
+            view.popup.actions = [];
+            // stops propagation of default behavior when an event fires
+            function stopEvtPropagation(event) {
+                event.stopPropagation();
+            }
+            // disable mouse wheel scroll zooming on the view
+            view.navigation.mouseWheelZoomEnabled = true;
+            // disable zooming via double-click on the view
+            view.on("double-click", stopEvtPropagation);
+            // disable zooming out via double-click + Control on the view
+            view.on("double-click", ["Control"], stopEvtPropagation);
+            // disables pinch-zoom and panning on the view
+            view.navigation.browserTouchPanEnabled = false;
+            view.on("drag", stopEvtPropagation);
+            // disable the view's zoom box to prevent the Shift + drag
+            // and Shift + Control + drag zoom gestures.
+            view.on("drag", ["Shift"], stopEvtPropagation);
+            view.on("drag", ["Shift", "Control"], stopEvtPropagation);
+            // prevents zooming and rotation with the indicated keys
+            view.on("key-down", function(event) {
+                let prohibitedKeys = ["+", "-", "_", "=", "a", "d"];
+                let keyPressed = event.key.toLowerCase();
+                if (prohibitedKeys.indexOf(keyPressed) !== -1) {
+                    event.stopPropagation();
+                }
+            });
+            return view;
+        }
+
+        // prevents the user from opening the popup with click
+        function disablePopupOnClick(view) {
+            view.on("click", function(event) {
+                event.stopPropagation();
+            });
+            return view;
         }
     });
 }
