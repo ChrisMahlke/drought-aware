@@ -72,6 +72,21 @@ window.onSignInHandler = (portal) => {
             "type": "point"
         });
 
+        /*fetchData({
+            url: config.droughtURL + "/2?resultRecordCount=1",
+            returnGeometry: false,
+            orderByFields: ["ddate DESC"],
+            outFields: ["ddate"],
+            q: ""
+        }).then(response => {
+            if (response.features.length > 0) {
+                let features = response.features;
+                console.debug(features[0].attributes.ddate);
+            }
+        });*/
+
+
+
         let selectedView = null;
         //
         // create the svg
@@ -90,17 +105,6 @@ window.onSignInHandler = (portal) => {
             }
         });
 
-        //const fl = new FeatureLayer({
-        //    url: "https://services9.arcgis.com/RHVPKKiFTONKtxq3/ArcGIS/rest/services/US_Drought_Intensity_v1/FeatureServer/2"
-        //});
-
-        /*const table = new FeatureLayer({
-            portalItem: { // autocasts as esri/portal/PortalItem
-                id: "9731f9062afd45f2be7b3bf2e050fbfa"
-            }
-        });
-        webmap.add(table)*/
-
         // Load all resources but ignore if one or more of them failed to load
         webmap.loadAll()
             .catch(function(error) {
@@ -114,6 +118,7 @@ window.onSignInHandler = (portal) => {
         webmap.load()
             .then(function() {
                 // load the basemap to get its layers created
+                console.debug("Basemap loaded");
                 return webmap.basemap.load();
             })
             .then(function() {
@@ -122,13 +127,13 @@ window.onSignInHandler = (portal) => {
                 const promises = allLayers.map(function(layer) {
                     return layer.load();
                 });
+                console.debug("All layers loaded");
                 return Promise.all(promises.toArray());
             })
             .then(function(layers) {
                 // each layer load promise resolves with the layer
-                console.debug("All " + layers.length + " layers loaded");
                 layers.forEach(layer => {
-                    console.debug(layer);
+                    console.debug(layer.title);
                 });
             })
             .catch(function(error) {
@@ -232,9 +237,9 @@ window.onSignInHandler = (portal) => {
             position: "top-right"
         });
 
-        if (!isNaN(selectedX) & !isNaN(selectedY)) {
+        /*if (!isNaN(selectedX) & !isNaN(selectedY)) {
             mapClickHandler(null);
-        }
+        }*/
 
         /*
         document.querySelectorAll(".inset-map-icon").forEach(item => {
@@ -348,6 +353,17 @@ window.onSignInHandler = (portal) => {
         });
 
         function mapClickHandler(event) {
+
+            selectedView.view.timeExtent = new TimeExtent({
+                start: new Date(1537228800000),
+                end: new Date(1537228800000)
+            });
+            selectedView.view.map.layers.forEach(d=>{
+                d.visible = true;
+            });
+
+
+            /*
             // un-hide the visualization container
             let dataContainerEle = document.getElementsByClassName("data-container")[0];
             calcite.removeClass(dataContainerEle, "hide");
@@ -359,6 +375,7 @@ window.onSignInHandler = (portal) => {
                 params.set("y", event.mapPoint.y);
                 window.history.replaceState({}, '', `${location.pathname}?${params}`);
             }
+            */
 
             // 0) Determine correct admin area (county or state) to use for querying data
             //      - apply geometry (boundary) to map
@@ -387,6 +404,7 @@ window.onSignInHandler = (portal) => {
 
 
             // apply geometry
+            /*
             fetchData(config.boundaryQuery).then(retrieveGeometryResponseHandler).then(response => {
                 let selectedFeature = response.features[0];
                 config.selected.state_name = selectedFeature.attributes["STATE_NAME"];
@@ -505,6 +523,8 @@ window.onSignInHandler = (portal) => {
                     q: ""
                 }).then(seasonalDroughtOutlookResponseHandler);
             });
+
+            */
         }
 
         function highestValueAndKey(obj) {
@@ -748,14 +768,33 @@ window.onSignInHandler = (portal) => {
                     // Start Date:
                     // one week prior to the end date
                     let startDate = new Date(endDate.getTime() - (60 * 60 * 24 * 7 * 1000));
-                    console.debug(startDate);
-                    console.debug(endDate);
-                    const timeExtent = new TimeExtent({
+                    console.debug("End", parseInt(d.target.attributes["date"].nodeValue));
+                    console.debug("Start", endDate.getTime() - (60 * 60 * 24 * 7 * 1000));
+
+                    /*const fl = new FeatureLayer({
+                        url: config.droughtURL,
+                        layerId: 2,
+                        timeExtent: {
+                            start: new Date(1624924800000),
+                            end: new Date(1624924800000)
+                        }
+                    });
+                    webmap.add(fl, 4);*/
+
+                    /*const timeExtent = new TimeExtent({
                         start: startDate,
                         end: endDate
-                    });
+                    });*/
                     // set the map's time extent
-                    webmap.setTimeExtent(timeExtent);
+                    /*selectedView.view.timeExtent = {
+                        start: parseInt(d.target.attributes["date"].nodeValue),
+                        end: parseInt(d.target.attributes["date"].nodeValue)
+                    };*/
+
+                    selectedView.view.timeExtent = new TimeExtent({
+                        start: 1318291200000,
+                        end: 1318291200000
+                    });
                     //1046736000000
                     /*console.debug(d.target.attributes.getNamedItem("d0"));
                     console.debug(d.target.attributes.getNamedItem("d1"));
