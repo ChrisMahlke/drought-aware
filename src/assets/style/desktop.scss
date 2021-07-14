@@ -177,7 +177,7 @@ html, body {
   padding-bottom: .35em;
   position: absolute;
   left: 0;
-  bottom: 162px;
+  bottom: 185px;
   background-color: #d6d2c4;
   color: #393939;
 }
@@ -189,6 +189,12 @@ html, body {
 
 #population {
   float: left;
+}
+
+#selectedDate {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 @media only screen and (max-width: 480px) {

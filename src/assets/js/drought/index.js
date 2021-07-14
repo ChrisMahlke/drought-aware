@@ -35,57 +35,51 @@ window.onSignInHandler = (portal) => {
                  SpatialReference, MapView, WebMap, QueryTask, Query,
                  Polygon, Search, watchUtils]) => {
 
+        // DOM nodes
+        let dataContainerEle = document.getElementsByClassName("data-container")[0];
+        let countyButtonEle = document.getElementById("county");
+        let stateButtonEle = document.getElementById("state");
+
+        // The URLSearchParams spec defines an interface and convenience methods for working with the query string of a
+        // URL (e.g. everything after "?"). This means no more regex'ing and string splitting URLs!
         let params = new URLSearchParams(location.search);
+        // url params
         let selectedX = parseInt(params.get("x"));
-        let selectedY = parseInt(params.get("y"))
-        config.selected.adminAreaId = params.get("admin") || "county";
+        let selectedY = parseInt(params.get("y"));
+        // selected admin
+        config.selected.adminAreaId = params.get("admin") || config.COUNTY_ADMIN;
         params.set("admin", config.selected.adminAreaId);
+        // If there was no selected point, do not append it to the URL
         window.history.replaceState({}, '', `${location.pathname}?${params}`);
 
-        if (config.selected.adminAreaId === "county") {
-            config.boundaryQuery = {
-                url: config.county_boundary,
-                returnGeometry: true,
-                outFields: config.county_boundary_outfields,
-                geometry: null,
-                q: ""
-            };
-
-        } else if (config.selected.adminAreaId === "state") {
-            document.getElementById("county").checked = false;
-            document.getElementById("state").checked = true;
-            config.boundaryQuery = {
-                url: config.state_boundary,
-                returnGeometry: true,
-                outFields: config.state_boundary_outfields,
-                geometry: null,
-                q: ""
-            };
+        // Hydrate the boundary query from url params
+        let boundaryQueryUrl = "";
+        let boundaryQueryOutFields = [];
+        if (config.selected.adminAreaId === config.COUNTY_ADMIN) {
+            boundaryQueryUrl = config.county_boundary;
+            boundaryQueryOutFields = config.county_boundary_outfields;
+        } else {
+            boundaryQueryUrl = config.state_boundary;
+            boundaryQueryOutFields = config.state_boundary_outfields;
+            // update admin toggle buttons
+            countyButtonEle.checked = false;
+            stateButtonEle.checked = true;
         }
 
-        config.boundaryQuery.geometry = new Point({
-            "x": selectedX,
-            "y": selectedY,
-            "spatialReference": {
-                "wkid": 5070
-            },
-            "type": "point"
-        });
-
-        /*fetchData({
-            url: config.droughtURL + "/2?resultRecordCount=1",
-            returnGeometry: false,
-            orderByFields: ["ddate DESC"],
-            outFields: ["ddate"],
+        config.boundaryQuery = {
+            url: boundaryQueryUrl,
+            returnGeometry: true,
+            outFields: boundaryQueryOutFields,
+            geometry: new Point({
+                "x": selectedX,
+                "y": selectedY,
+                "spatialReference": {
+                    "wkid": 5070
+                },
+                "type": "point"
+            }),
             q: ""
-        }).then(response => {
-            if (response.features.length > 0) {
-                let features = response.features;
-                console.debug(features[0].attributes.ddate);
-            }
-        });*/
-
-
+        };
 
         let selectedView = null;
         //
@@ -105,16 +99,6 @@ window.onSignInHandler = (portal) => {
             }
         });
 
-        // Load all resources but ignore if one or more of them failed to load
-        webmap.loadAll()
-            .catch(function(error) {
-                // Ignore any failed resources
-                console.debug("ERROR", error);
-            })
-            .then(function() {
-                console.debug("ALL LOADED");
-            });
-
         webmap.load()
             .then(function() {
                 // load the basemap to get its layers created
@@ -127,22 +111,11 @@ window.onSignInHandler = (portal) => {
                 const promises = allLayers.map(function(layer) {
                     return layer.load();
                 });
-                console.debug("All layers loaded");
                 return Promise.all(promises.toArray());
             })
             .then(function(layers) {
-                // each layer load promise resolves with the layer
-                layers.forEach(layer => {
-                    console.debug(layer.title);
-                });
-            })
-            .catch(function(error) {
-                console.error(error);
-            });
-
-        let views = config.views.map((view, i) => {
-            if (i === 0) {
-                view.extent = {
+                console.debug("All layers loaded");
+                let tmpExt = new Extent({
                     "xmin": params.get("xmin") || -2991495.024884269,
                     "ymin": params.get("ymin") || 252581.70093458006,
                     "xmax": params.get("xmax") || 2841527.165071185,
@@ -150,8 +123,51 @@ window.onSignInHandler = (portal) => {
                     "spatialReference": {
                         "wkid": 5070
                     }
-                }
-            }
+                });
+                console.debug("selectedView", selectedView);
+                selectedView.view.goTo(tmpExt)
+                    .catch(function(error) {
+                        if (error.name !== "AbortError") {
+                            console.error(error);
+                        }
+                    });
+
+                // fetch the latest date in the service
+                fetchData({
+                    url: config.droughtURL + "/2?resultRecordCount=1",
+                    returnGeometry: false,
+                    orderByFields: ["ddate DESC"],
+                    outFields: ["ddate"],
+                    q: ""
+                }).then(response => {
+                    if (response.features.length > 0) {
+                        const features = response.features;
+                        const selectedChartDate = parseInt(params.get("date")) || features[0].attributes.ddate;
+                        const endDate = new Date(selectedChartDate);
+                        const startDate = new Date(endDate.getTime() - (60 * 60 * 24 * 7 * 1000));
+
+                        const layer = new FeatureLayer({
+                            url: config.droughtURL,
+                            layerId: 2,
+                            timeExtent: {
+                                start: startDate,
+                                end: endDate
+                            },
+                            opacity: 0.75,
+                            title: config.drought_layer_name,
+                            useViewTime: false
+                        });
+                        selectedView.view.map.add(layer, 1);
+
+                        updateSelectedDateLabel(selectedChartDate);
+                    }
+                });
+            })
+            .catch(function(error) {
+                console.error(error);
+            });
+
+        let views = config.views.map(view => {
             view.map = webmap;
             const mapView = new MapView(view);
             mapView.popup = null;
@@ -163,17 +179,15 @@ window.onSignInHandler = (portal) => {
             });
             mapView.graphics.add(graphic);
             mapView.on("click", mapClickHandler);
-
-            mapView
-                .when(maintainFixedExtent);
+            mapView.when(maintainFixedExtent);
 
             return {
                 "id": view.container,
                 "view": mapView
             };
         });
-
         selectedView = views[0];
+
         // Watch view's stationary property for becoming true.
         watchUtils.whenTrue(selectedView.view, "stationary", function() {
             // Get the new extent of the view only when view is stationary.
@@ -188,9 +202,13 @@ window.onSignInHandler = (portal) => {
             }
         });
 
-        let searchWidget = new Search();
-        searchWidget.on("search-complete", function(event) {
-            projection.load().then(function (evt) {
+        let searchWidget = new Search({
+            container: "searchWidgetContainer",
+            resultGraphicEnabled: false
+        });
+        searchWidget.on("search-complete", event => {
+            console.debug("search-complete", event);
+            projection.load().then(evt => {
                 let resultGeometry = event.results[0].results[0].feature.geometry;
                 let resultExtent = event.results[0].results[0].extent;
 
@@ -215,133 +233,46 @@ window.onSignInHandler = (portal) => {
                 let prViewGeomEngResult = geometryEngine.intersects(prViewProGeom, views[3].view.graphics.items[0].geometry);
 
                 if (mainViewGeomEngResult) {
-                    // lower 48
-                    views[0].view.graphics.add(new Graphic(resultExtent, config.searchResultSymbol));
-                    //document.getElementsByClassName("inset-map-icon")[3].click();
+                    config.boundaryQuery.geometry = mainViewProGeom;
+                    selectedView = views[0];
                 } else if (akViewGeomEngResult) {
-                    views[1].view.graphics.add(new Graphic(resultExtent, config.searchResultSymbol));
-                    //document.getElementsByClassName("inset-map-icon")[0].click();
+                    config.boundaryQuery.geometry = akViewProGeom;
+                    selectedView = views[1];
                 } else if (hiViewGeomEngResult) {
-                    views[2].view.graphics.add(new Graphic(resultExtent, config.searchResultSymbol));
-                    //document.getElementsByClassName("inset-map-icon")[1].click();
+                    config.boundaryQuery.geometry = hiViewProGeom;
+                    selectedView = views[2];
                 } else if(prViewGeomEngResult) {
-                    views[3].view.graphics.add(new Graphic(resultExtent, config.searchResultSymbol));
-                    //document.getElementsByClassName("inset-map-icon")[2].click();
+                    config.boundaryQuery.geometry = prViewProGeom;
+                    selectedView = views[3];
                 } else {
                     alert("There are no results within the map's extent!");
                 }
 
+                mapClickHandler(null);
+                selectedView.view.goTo(mainViewProGeom)
+                    .catch(function(error) {
+                        if (error.name !== "AbortError") {
+                            console.error(error);
+                        }
+                    });
+
             });
         });
-        views[0].view.ui.add(searchWidget, {
+        selectedView.view.ui.add(searchWidget, {
             position: "top-right"
         });
 
-        /*if (!isNaN(selectedX) & !isNaN(selectedY)) {
+        if (!isNaN(selectedX) && !isNaN(selectedY)) {
             mapClickHandler(null);
-        }*/
+        }
 
-        /*
-        document.querySelectorAll(".inset-map-icon").forEach(item => {
-            item.addEventListener("click", event => {
-                console.debug(event);
-                let insetContainerIcon = event.target;
-                let insetContainer = event.target.parentElement;
-                let selectedID = event.target.dataset.id;
-
-                let mainContainerEle = document.getElementById("mainMapContainer");
-                let mainContainerMapId = mainContainerEle.dataset.id;
-                mainContainerEle.append(document.getElementById(selectedID));
-                mainContainerEle.setAttribute("data-id", selectedID);
-
-                insetContainer.setAttribute("data-id", mainContainerMapId);
-                insetContainerIcon.setAttribute("data-id", mainContainerMapId);
-                insetContainer.append(document.getElementById(mainContainerMapId));
-
-                views[0].view.ui.remove(searchWidget);
-                views[1].view.ui.remove(searchWidget);
-                views[2].view.ui.remove(searchWidget);
-                views[3].view.ui.remove(searchWidget);
-
-                if (selectedID === "mainMapView") {
-                    selectedView = views[0];
-                    setTimeout(function() {
-                        selectedView.view.ui.add(searchWidget, {
-                            position: "top-right"
-                        });
-                        let ext = new Extent({
-                            xmin: -2991495.024884269,
-                            ymin: 252581.70093458006,
-                            xmax: 2841527.165071185,
-                            ymax: 3191062.7476635515,
-                            spatialReference: new SpatialReference({wkid:5070})
-                        });
-                        selectedView.view.goTo(ext, {
-                            "duration": 500
-                        });
-                    }, 500);
-                } else if (selectedID === "akView") {
-                    selectedView = views[1];
-                    setTimeout(function() {
-                        selectedView.view.ui.add(searchWidget, {
-                            position: "top-right"
-                        });
-                        let ext = new Extent({
-                            xmax: 3475410.6485892846,
-                            xmin: -131660.68640217,
-                            ymax: 180833.21465040476,
-                            ymin: -2253261.915541197,
-                            spatialReference: new SpatialReference({wkid:5936})
-                        });
-                        selectedView.view.goTo(ext, {
-                            "duration": 500
-                        });
-                    }, 500);
-                } else if (selectedID === "hiView") {
-                    selectedView = views[2];
-                    setTimeout(function() {
-                        selectedView.view.ui.add(searchWidget, {
-                            position: "top-right"
-                        });
-                        let ext = new Extent({
-                            xmax: 438254.12528946745,
-                            xmin: -530539.8459393329,
-                            ymax: 1094985.328358173,
-                            ymin: 608767.3014444704,
-                            spatialReference: new SpatialReference({wkid:102007})
-                        });
-                        selectedView.view.goTo(ext, {
-                            "duration": 500
-                        });
-                    }, 500);
-                } else if (selectedID === "prView") {
-                    selectedView = views[3];
-                    setTimeout(function() {
-                        selectedView.view.ui.add(searchWidget, {
-                            position: "top-right"
-                        });
-                        let ext = new Extent({
-                            xmax: 3401648.6556114405,
-                            xmin: 2993043.359452082,
-                            ymax: 87926.33967047348,
-                            ymin: -117144.36347717477,
-                            spatialReference: new SpatialReference({wkid:5070})
-                        });
-                        selectedView.view.goTo(ext, {
-                            "duration": 500
-                        });
-                    }, 500);
-                }
-            });
-        })
-        */
         document.querySelectorAll(".radio-group-input").forEach(item => {
             item.addEventListener("click", event => {
                 config.selected.adminAreaId = event.target.id;
-                if (config.selected.adminAreaId === "county") {
+                if (config.selected.adminAreaId === config.COUNTY_ADMIN) {
                     config.boundaryQuery.url = config.county_boundary;
                     config.boundaryQuery.outFields = config.county_boundary_outfields;
-                } else if (config.selected.adminAreaId === "state") {
+                } else if (config.selected.adminAreaId === config.STATE_ADMIN) {
                     config.boundaryQuery.url = config.state_boundary;
                     config.boundaryQuery.outFields = config.state_boundary_outfields;
                 }
@@ -352,22 +283,37 @@ window.onSignInHandler = (portal) => {
             });
         });
 
+        /**
+         * 0) Determine correct admin area (county or state) to use for querying data
+         *      - apply geometry (boundary) to map
+         *
+         * 1) Fetch the agricultural data (return geometry)
+         *      - pass in geometry (map point) and return geometry
+         *          -- update population
+         *          -- update agricultural impact
+         *
+         * 2) Fetch the drought data based on FIPS (no geometry)
+         *      - Tables (state is 0, county is 1)
+         *      - sort by date
+         *      - pass in q parameter based on admin selection (county or state)
+         * 2a)      -- Fetch the drought data based on county, state, and D2_D4 date data
+         *              --- update consecutive weeks of severe drought
+         *          -- update chart
+         *          -- update current drought status
+         *          -- update current drought status date
+         *          -- update location
+         *
+         * 3) Fetch monthly outlook data (spatial query based on county or state)
+         *      - update monthly drought
+         *
+         * 4) Fetch seasonal outlook data (spatial query based on county or state)
+         *      - update seasonal drought
+         * @param event
+         */
         function mapClickHandler(event) {
-
-            selectedView.view.timeExtent = new TimeExtent({
-                start: new Date(1537228800000),
-                end: new Date(1537228800000)
-            });
-            selectedView.view.map.layers.forEach(d=>{
-                d.visible = true;
-            });
-
-
-            /*
-            // un-hide the visualization container
-            let dataContainerEle = document.getElementsByClassName("data-container")[0];
+            // show visualization container
             calcite.removeClass(dataContainerEle, "hide");
-
+            // TODO
             if (event !== null) {
                 config.boundaryQuery.geometry = event.mapPoint;
                 const params = new URLSearchParams(location.search);
@@ -375,46 +321,18 @@ window.onSignInHandler = (portal) => {
                 params.set("y", event.mapPoint.y);
                 window.history.replaceState({}, '', `${location.pathname}?${params}`);
             }
-            */
-
-            // 0) Determine correct admin area (county or state) to use for querying data
-            //      - apply geometry (boundary) to map
-            //
-            // 1) Fetch the agricultural data (return geometry)
-            //      - pass in geometry (map point) and return geometry
-            //          -- update population
-            //          -- update agricultural impact
-            //
-            // 2) Fetch the drought data based on FIPS (no geometry)
-            //      - Tables (state is 0, county is 1)
-            //      - sort by date
-            //      - pass in q parameter based on admin selection (county or state)
-            // 2a)      -- Fetch the drought data based on county, state, and D2_D4 date data
-            //              --- update consecutive weeks of severe drought
-            //          -- update chart
-            //          -- update current drought status
-            //          -- update current drought status date
-            //          -- update location
-            //
-            // 3) Fetch monthly outlook data (spatial query based on county or state)
-            //      - update monthly drought
-            //
-            // 4) Fetch seasonal outlook data (spatial query based on county or state)
-            //      - update seasonal drought
-
 
             // apply geometry
-            /*
             fetchData(config.boundaryQuery).then(retrieveGeometryResponseHandler).then(response => {
                 let selectedFeature = response.features[0];
                 config.selected.state_name = selectedFeature.attributes["STATE_NAME"];
 
                 // Agriculture + Population
                 let agrQuery = "";
-                if (config.selected.adminAreaId === "county") {
+                if (config.selected.adminAreaId === config.COUNTY_ADMIN) {
                     config.selected.county_fips = response.features[0].attributes["FIPS"];
                     agrQuery = `CountyFIPS = '${config.selected.county_fips}'`;
-                } else if (config.selected.adminAreaId === "state") {
+                } else if (config.selected.adminAreaId === config.STATE_ADMIN) {
                     config.selected.state_fips = response.features[0].attributes["STATE_FIPS"];
                     agrQuery = `SateFIPS = '${config.selected.state_fips}'`;
                 }
@@ -432,15 +350,16 @@ window.onSignInHandler = (portal) => {
 
 
                 // Drought
-                let droughtQueryLayerId = "";
                 let droughtQuery = "";
-                if (config.selected.adminAreaId === "county") {
+                let droughtQueryLayerId = "";
+                if (config.selected.adminAreaId === config.COUNTY_ADMIN) {
                     droughtQueryLayerId = "1";
                     droughtQuery = `admin_fips = ${config.selected.county_fips}`;
                 } else {
                     droughtQueryLayerId = "0";
                     droughtQuery = `admin_fips  = ${config.selected.state_fips}`;
                 }
+                console.debug("droughtQuery", droughtQuery);
                 fetchData({
                     url: config.droughtURL + droughtQueryLayerId,
                     returnGeometry: false,
@@ -467,8 +386,10 @@ window.onSignInHandler = (portal) => {
                         let selectedDate = response.features[0].attributes.ddate;
                         let formattedSelectedDate = format(selectedDate, "P");
 
+                        let urlParamsDate = parseInt(params.get("date") || selectedDate);
+
                         let consecutiveWeeksQuery = "";
-                        if (config.selected.adminAreaId === "county") {
+                        if (config.selected.adminAreaId === config.COUNTY_ADMIN) {
                             consecutiveWeeksQuery = `name = '${features[0].attributes["name"]}' AND state_abbr = '${features[0].attributes["state_abbr"]}' AND D2_D4 = 0 AND ddate <= date '${formattedSelectedDate}'`;
                         } else {
                             consecutiveWeeksQuery = `state_abbr = '${features[0].attributes["state_abbr"]}' AND D2_D4 = 0 AND ddate <= date '${formattedSelectedDate}'`
@@ -523,13 +444,10 @@ window.onSignInHandler = (portal) => {
                     q: ""
                 }).then(seasonalDroughtOutlookResponseHandler);
             });
-
-            */
         }
 
         function highestValueAndKey(obj) {
             let [highestItems] = Object.entries(obj).sort(([ ,v1], [ ,v2]) => v2 - v1);
-            console.debug(`key: ${highestItems[0]}\tvalue: ${highestItems[1]}`);
             return {
                 "key": highestItems[0],
                 "value": highestItems[1]
@@ -538,29 +456,67 @@ window.onSignInHandler = (portal) => {
 
         async function retrieveGeometryResponseHandler(response) {
             if (response.features.length > 0) {
-                for (const graphic of selectedView.view.graphics){
-                    if (graphic.attributes === "BOUNDARY") {
-                        selectedView.view.graphics.remove(graphic);
+
+                projection.load().then(evt => {
+                    let resultGeometry = response.features[0].geometry;
+                    let mainViewProGeom = projection.project(resultGeometry, new SpatialReference({
+                        wkid: 5070
+                    }));
+                    let mainViewGeomEngResult = geometryEngine.intersects(mainViewProGeom, views[0].view.graphics.items[0].geometry);
+
+                    let akViewProGeom = projection.project(resultGeometry, new SpatialReference({
+                        wkid: 5936
+                    }));
+                    let akViewGeomEngResult = geometryEngine.intersects(akViewProGeom, views[1].view.graphics.items[0].geometry);
+
+                    let hiViewProGeom = projection.project(resultGeometry, new SpatialReference({
+                        wkid: 102007
+                    }));
+                    let hiViewGeomEngResult = geometryEngine.intersects(hiViewProGeom, views[2].view.graphics.items[0].geometry);
+
+                    let prViewProGeom = projection.project(resultGeometry, new SpatialReference({
+                        wkid: 5070
+                    }));
+                    let prViewGeomEngResult = geometryEngine.intersects(prViewProGeom, views[3].view.graphics.items[0].geometry);
+
+                    if (mainViewGeomEngResult) {
+                        config.boundaryQuery.geometry = mainViewProGeom;
+                        selectedView = views[0];
+                    } else if (akViewGeomEngResult) {
+                        config.boundaryQuery.geometry = akViewProGeom;
+                        selectedView = views[1];
+                    } else if (hiViewGeomEngResult) {
+                        config.boundaryQuery.geometry = hiViewProGeom;
+                        selectedView = views[2];
+                    } else if(prViewGeomEngResult) {
+                        config.boundaryQuery.geometry = prViewProGeom;
+                        selectedView = views[3];
+                    } else {
+                        alert("There are no results within the map's extent!");
                     }
-                }
 
-                const polygonGraphic = new Graphic({
-                    geometry: response.features[0].geometry,
-                    symbol: config.selectedGeographicSymbology,
-                    attributes: "BOUNDARY"
+                    views.forEach(v => {
+                        for (const graphic of v.view.graphics){
+                            if (graphic.attributes === "BOUNDARY") {
+                                v.view.graphics.remove(graphic);
+                            }
+                        }
+                    });
+
+                    const polygonGraphic = new Graphic({
+                        geometry: response.features[0].geometry,
+                        symbol: config.selectedGeographicSymbology,
+                        attributes: "BOUNDARY"
+                    });
+
+                    selectedView.view.graphics.add(polygonGraphic);
                 });
-
-                selectedView.view.graphics.add(polygonGraphic);
             } else {
                 // no features
             }
             return await response;
         }
 
-        /**
-         *
-         * @param response
-         */
         function updateAgriculturalImpactComponent(response) {
             const selectedFeature = response.features[0];
             let labor = "CountyLabor";
@@ -571,7 +527,7 @@ window.onSignInHandler = (portal) => {
             let winter = "County_WinterWheat_Value";
             let livestock = "County_Livestock_Value";
             let population = "CountyPop2020";
-            if (config.selected.adminAreaId !== "county") {
+            if (config.selected.adminAreaId !== config.COUNTY_ADMIN) {
                 labor = "StateLabor";
                 total_sales = "State_Total_Sales";
                 corn = "State_Corn_Value";
@@ -595,17 +551,13 @@ window.onSignInHandler = (portal) => {
         function updateSelectedLocationComponent(response) {
             const selectedFeature = response.features[0];
             let label = `${selectedFeature.attributes["name"]}, ${config.selected.state_name}`;
-            if (config.selected.adminAreaId !== "county") {
+            if (config.selected.adminAreaId !== config.COUNTY_ADMIN) {
                 label = `${config.selected.state_name}`;
             }
             document.getElementById("selectedLocation").innerHTML = label;
 
         }
 
-        /**
-         *
-         * @param response
-         */
         function monthlyDroughtOutlookResponseHandler(response) {
             let monthlyOutlookDate = document.getElementById("monthlyOutlookDate");
             let monthlyOutlookLabel = document.getElementById("monthlyOutlookLabel");
@@ -634,10 +586,6 @@ window.onSignInHandler = (portal) => {
             }
         }
 
-        /**
-         *
-         * @param response
-         */
         function seasonalDroughtOutlookResponseHandler(response) {
             let seasonalOutlookDateEle = document.getElementById("seasonalOutlookDate");
             let seasonalOutlookLabelEle = document.getElementById("seasonalOutlookLabel");
@@ -711,10 +659,7 @@ window.onSignInHandler = (portal) => {
             document.getElementById("currentDroughtStatusDate").innerHTML = format(new Date(mostRecentFeature["ddate"]), "PPP");
         }
 
-
-
         function updateChart(inputDataset) {
-            console.debug(new Date(inputDataset[0].date).getTime());
             x.domain(inputDataset.map(d => {
                 return d.date;
             }));
@@ -763,51 +708,41 @@ window.onSignInHandler = (portal) => {
                     return d.data.d4;
                 })
                 .on("click", function(d) {
-                    console.debug(parseInt(d.target.attributes["date"].nodeValue));
-                    let endDate = new Date(parseInt(d.target.attributes["date"].nodeValue));
-                    // Start Date:
-                    // one week prior to the end date
-                    let startDate = new Date(endDate.getTime() - (60 * 60 * 24 * 7 * 1000));
-                    console.debug("End", parseInt(d.target.attributes["date"].nodeValue));
-                    console.debug("Start", endDate.getTime() - (60 * 60 * 24 * 7 * 1000));
+                    const selectedChartDate = parseInt(d.target.attributes["date"].nodeValue);
+                    const endDate = new Date(selectedChartDate);
+                    const startDate = new Date(endDate.getTime() - (60 * 60 * 24 * 7 * 1000));
 
-                    /*const fl = new FeatureLayer({
+                    updateSelectedDateLabel(selectedChartDate);
+
+                    const urlSearchParams = new URLSearchParams(location.search);
+                    urlSearchParams.set("date", selectedChartDate.toString());
+                    window.history.replaceState({}, '', `${location.pathname}?${urlSearchParams}`);
+
+                    const layersToRemove = selectedView.view.map.layers.filter(lyr => {
+                        if (lyr.title === config.drought_layer_name) {
+                            return lyr;
+                        }
+                    });
+                    selectedView.view.map.removeMany(layersToRemove.items);
+
+                    const layer = new FeatureLayer({
                         url: config.droughtURL,
                         layerId: 2,
                         timeExtent: {
-                            start: new Date(1624924800000),
-                            end: new Date(1624924800000)
-                        }
+                            start: startDate,
+                            end: endDate
+                        },
+                        opacity: 0.75,
+                        title: config.drought_layer_name,
+                        useViewTime: false
                     });
-                    webmap.add(fl, 4);*/
-
-                    /*const timeExtent = new TimeExtent({
-                        start: startDate,
-                        end: endDate
-                    });*/
-                    // set the map's time extent
-                    /*selectedView.view.timeExtent = {
-                        start: parseInt(d.target.attributes["date"].nodeValue),
-                        end: parseInt(d.target.attributes["date"].nodeValue)
-                    };*/
-
-                    selectedView.view.timeExtent = new TimeExtent({
-                        start: 1318291200000,
-                        end: 1318291200000
-                    });
-                    //1046736000000
-                    /*console.debug(d.target.attributes.getNamedItem("d0"));
-                    console.debug(d.target.attributes.getNamedItem("d1"));
-                    console.debug(d.target.attributes.getNamedItem("d2"));
-                    console.debug(d.target.attributes.getNamedItem("d3"));
-                    console.debug(d.target.attributes.getNamedItem("d4"));*/
+                    selectedView.view.map.add(layer, 1);
                 });
         }
 
         async function fetchData(params) {
             return await queryService(params);
         }
-
 
         (async function() {
             try {
@@ -968,6 +903,11 @@ window.onSignInHandler = (portal) => {
                 event.stopPropagation();
             });
             return view;
+        }
+
+        function updateSelectedDateLabel(date) {
+            const dateObj = new Date(date);
+            document.getElementById("selectedDate").innerHTML = format(dateObj, "PPP");
         }
     });
 }

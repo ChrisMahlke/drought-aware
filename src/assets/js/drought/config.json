@@ -1,5 +1,7 @@
 {
-  "webMapId": "5092421a7bb94444851915c78e8fab14",
+  "webMapId": "bf499490ae4e456baf1917ab6822259c",
+
+  "drought_layer_name": "USA Drought Intensity 2000 - Present - US_Drought",
 
   "county_boundary": "https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/USA_Counties_Generalized/FeatureServer/0",
   "county_boundary_outfields": ["FIPS", "NAME", "STATE_NAME"],
@@ -132,7 +134,8 @@
     "county_fips": "",
     "state_fips": "",
     "county_name": "",
-    "state_name": ""
+    "state_name": "",
+    "date": ""
   },
 
   "boundaryQuery": {
@@ -153,5 +156,8 @@
     "width": 700,
     "height": 80,
     "keys": ["d0", "d1", "d2", "d3", "d4", "nothing"]
-  }
+  },
+
+  "COUNTY_ADMIN": "county",
+  "STATE_ADMIN": "state"
 }
