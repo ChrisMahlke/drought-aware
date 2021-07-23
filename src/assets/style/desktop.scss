@@ -6,38 +6,26 @@ html, body {
   display: none;
 }
 
-.content-container {
-  display: flex;
+#leftComponent {
+  z-index: 99;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 400px;
+  height: 200px;
+  padding-left: .5em;
+  background-color: transparent;
 }
 
-.inset-map-container {
-  height: 100vh;
-  width: 25vw; /* A fixed width as the default */
-}
-
-#inset-map-content {
-  height: 70vh;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-}
-
-.main-map-container {
-  flex-grow: 1; /* Set the middle element to grow and stretch */
-}
-
-.box {
-  width: 100%;
-  height: 100%;
-}
-
-.data-container {
+#bottomComponent {
+  z-index: 99;
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 30vh;
-  max-height: 250px;
+  height: 215px;
+  padding-left: .5em;
+  background-color: transparent;
 }
 
 #administrativeAreaToggle {
@@ -49,32 +37,10 @@ html, body {
 }
 
 .app-header {
-  height: 20vh;
-  padding-left: .5em;
+
 }
 
 #mainMapDiv {
-  padding: 0;
-  margin: 0;
-  height: 70vh;
-  width: 100%;
-}
-
-#akViewDiv {
-  padding: 0;
-  margin: 0;
-  height: 30vh;
-  width: 100%;
-}
-
-#hiViewDiv {
-  padding: 0;
-  margin: 0;
-  height: 100%;
-  width: 100%;
-}
-
-#prViewDiv {
   padding: 0;
   margin: 0;
   height: 100%;

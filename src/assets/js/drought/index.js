@@ -1,4 +1,4 @@
-import "../../style/desktop.scss";
+import "../../style/index.scss";
 import jsonResponse from './data.json';
 import config from './config.json';
 
@@ -6,7 +6,6 @@ import { loadCss, loadModules } from 'esri-loader';
 
 import * as calcite from "calcite-web";
 import * as d3 from "d3";
-import * as UrlParams from "url-params";
 import { differenceInWeeks, format } from 'date-fns'
 
 window.onSignInHandler = (portal) => {
@@ -16,24 +15,24 @@ window.onSignInHandler = (portal) => {
     loadCss();
 
     loadModules([
+        "esri/Map",
+        "esri/WebMap",
+        "esri/geometry/Point",
         "esri/layers/FeatureLayer",
         "esri/TimeExtent",
-        "esri/geometry/Point",
         "esri/Graphic",
         "esri/geometry/Extent",
-        "esri/geometry/geometryEngine",
-        "esri/geometry/projection",
-        "esri/geometry/SpatialReference",
         "esri/views/MapView",
-        "esri/WebMap",
         "esri/tasks/QueryTask",
         "esri/tasks/support/Query",
-        "esri/geometry/Polygon",
-        "esri/widgets/Search",
         "esri/core/watchUtils",
-    ]).then(([FeatureLayer, TimeExtent, Point, Graphic, Extent, geometryEngine, projection,
-                 SpatialReference, MapView, WebMap, QueryTask, Query,
-                 Polygon, Search, watchUtils]) => {
+        "esri/widgets/Legend",
+        "esri/widgets/Home",
+        "esri/widgets/Search",
+        "esri/widgets/Zoom",
+    ]).then(([Map, WebMap, Point, FeatureLayer, TimeExtent, Graphic, Extent,
+                 MapView, QueryTask, Query,
+                 watchUtils, Legend, Home, Search, Zoom]) => {
 
         // DOM nodes
         let dataContainerEle = document.getElementsByClassName("data-container")[0];
@@ -74,30 +73,32 @@ window.onSignInHandler = (portal) => {
                 "x": selectedX,
                 "y": selectedY,
                 "spatialReference": {
-                    "wkid": 5070
+                    "wkid": 3857
                 },
                 "type": "point"
             }),
             q: ""
         };
 
-        let selectedView = null;
-        //
-        // create the svg
-        let svg = d3.select("#chart").append("svg").attr("width", config.chart.width + 25).attr("height", config.chart.height + 25);
-        let g = svg.append("g").attr("transform", "translate(" + config.chart.margin.left + "," + config.chart.margin.top + ")");
-        // set x scale
-        let x = d3.scaleBand().range([0, config.chart.width]);
-        // set y scale
-        let y = d3.scaleLinear().range([config.chart.height, 0]);
-        // set the colors
-        let z = d3.scaleOrdinal().range(["#b2a077", "#ccaa5b", "#e4985a", "#e28060", "#b24543", "rgba(57,57,57,0.11)"]);
-
         let webmap = new WebMap({
             portalItem: {
                 id: config.webMapId
             }
         });
+
+        let mapView = new MapView({
+            container: "viewDiv",
+            map: webmap,
+            padding: {
+                bottom: 215
+            },
+            ui: {
+                components: []
+            }
+        });
+        mapView.popup = null;
+        mapView.on("click", mapClickHandler);
+        //mapView.when(maintainFixedExtent);
 
         webmap.load()
             .then(function() {
@@ -115,17 +116,36 @@ window.onSignInHandler = (portal) => {
             })
             .then(function(layers) {
                 console.debug("All layers loaded");
+                let agrLayer = layers.filter(layer => {
+                    return layer.title === "TotalAgSales Centroids - copy";
+                });
+
+                console.debug(agrLayer)
+
+                /*let legendWidget = new Legend({
+                    view: view,
+                    layerInfos: [{
+                        layer: agrLayer[0]
+                    }]
+                });
+
+                // Add the search widget to the top right corner of the view
+                view.ui.add(legendWidget, {
+                    position: "bottom-right"
+                });*/
+
+                console.debug(webmap.bookmarks);
+
                 let tmpExt = new Extent({
-                    "xmin": params.get("xmin") || -2991495.024884269,
-                    "ymin": params.get("ymin") || 252581.70093458006,
-                    "xmax": params.get("xmax") || 2841527.165071185,
-                    "ymax": params.get("ymax") || 3191062.7476635515,
+                    "xmin": params.get("xmin") || -14464636.127431296,
+                    "ymin": params.get("ymin") || 3973666.0196191105,
+                    "xmax": params.get("xmax") || -7028842.015851326,
+                    "ymax": params.get("ymax") || 6414758.95493385,
                     "spatialReference": {
-                        "wkid": 5070
+                        "wkid": 3857
                     }
                 });
-                console.debug("selectedView", selectedView);
-                selectedView.view.goTo(tmpExt)
+                mapView.goTo(tmpExt)
                     .catch(function(error) {
                         if (error.name !== "AbortError") {
                             console.error(error);
@@ -153,11 +173,12 @@ window.onSignInHandler = (portal) => {
                                 start: startDate,
                                 end: endDate
                             },
-                            opacity: 0.75,
+                            opacity: 0.65,
                             title: config.drought_layer_name,
                             useViewTime: false
                         });
-                        selectedView.view.map.add(layer, 1);
+                        mapView.map.add(layer, 2);
+                        mapView.popup = null;
 
                         updateSelectedDateLabel(selectedChartDate);
                     }
@@ -167,31 +188,10 @@ window.onSignInHandler = (portal) => {
                 console.error(error);
             });
 
-        let views = config.views.map(view => {
-            view.map = webmap;
-            const mapView = new MapView(view);
-            mapView.popup = null;
-            mapView.ui.components = [];
-            const mainViewGeometry = Polygon.fromExtent(mapView.extent);
-            const graphic = new Graphic({
-                geometry: mainViewGeometry,
-                symbol: config.maskSymbol
-            });
-            mapView.graphics.add(graphic);
-            mapView.on("click", mapClickHandler);
-            mapView.when(maintainFixedExtent);
-
-            return {
-                "id": view.container,
-                "view": mapView
-            };
-        });
-        selectedView = views[0];
-
         // Watch view's stationary property for becoming true.
-        watchUtils.whenTrue(selectedView.view, "stationary", function() {
+        watchUtils.whenTrue(mapView, "stationary", function() {
             // Get the new extent of the view only when view is stationary.
-            const currentExtent = selectedView.view.extent;
+            const currentExtent = mapView.extent;
             if (currentExtent) {
                 const params = new URLSearchParams(location.search);
                 params.set("xmin", currentExtent.xmin);
@@ -202,65 +202,61 @@ window.onSignInHandler = (portal) => {
             }
         });
 
+        // Animate to the fullExtent of the first layer as soon as the view is ready.
+        watchUtils.whenOnce(mapView, "ready")
+            .then(function(result) {
+                // Ensure the layer is loaded before accessing its fullExtent
+                // return view.map.layers.getItemAt(0).load();
+            })
+            .then(function(layer) {
+                // Animate to the full extent of the layer
+                // return view.goTo(layer.fullExtent);
+            })
+            .then(function() {
+                // Animation is finished here
+                // console.log("Animation to first layer extent is finished");
+                createChart();
+            });
+
+        let homeWidget = new Home({
+            view: mapView
+        });
+
+        let zoomWidget = new Zoom({
+            view: mapView
+        });
+
         let searchWidget = new Search({
-            container: "searchWidgetContainer",
+            view: mapView,
             resultGraphicEnabled: false
         });
         searchWidget.on("search-complete", event => {
             console.debug("search-complete", event);
-            projection.load().then(evt => {
-                let resultGeometry = event.results[0].results[0].feature.geometry;
-                let resultExtent = event.results[0].results[0].extent;
-
-                const mainViewProGeom = projection.project(resultGeometry, new SpatialReference({
-                    wkid: 5070
-                }));
-                let mainViewGeomEngResult = geometryEngine.intersects(mainViewProGeom, views[0].view.graphics.items[0].geometry);
-
-                const akViewProGeom = projection.project(resultGeometry, new SpatialReference({
-                    wkid: 5936
-                }));
-                let akViewGeomEngResult = geometryEngine.intersects(akViewProGeom, views[1].view.graphics.items[0].geometry);
-
-                const hiViewProGeom = projection.project(resultGeometry, new SpatialReference({
-                    wkid: 102007
-                }));
-                let hiViewGeomEngResult = geometryEngine.intersects(hiViewProGeom, views[2].view.graphics.items[0].geometry);
-
-                const prViewProGeom = projection.project(resultGeometry, new SpatialReference({
-                    wkid: 5070
-                }));
-                let prViewGeomEngResult = geometryEngine.intersects(prViewProGeom, views[3].view.graphics.items[0].geometry);
-
-                if (mainViewGeomEngResult) {
-                    config.boundaryQuery.geometry = mainViewProGeom;
-                    selectedView = views[0];
-                } else if (akViewGeomEngResult) {
-                    config.boundaryQuery.geometry = akViewProGeom;
-                    selectedView = views[1];
-                } else if (hiViewGeomEngResult) {
-                    config.boundaryQuery.geometry = hiViewProGeom;
-                    selectedView = views[2];
-                } else if(prViewGeomEngResult) {
-                    config.boundaryQuery.geometry = prViewProGeom;
-                    selectedView = views[3];
-                } else {
-                    alert("There are no results within the map's extent!");
-                }
-
-                mapClickHandler(null);
-                selectedView.view.goTo(mainViewProGeom)
-                    .catch(function(error) {
-                        if (error.name !== "AbortError") {
-                            console.error(error);
-                        }
-                    });
-
-            });
+            let resultGeometry = event.results[0].results[0].feature.geometry;
+            let resultExtent = event.results[0].results[0].extent;
+            config.boundaryQuery.geometry = mainViewProGeom;
+            mapView = views[0];
+            mapClickHandler(null);
+            mapView.view.goTo(mainViewProGeom)
+                .catch(function(error) {
+                    if (error.name !== "AbortError") {
+                        console.error(error);
+                    }
+                });
         });
-        selectedView.view.ui.add(searchWidget, {
-            position: "top-right"
+
+        mapView.ui.add("bookmark-component", "");
+        mapView.ui.add(zoomWidget, {
+            position: "top-left"
         });
+        mapView.ui.add(homeWidget, {
+            position: "top-left"
+        });
+        mapView.ui.add(searchWidget, {
+            position: ""
+        });
+        mapView.ui.add("app-title-component", "top-right");
+        mapView.ui.add("administrative-subdivision", "bottom-left");
 
         if (!isNaN(selectedX) && !isNaN(selectedY)) {
             mapClickHandler(null);
@@ -283,36 +279,11 @@ window.onSignInHandler = (portal) => {
             });
         });
 
-        /**
-         * 0) Determine correct admin area (county or state) to use for querying data
-         *      - apply geometry (boundary) to map
-         *
-         * 1) Fetch the agricultural data (return geometry)
-         *      - pass in geometry (map point) and return geometry
-         *          -- update population
-         *          -- update agricultural impact
-         *
-         * 2) Fetch the drought data based on FIPS (no geometry)
-         *      - Tables (state is 0, county is 1)
-         *      - sort by date
-         *      - pass in q parameter based on admin selection (county or state)
-         * 2a)      -- Fetch the drought data based on county, state, and D2_D4 date data
-         *              --- update consecutive weeks of severe drought
-         *          -- update chart
-         *          -- update current drought status
-         *          -- update current drought status date
-         *          -- update location
-         *
-         * 3) Fetch monthly outlook data (spatial query based on county or state)
-         *      - update monthly drought
-         *
-         * 4) Fetch seasonal outlook data (spatial query based on county or state)
-         *      - update seasonal drought
-         * @param event
-         */
         function mapClickHandler(event) {
             // show visualization container
-            calcite.removeClass(dataContainerEle, "hide");
+            calcite.removeClass(document.getElementById("administrative-subdivision"), "hide");
+            calcite.removeClass(document.getElementById("bottom-component"), "hide");
+
             // TODO
             if (event !== null) {
                 config.boundaryQuery.geometry = event.mapPoint;
@@ -341,13 +312,7 @@ window.onSignInHandler = (portal) => {
                     returnGeometry: false,
                     outFields: ["*"],
                     q: agrQuery
-                }).then(response => {
-                    if (response.features.length > 0) {
-                        updateAgriculturalImpactComponent(response);
-                    }
-                });
-
-
+                }).then(updateAgriculturalImpactComponent);
 
                 // Drought
                 let droughtQuery = "";
@@ -359,7 +324,6 @@ window.onSignInHandler = (portal) => {
                     droughtQueryLayerId = "0";
                     droughtQuery = `admin_fips  = ${config.selected.state_fips}`;
                 }
-                console.debug("droughtQuery", droughtQuery);
                 fetchData({
                     url: config.droughtURL + droughtQueryLayerId,
                     returnGeometry: false,
@@ -369,7 +333,7 @@ window.onSignInHandler = (portal) => {
                 }).then(response => {
                     if (response.features.length > 0) {
                         let features = response.features;
-                        let inputDataset = features.map(feature => {
+                        /*let inputDataset = features.map(feature => {
                             return {
                                 date: new Date(feature.attributes.ddate),
                                 d0: feature.attributes.d0,
@@ -381,12 +345,11 @@ window.onSignInHandler = (portal) => {
                                 total: 100
                             };
                         });
-                        inputDataset.reverse();
+                        inputDataset.reverse();*/
 
                         let selectedDate = response.features[0].attributes.ddate;
                         let formattedSelectedDate = format(selectedDate, "P");
 
-                        let urlParamsDate = parseInt(params.get("date") || selectedDate);
 
                         let consecutiveWeeksQuery = "";
                         if (config.selected.adminAreaId === config.COUNTY_ADMIN) {
@@ -405,7 +368,7 @@ window.onSignInHandler = (portal) => {
                             const consecutiveWeeks = differenceInWeeks(new Date(selectedDate), new Date(responseDate)) - 1;
 
                             let consecutiveWeeksElement = document.getElementById("consecutiveWeeks");
-                            consecutiveWeeksElement.innerHTML = consecutiveWeeks.toString();
+                            consecutiveWeeksElement.innerHTML = `${consecutiveWeeks.toString()} weeks`;
                             if (consecutiveWeeks < 1) {
                                 consecutiveWeeksElement.style.color = "#393939";
                             } else if (consecutiveWeeks > 0 && consecutiveWeeks < 8) {
@@ -414,14 +377,14 @@ window.onSignInHandler = (portal) => {
                                 consecutiveWeeksElement.style.color = "#b24543";
                             }
                         });
-                        updateChart(inputDataset);
+                        //updateChart(inputDataset);
+                        createChart(features);
                         updateCurrentDroughtStatus(response);
                         updateSelectedLocationComponent(response);
-                    } else {
-
                     }
                 });
 
+                // Monthly outlook
                 fetchData({
                     url: config.monthlyDroughtOutlookURL,
                     returnGeometry: false,
@@ -433,6 +396,7 @@ window.onSignInHandler = (portal) => {
                     q: ""
                 }).then(monthlyDroughtOutlookResponseHandler);
 
+                // Season outlook
                 fetchData({
                     url: config.seasonalDroughtOutlookURL,
                     returnGeometry: false,
@@ -456,61 +420,19 @@ window.onSignInHandler = (portal) => {
 
         async function retrieveGeometryResponseHandler(response) {
             if (response.features.length > 0) {
-
-                projection.load().then(evt => {
-                    let resultGeometry = response.features[0].geometry;
-                    let mainViewProGeom = projection.project(resultGeometry, new SpatialReference({
-                        wkid: 5070
-                    }));
-                    let mainViewGeomEngResult = geometryEngine.intersects(mainViewProGeom, views[0].view.graphics.items[0].geometry);
-
-                    let akViewProGeom = projection.project(resultGeometry, new SpatialReference({
-                        wkid: 5936
-                    }));
-                    let akViewGeomEngResult = geometryEngine.intersects(akViewProGeom, views[1].view.graphics.items[0].geometry);
-
-                    let hiViewProGeom = projection.project(resultGeometry, new SpatialReference({
-                        wkid: 102007
-                    }));
-                    let hiViewGeomEngResult = geometryEngine.intersects(hiViewProGeom, views[2].view.graphics.items[0].geometry);
-
-                    let prViewProGeom = projection.project(resultGeometry, new SpatialReference({
-                        wkid: 5070
-                    }));
-                    let prViewGeomEngResult = geometryEngine.intersects(prViewProGeom, views[3].view.graphics.items[0].geometry);
-
-                    if (mainViewGeomEngResult) {
-                        config.boundaryQuery.geometry = mainViewProGeom;
-                        selectedView = views[0];
-                    } else if (akViewGeomEngResult) {
-                        config.boundaryQuery.geometry = akViewProGeom;
-                        selectedView = views[1];
-                    } else if (hiViewGeomEngResult) {
-                        config.boundaryQuery.geometry = hiViewProGeom;
-                        selectedView = views[2];
-                    } else if(prViewGeomEngResult) {
-                        config.boundaryQuery.geometry = prViewProGeom;
-                        selectedView = views[3];
-                    } else {
-                        alert("There are no results within the map's extent!");
+                config.boundaryQuery.geometry = response.features[0].geometry;
+                for (const graphic of mapView.graphics){
+                    if (graphic.attributes === "BOUNDARY") {
+                        mapView.graphics.remove(graphic);
                     }
+                }
 
-                    views.forEach(v => {
-                        for (const graphic of v.view.graphics){
-                            if (graphic.attributes === "BOUNDARY") {
-                                v.view.graphics.remove(graphic);
-                            }
-                        }
-                    });
-
-                    const polygonGraphic = new Graphic({
-                        geometry: response.features[0].geometry,
-                        symbol: config.selectedGeographicSymbology,
-                        attributes: "BOUNDARY"
-                    });
-
-                    selectedView.view.graphics.add(polygonGraphic);
+                const polygonGraphic = new Graphic({
+                    geometry: response.features[0].geometry,
+                    symbol: config.selectedGeographicSymbology,
+                    attributes: "BOUNDARY"
                 });
+                mapView.graphics.add(polygonGraphic);
             } else {
                 // no features
             }
@@ -518,34 +440,36 @@ window.onSignInHandler = (portal) => {
         }
 
         function updateAgriculturalImpactComponent(response) {
-            const selectedFeature = response.features[0];
-            let labor = "CountyLabor";
-            let total_sales = "County_Total_Sales";
-            let corn = "County_Corn_Value";
-            let soy = "County_Soy_Value";
-            let hay = "County_Hay_Value";
-            let winter = "County_WinterWheat_Value";
-            let livestock = "County_Livestock_Value";
-            let population = "CountyPop2020";
-            if (config.selected.adminAreaId !== config.COUNTY_ADMIN) {
-                labor = "StateLabor";
-                total_sales = "State_Total_Sales";
-                corn = "State_Corn_Value";
-                soy = "State_Soy_Value";
-                hay = "State_Hay_Value";
-                winter = "State_WinterWheat_Value";
-                livestock = "State_Livestock_Value";
-                population = "StatePop2020";
+            if (response.features.length > 0) {
+                const selectedFeature = response.features[0];
+                let labor = "CountyLabor";
+                let total_sales = "County_Total_Sales";
+                let corn = "County_Corn_Value";
+                let soy = "County_Soy_Value";
+                let hay = "County_Hay_Value";
+                let winter = "County_WinterWheat_Value";
+                let livestock = "County_Livestock_Value";
+                let population = "CountyPop2020";
+                if (config.selected.adminAreaId !== config.COUNTY_ADMIN) {
+                    labor = "StateLabor";
+                    total_sales = "State_Total_Sales";
+                    corn = "State_Corn_Value";
+                    soy = "State_Soy_Value";
+                    hay = "State_Hay_Value";
+                    winter = "State_WinterWheat_Value";
+                    livestock = "State_Livestock_Value";
+                    population = "StatePop2020";
+                }
+                document.getElementById("jobs").innerHTML = Number(selectedFeature.attributes[labor]).toLocaleString();
+                document.getElementById("totalSales").innerHTML = Number(selectedFeature.attributes[total_sales]).toLocaleString();
+                document.getElementById("cornSales").innerHTML = Number(selectedFeature.attributes[corn]).toLocaleString();
+                document.getElementById("soySales").innerHTML = Number(selectedFeature.attributes[soy]).toLocaleString();
+                document.getElementById("haySales").innerHTML = Number(selectedFeature.attributes[hay]).toLocaleString();
+                document.getElementById("wheatSales").innerHTML = Number(selectedFeature.attributes[winter]).toLocaleString();
+                document.getElementById("livestockSales").innerHTML = Number(selectedFeature.attributes[livestock]).toLocaleString();
+                // population
+                document.getElementById("population").innerHTML = `${Number(selectedFeature.attributes[population]).toLocaleString()}`;
             }
-            document.getElementById("jobs").innerHTML = Number(selectedFeature.attributes[labor]).toLocaleString();
-            document.getElementById("totalSales").innerHTML = Number(selectedFeature.attributes[total_sales]).toLocaleString();
-            document.getElementById("cornSales").innerHTML = Number(selectedFeature.attributes[corn]).toLocaleString();
-            document.getElementById("soySales").innerHTML = Number(selectedFeature.attributes[soy]).toLocaleString();
-            document.getElementById("haySales").innerHTML = Number(selectedFeature.attributes[hay]).toLocaleString();
-            document.getElementById("wheatSales").innerHTML = Number(selectedFeature.attributes[winter]).toLocaleString();
-            document.getElementById("livestockSales").innerHTML = Number(selectedFeature.attributes[livestock]).toLocaleString();
-            // population
-            document.getElementById("population").innerHTML = `Population: ${Number(selectedFeature.attributes[population]).toLocaleString()}`;
         }
 
         function updateSelectedLocationComponent(response) {
@@ -554,7 +478,7 @@ window.onSignInHandler = (portal) => {
             if (config.selected.adminAreaId !== config.COUNTY_ADMIN) {
                 label = `${config.selected.state_name}`;
             }
-            document.getElementById("selectedLocation").innerHTML = label;
+            document.getElementsByClassName("drought-status-location-label")[0].innerHTML = label;
 
         }
 
@@ -612,15 +536,6 @@ window.onSignInHandler = (portal) => {
             }
         }
 
-        function updateSelectedLocationPopulation(response) {
-            if (response.features.length > 0) {
-                const selectedFeature = response.features[0];
-                document.getElementById("population").innerHTML = `Population: ${Number(selectedFeature.attributes["CountyPop2020"]).toLocaleString()}`;
-            } else {
-
-            }
-        }
-
         function updateCurrentDroughtStatus(response) {
             let mostRecentFeature = response.features[0].attributes;
             let drought = {
@@ -653,12 +568,26 @@ window.onSignInHandler = (portal) => {
                 label = "Exceptional Drought";
                 color = "#b24543";
             }
-            let currentDroughtStatusElement = document.getElementById("currentDroughtStatus");
+            let currentDroughtStatusElement = document.getElementsByClassName("drought-status-label")[0];
             currentDroughtStatusElement.innerHTML = label;
             currentDroughtStatusElement.style.color = color;
-            document.getElementById("currentDroughtStatusDate").innerHTML = format(new Date(mostRecentFeature["ddate"]), "PPP");
+            document.getElementById("selectedDate").innerHTML = format(new Date(mostRecentFeature["ddate"]), "PPP");
         }
 
+        async function fetchData(params) {
+            return await queryService(params);
+        }
+
+        //
+        // create the svg
+        /*let svg = d3.select("#chart").append("svg").attr("width", config.chart.width + 25).attr("height", config.chart.height + 25);
+        let g = svg.append("g").attr("transform", "translate(" + config.chart.margin.left + "," + config.chart.margin.top + ")");
+        // set x scale
+        let x = d3.scaleBand().range([0, config.chart.width]);
+        // set y scale
+        let y = d3.scaleLinear().range([config.chart.height, 0]);
+        // set the colors
+        let z = d3.scaleOrdinal().range(["#b2a077", "#ccaa5b", "#e4985a", "#e28060", "#b24543", "rgba(57,57,57,0.11)"]);
         function updateChart(inputDataset) {
             x.domain(inputDataset.map(d => {
                 return d.date;
@@ -718,12 +647,12 @@ window.onSignInHandler = (portal) => {
                     urlSearchParams.set("date", selectedChartDate.toString());
                     window.history.replaceState({}, '', `${location.pathname}?${urlSearchParams}`);
 
-                    const layersToRemove = selectedView.view.map.layers.filter(lyr => {
+                    const layersToRemove = mapView.map.layers.filter(lyr => {
                         if (lyr.title === config.drought_layer_name) {
                             return lyr;
                         }
                     });
-                    selectedView.view.map.removeMany(layersToRemove.items);
+                    mapView.map.removeMany(layersToRemove.items);
 
                     const layer = new FeatureLayer({
                         url: config.droughtURL,
@@ -736,12 +665,8 @@ window.onSignInHandler = (portal) => {
                         title: config.drought_layer_name,
                         useViewTime: false
                     });
-                    selectedView.view.map.add(layer, 1);
+                    mapView.map.add(layer, 0);
                 });
-        }
-
-        async function fetchData(params) {
-            return await queryService(params);
         }
 
         (async function() {
@@ -808,30 +733,6 @@ window.onSignInHandler = (portal) => {
                     .attr("fill", "#000")
                     .attr("font-weight", "bold")
                     .attr("text-anchor", "start");
-
-                /*function zoom(svg) {
-                    const extent = [[config.chart.margin.left, config.chart.margin.top], [config.chart.width - config.chart.margin.right, config.chart.height - config.chart.margin.top]];
-                    svg.call(d3.zoom()
-                        .scaleExtent([1, 15])
-                        .translateExtent(extent)
-                        .extent(extent)
-                        .on("zoom", zoomed));
-
-                    function zoomed(event) {
-                        x.range([0, config.chart.width].map(d => event.transform.applyX(d)));
-                        svg.selectAll(".bars rect").attr("x", d => x(d.data.date)).attr("width", x.bandwidth());
-                        //let xScale = d3.scaleTime().domain([new Date(inputDataset[0].date), new Date(inputDataset[inputDataset.length - 1].date)]).range([x.range()[0], x.range()[1]]);
-                        console.debug(x.doamin())
-                        let xScale = d3.scaleTime().domain([inputDataset[0].date, inputDataset[inputDataset.length - 1].date]).range([0, config.chart.width]);
-                        g.append("g")
-                            .attr("class", "x-axis")
-                            .attr("transform", "translate(0," + config.chart.height + ")")
-                            .call(d3.axisBottom(xScale));
-                        svg.selectAll(".x-axis").call(xScale);
-                    }
-                }
-
-                svg.call(zoom);*/
             } catch(error) {
                 console.log(error);
             }
@@ -839,7 +740,7 @@ window.onSignInHandler = (portal) => {
 
         function stopEvtPropagation(event) {
             event.stopPropagation();
-        }
+        }*/
 
         function queryService(params) {
             let queryTask = new QueryTask({
@@ -865,49 +766,227 @@ window.onSignInHandler = (portal) => {
             return view;
         }
 
-        function disableNavigation(view) {
-            view.popup.dockEnabled = true;
-            // Removes the zoom action on the popup
-            view.popup.actions = [];
-            // stops propagation of default behavior when an event fires
-            function stopEvtPropagation(event) {
-                event.stopPropagation();
-            }
-            // disable mouse wheel scroll zooming on the view
-            view.navigation.mouseWheelZoomEnabled = true;
-            // disable zooming via double-click on the view
-            view.on("double-click", stopEvtPropagation);
-            // disable zooming out via double-click + Control on the view
-            view.on("double-click", ["Control"], stopEvtPropagation);
-            // disables pinch-zoom and panning on the view
-            view.navigation.browserTouchPanEnabled = false;
-            view.on("drag", stopEvtPropagation);
-            // disable the view's zoom box to prevent the Shift + drag
-            // and Shift + Control + drag zoom gestures.
-            view.on("drag", ["Shift"], stopEvtPropagation);
-            view.on("drag", ["Shift", "Control"], stopEvtPropagation);
-            // prevents zooming and rotation with the indicated keys
-            view.on("key-down", function(event) {
-                let prohibitedKeys = ["+", "-", "_", "=", "a", "d"];
-                let keyPressed = event.key.toLowerCase();
-                if (prohibitedKeys.indexOf(keyPressed) !== -1) {
-                    event.stopPropagation();
-                }
-            });
-            return view;
-        }
-
-        // prevents the user from opening the popup with click
-        function disablePopupOnClick(view) {
-            view.on("click", function(event) {
-                event.stopPropagation();
-            });
-            return view;
-        }
-
         function updateSelectedDateLabel(date) {
             const dateObj = new Date(date);
             document.getElementById("selectedDate").innerHTML = format(dateObj, "PPP");
+        }
+
+        function createChart(droughtData) {
+            const areaChartHeight = 150;
+            const areaChartWidth = 800;
+            const areaChartMargin = {
+                top: 20,
+                right: 0,
+                bottom: 30,
+                left: 30
+            };
+
+            const keys = ["d4", "d3", "d2", "d1", "d0"];
+            const keyColors = ["#b24543", "#e28060", "#e4985a", "#ccaa5b", "#b2a077"];
+
+            let selectedLocation = null;
+            try {
+                //const droughtData = await d3.json("data.json");
+                let features = droughtData;
+                const collection = new Map();
+                let inputDataset = [];
+                inputDataset = features.map(feature => {
+                    collection.set(new Date(feature.attributes.ddate).toDateString(), feature);
+                    return {
+                        d0: feature.attributes.d0,
+                        d1: feature.attributes.d1,
+                        d2: feature.attributes.d2,
+                        d3: feature.attributes.d3,
+                        d4: feature.attributes.d4,
+                        date: feature.attributes.ddate
+                    };
+                });
+
+                let series = d3.stack().keys(keys)(inputDataset)
+
+                let colors = d3.scaleOrdinal()
+                    .domain(keys)
+                    .range(keyColors);
+
+                let area = (inputDataset, x) => d3.area()
+                    .curve(d3.curveNatural)
+                    .x(d => x(d.data.date))
+                    .y0(d => areaChartY(d[0]))
+                    .y1(d => areaChartY(d[1]));
+
+                let areaChartX = d3.scaleUtc()
+                    .domain(d3.extent(inputDataset, d => d.date))
+                    .range([areaChartMargin.left, areaChartWidth - areaChartMargin.right]);
+
+                let areaChartY = d3.scaleLinear()
+                    .domain([0, d3.max(series, d => d3.max(d, d => d[1]))])
+                    .range([areaChartHeight - areaChartMargin.bottom, areaChartMargin.top]);
+
+                let areaChartXAxis = (g, x) => g
+                    .attr("transform", `translate(0,${areaChartHeight - areaChartMargin.bottom})`)
+                    .call(d3.axisBottom(x)
+                        .ticks(areaChartWidth / 60).tickSizeOuter(0));
+
+                let areaChartYAxis = (g, y) => g
+                    .attr("transform", `translate(${areaChartMargin.left},0)`)
+                    .call(d3.axisLeft(y).ticks(5));
+
+                let areaChartExtent = [
+                    [areaChartMargin.left, areaChartMargin.top],
+                    [areaChartWidth - areaChartMargin.right, areaChartHeight - areaChartMargin.top]
+                ];
+
+                const areaChartZooming = d3.zoom()
+                    .scaleExtent([1, 64])
+                    .translateExtent(areaChartExtent)
+                    .extent(areaChartExtent)
+                    .on("zoom", areaChartZoomed);
+
+                let areaChartPath = null;
+                let gx_area = null;
+                let xz_area = areaChartX;
+
+                let selectedDate = 1626134400000;
+                const areaChart = () => {
+                    let areaChartSvg = d3.select("#areaChart")
+                        .append("svg")
+                        .attr("width", areaChartWidth)
+                        .attr("height", areaChartHeight);
+                    areaChartSvg.append("clipPath")
+                        .attr("id", "areaChart-clip")
+                        .append("rect")
+                        .attr("x", areaChartMargin.left)
+                        .attr("y", areaChartMargin.top)
+                        .attr("width", areaChartWidth - areaChartMargin.left - areaChartMargin.right)
+                        .attr("height", areaChartHeight - areaChartMargin.top - areaChartMargin.bottom);
+
+
+                    areaChartPath = areaChartSvg.append("g")
+                        .selectAll("path")
+                        .data(series)
+                        .join("path")
+                        .attr("clip-path", "url(#areaChart-clip)")
+                        .attr("fill", ({key}) => colors(key))
+                        .attr("d", area(inputDataset, areaChartX));
+
+                    gx_area = areaChartSvg.append("g")
+                        .call(areaChartXAxis, areaChartX);
+
+                    areaChartSvg.append("g")
+                        .call(areaChartYAxis, areaChartY);
+
+
+                    let scrubber = areaChartSvg.append("g")
+                        .attr("class", "scrubber")
+                        .style("display", "none");
+                    scrubber.append("line")
+                        .attr("x1", 0)
+                        .attr("y1", 0)
+                        .attr("x2", 0)
+                        .attr("y2", 100)
+                        .style("opacity", 1.0)
+                        .attr("stroke-width", 1)
+                        .attr("stroke", "#232323");
+
+                    d3.select("#areaChartScrubberContent")
+                        .style("position", "relative")
+                        .style("left", "50px")
+                        .style("top", "-175px");
+
+                    let clickScrubber = areaChartSvg.append("g")
+                        .attr("class", "click-scrubber")
+                        .style("display", "none");
+                    clickScrubber.append("line")
+                        .attr("x1", 0)
+                        .attr("y1", 0)
+                        .attr("x2", 0)
+                        .attr("y2", 100)
+                        .style("opacity", 1.0)
+                        .attr("stroke-width", 1)
+                        .attr("stroke", "#00c103");
+                    clickScrubber.append("rect")
+                        .attr("width", 100)
+                        .attr("height", 20)
+                        .attr("transform", "translate(-30, -20)")
+                        .attr("class", "click-scrubber-text-container")
+                        .style("fill", "#00c103");
+                    clickScrubber.append("text")
+                        .attr('class', "click-scrubber-text")
+                        .attr("dy", "-5")
+                        .attr("text-anchor", "middle")
+                        .style('font-size', '.75rem')
+                        .style('fill', '#fff');
+
+                    let chartSVG = d3.select("#areaChart svg");
+                    let mouseG = chartSVG.append("g")
+                        .attr("class", "mouse-over-effects");
+                    mouseG.append('svg:rect') // append a rect to catch mouse movements on canvas
+                        .attr('width', areaChartWidth) // can't catch mouse events on a g element
+                        .attr('height', areaChartHeight)
+                        .attr('fill', 'none')
+                        .attr('pointer-events', 'all')
+                        .on("mouseover", function (event) {
+                            scrubber.style("display", null);
+                            d3.select("#areaChartScrubberContent").style("display", null);
+                        })
+                        .on("mouseout", function (event) {
+                            scrubber.style("display", "none");
+                            d3.select("#areaChartScrubberContent").style("display", "none");
+                        })
+                        .on("mousemove", function (event) {
+                            let currentXPosition = d3.pointer(event)[0];
+                            scrubber.attr("transform", "translate(" + currentXPosition + "," + 20 + ")");
+                            let xValue = xz_area.invert(currentXPosition);
+                            let tmp = collection.get(new Date(xValue).toDateString());
+                            if (tmp !== undefined) {
+                                console.debug(tmp);
+                                selectedLocation = tmp;
+                                let date = new Date(tmp.attributes.ddate);
+                                let formattedDate = ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '/' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate())) + '/' + date.getFullYear();
+                                d3.select("#areaChartScrubberContentDate").html(formattedDate);
+                                d3.select("#areaChartScrubberContent_d4").html(Math.round(tmp.attributes.d4));
+                                d3.select("#areaChartScrubberContent_d3").html(Math.round(tmp.attributes.D3_D4));
+                                d3.select("#areaChartScrubberContent_d2").html(Math.round(tmp.attributes.D2_D4));
+                                d3.select("#areaChartScrubberContent_d1").html(Math.round(tmp.attributes.D1_D4));
+                                d3.select("#areaChartScrubberContent_d0").html(Math.round(tmp.attributes.D0_D4));
+                            }
+
+                            d3.select("#areaChartScrubberContent")
+                                .style("position", "relative")
+                                .style("left", currentXPosition + "px")
+                                .style("top", "-255px");
+                        })
+                        .on("click", function (event) {
+                            selectedDate = selectedLocation.attributes.ddate;
+                            let date = new Date(selectedDate);
+                            let formattedDate = ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '/' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate())) + '/' + date.getFullYear();
+                            let currentXPosition = d3.pointer(event)[0];
+                            clickScrubber.style("display", null);
+                            d3.select(".click-scrubber-text").text(formattedDate);
+                            clickScrubber.attr("transform", "translate(" + currentXPosition + "," + 20 + ")");
+                        });
+
+
+                    areaChartSvg.call(areaChartZooming);
+
+                    return areaChartSvg.node();
+                }
+
+                function areaChartZoomed(event) {
+                    xz_area = event.transform.rescaleX(areaChartX);
+                    let xPos = xz_area(selectedDate);
+                    let w = (areaChartWidth - areaChartMargin.left - areaChartMargin.right);
+                    console.debug(xPos);
+                    console.debug(selectedDate);
+                    d3.selectAll(".click-scrubber").attr("transform", "translate(" + xPos + "," + 20 + ")").style("opacity", (xPos > 30 && xPos < 800) ? 1 : 0);
+                    areaChartPath.attr("d", area(inputDataset, xz_area));
+                    gx_area.call(areaChartXAxis, xz_area);
+                }
+
+                areaChart();
+            } catch (error) {
+                console.debug(error);
+            }
         }
     });
 }

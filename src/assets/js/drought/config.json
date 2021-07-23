@@ -1,5 +1,5 @@
 {
-  "webMapId": "bf499490ae4e456baf1917ab6822259c",
+  "webMapId": "ab5bf0057f11443ca86d78e7d1998da5",
 
   "drought_layer_name": "USA Drought Intensity 2000 - Present - US_Drought",
 
@@ -20,82 +20,10 @@
     {
       "container": "mainMapDiv",
       "map": null,
-      "extent": {
-        "xmin": -2991495.024884269,
-        "ymin": 252581.70093458006,
-        "xmax": 2841527.165071185,
-        "ymax": 3191062.7476635515,
-        "spatialReference": {
-          "wkid": 5070
-        }
-      },
-      "spatialReference": {
-        "wkid": 5070
-      },
       "constraints": {
         "rotationEnabled": false,
         "minScale": 60000000,
         "maxScale": 0
-      }
-    },
-    {
-      "container": "akViewDiv",
-      "map": null,
-      "zoom": 3,
-      "extent": {
-        "xmax": 3827432.808245468,
-        "xmin": -320000.91011457774,
-        "ymax": 45676.62532637059,
-        "ymin": -2277754.829461718,
-        "spatialReference": {
-          "wkid": 5936
-        }
-      },
-      "spatialReference": {
-        "wkid": 5936
-      },
-      "ui": {
-        "components": []
-      }
-    },
-    {
-      "container": "hiViewDiv",
-      "map": null,
-      "zoom": 3,
-      "extent": {
-        "xmax": 1276645.7620453902,
-        "xmin": -1290060.488316002,
-        "ymax": 1178974.4072312545,
-        "ymin": 540657.4077958297,
-        "spatialReference": {
-          "wkid": 102007
-        }
-      },
-      "spatialReference": {
-        "wkid": 102007
-      },
-      "ui": {
-        "components": []
-      }
-    },
-    {
-      "container": "prViewDiv",
-      "map": null,
-      "zoom": 3,
-      "extent": {
-        "xmax": 3540627.086646676,
-        "xmin": 2869602.8545438247,
-        "ymax": 66446.81318132428,
-        "ymin": -100430.94087566764,
-        "spatialReference": {
-          "wkid": 5070
-        }
-      },
-      "spatialReference": {
-        "wkid": 5070
-      },
-      "ui": {
-        "components": []
       }
     }
   ],
