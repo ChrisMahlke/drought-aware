@@ -7,17 +7,19 @@
     </div>
 
     <div id="bookmark-component" class="esri-widget">
-        <nav class="">
-            <button class="btn btn-grouped btn-small btn-white">Alaska</button>
-            <button class="btn btn-grouped btn-small btn-white">Puerto Rico</button>
-            <button class="btn btn-grouped btn-small btn-white">Hawaii</button>
-        </nav>
+        <nav class="bookmarks-nav"></nav>
     </div>
 
     <div id="app-title-component" class="esri-widget">
-        <div style="font-size: 2.5em; color: #6f3f14;">Esri Drought Aware</div>
-        <div style="font-size: .85em; color: #a67a53;">statistics and impacts of drought in the U.S.A.</div>
-        <div style="font-size: .7em; color: #6c6c6c;">Source: NOAA, Census, USDA</div>
+        <div style="float: left;">
+            <div style="font-size: 2.5em; color: #6f3f14;">Esri Drought Aware</div>
+            <div style="font-size: .85em; color: #a67a53;">statistics and impacts of drought in the U.S.A.</div>
+            <div style="font-size: .7em; color: #6c6c6c;">Source: NOAA, Census, USDA</div>
+        </div>
+
+        <div style="float: right;">
+            <calcite-icon icon="information" scale="s"></calcite-icon>
+        </div>
     </div>
 
     <div id="administrative-subdivision" class="esri-widget hide animate-in-up">
@@ -31,7 +33,21 @@
 
     <div id="viewDiv">
         <div id="bottom-component" class="esri-widget hide animate-in-up">
+
+            <calcite-loader
+                    id="dataComponentLoader"
+                    type="indeterminate"
+                    scale="m"
+                    no-padding=""
+                    value="0"
+                    style="
+                        --calcite-ui-brand: rgba(170, 51, 50, 1);
+  --calcite-ui-brand-hover: rgba(220, 111, 77, 1);
+  --calcite-ui-brand-press: rgba(234, 167, 113, 1);"
+            ></calcite-loader>
+
             <div id="droughtStatusComponent">
+
                 <div class="component-hdr">CURRENT DROUGHT STATUS AS OF <span id="selectedDate">DECEMBER 31, 2021</span></div>
                 <div class="drought-status-label"></div>
                 <div class="drought-status-location-label">San Bernardino, California</div>
@@ -68,7 +84,9 @@
                     </div>
                     <div class="agr-flex-container" style="margin-top: .75em;">
                         <div class="agr-flex-child agr-label">TOTAL SALES</div>
-                        <div class="agr-flex-child agr-value">$<span id="totalSales"></span></div>
+                        <div class="agr-flex-child agr-value">
+                            <span id="totalSales"></span>
+                        </div>
                     </div>
                 </div>
 
@@ -105,34 +123,11 @@
             </div>
 
             <div id="historicRecordComponent">
+
                 <div class="component-hdr">HISTORIC RECORD</div>
 
                 <div>
                     <div id="areaChart"></div>
-
-                    <div id="areaChartScrubberContent" style="display: none">
-                        <div id="areaChartScrubberContentDate"></div>
-                        <div>
-                            <div class="scrubberHoverCatViz abnormally-dry"></div>
-                            <div id="areaChartScrubberContent_d0" style="margin-left: 3em"></div>
-                        </div>
-                        <div>
-                            <div class="scrubberHoverCatViz moderate-drought"></div>
-                            <div id="areaChartScrubberContent_d1" style="margin-left: 3em"></div>
-                        </div>
-                        <div>
-                            <div class="scrubberHoverCatViz severe-drought"></div>
-                            <div id="areaChartScrubberContent_d2" style="margin-left: 3em"></div>
-                        </div>
-                        <div>
-                            <div class="scrubberHoverCatViz extreme-drought"></div>
-                            <div id="areaChartScrubberContent_d3" style="margin-left: 3em"></div>
-                        </div>
-                        <div>
-                            <div class="scrubberHoverCatViz exceptional-drought"></div>
-                            <div id="areaChartScrubberContent_d4" style="margin-left: 3em"></div>
-                        </div>
-                    </div>
 
                     <div class="chart-legend">
                         <ul class="flex-container longhand">
@@ -158,102 +153,33 @@
                             </li>
                         </ul>
                     </div>
+
+                    <div id="areaChartScrubberContent" style="display: none">
+                        <div id="areaChartScrubberContentDate"></div>
+                        <div>
+                            <div class="scrubberHoverCatViz abnormally-dry"></div>
+                            <div id="areaChartScrubberContent_d0" style="margin-left: 3em"></div>
+                        </div>
+                        <div>
+                            <div class="scrubberHoverCatViz moderate-drought"></div>
+                            <div id="areaChartScrubberContent_d1" style="margin-left: 3em"></div>
+                        </div>
+                        <div>
+                            <div class="scrubberHoverCatViz severe-drought"></div>
+                            <div id="areaChartScrubberContent_d2" style="margin-left: 3em"></div>
+                        </div>
+                        <div>
+                            <div class="scrubberHoverCatViz extreme-drought"></div>
+                            <div id="areaChartScrubberContent_d3" style="margin-left: 3em"></div>
+                        </div>
+                        <div>
+                            <div class="scrubberHoverCatViz exceptional-drought"></div>
+                            <div id="areaChartScrubberContent_d4" style="margin-left: 3em"></div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
     </div>
-
-    <!--<div id="mainMapDiv">
-        <div id="administrativeAreaToggle" class="esri-widget">
-            <fieldset class="radio-group">
-                <input class="radio-group-input" type="radio" id="county" name="adminboundary" data-admin-area-id="county" checked/>
-                <label class="radio-group-label" for="county">County</label>
-                <input class="radio-group-input" type="radio" id="state" name="adminboundary" data-admin-area-id="state"/>
-                <label class="radio-group-label" for="state">State</label>
-            </fieldset>
-        </div>
-
-        <div id="leftComponent">
-            <div style="font-size: 2.5em; color: #6f3f14;">Esri Drought Aware</div>
-            <div style="font-size: .85em; color: #a67a53;">statistics and impacts of drought in the U.S.A.</div>
-            <div style="font-size: .7em; color: #6c6c6c;">Source: NOAA, Census, USDA</div>
-        </div>
-
-        <div id="bottomComponent" class="data-container esri-widget hide">
-            <div class="location-container">
-                    <div id="selectedLocation">San Bernardino County, CA</div>
-                    <div id="population">Population: 2,539,342</div>
-                </div>
-            <div id="data-container-content">
-                    <div class="data-container-content-box font-size&#45;&#45;3" style="background-color: #dddacf;">
-                        <div class="trailer-1">
-                            <div class="font-size&#45;&#45;1">Current Drought Status</div>
-                            <div id="currentDroughtStatusDate" class="font-size&#45;&#45;3">June 12, 2021</div>
-                            <div id="currentDroughtStatus" class="font-size-1 avenir-demi">Moderate Drought</div>
-                        </div>
-
-                        <div>
-                            <div class="font-size&#45;&#45;1">Monthly Drought Outlook</div>
-                            <div id="monthlyOutlookDate" class="font-size&#45;&#45;3">June 12, 2021</div>
-                            <div id="monthlyOutlookLabel" class="font-size-1 avenir-demi">Drought Intensifies</div>
-                        </div>
-                    </div>
-
-                    <div class="data-container-content-box font-size&#45;&#45;3" style="background-color: #dddacf;">
-                        <div class="trailer-1">
-                            <div class="font-size&#45;&#45;1">Consecutive Weeks of</div>
-                            <div class="font-size&#45;&#45;3">Severe Drought</div>
-                            <div id="consecutiveWeeks" class="font-size-1 avenir-demi">24</div>
-                        </div>
-                        <div>
-                            <div class="font-size&#45;&#45;1">Seasonal Drought Outlook</div>
-                            <div id="seasonalOutlookDate" class="font-size&#45;&#45;3">June 12, 2021</div>
-                            <div id="seasonalOutlookLabel" class="font-size-1 avenir-demi">Drought Removal Likely</div>
-                        </div>
-                    </div>
-
-                    <div class="data-container-content-box font-size&#45;&#45;3" style="background-color: #dddacf;">
-                        <div class="font-size-1">Agricultural Impact</div>
-                        <div>Jobs <span id="jobs"></span></div>
-                        <div>Total Sales <span id="totalSales"></span></div>
-                        <div>Corn <span id="cornSales"></span></div>
-                        <div>Soy <span id="soySales"></span></div>
-                        <div>Hay <span id="haySales"></span></div>
-                        <div>Winter Wheat <span id="wheatSales"></span></div>
-                        <div>Livestock <span id="livestockSales"></span></div>
-                    </div>
-
-                    <div class="data-container-content-chart-box" style="background-color: #dddacf; color: #393939; padding-top: .5em;">
-                        <div id="selectedDate" class="font-size&#45;&#45;3"></div>
-                        <div class="chart-legend">
-                            <div id="chart"></div>
-                        </div>
-                        <div class="chart-legend">
-                            <ul class="flex-container longhand">
-                                <li class="flex-item">
-                                    <div class="chart-legend-color-container abnormally-dry"></div>
-                                    <div class="chart-legend-label-container font-size&#45;&#45;3">Abnormally Dry</div>
-                                </li>
-                                <li class="flex-item">
-                                    <div class="chart-legend-color-container moderate-drought"></div>
-                                    <div class="chart-legend-label-container font-size&#45;&#45;3">Moderate Drought</div>
-                                </li>
-                                <li class="flex-item">
-                                    <div class="chart-legend-color-container severe-drought"></div>
-                                    <div class="chart-legend-label-container font-size&#45;&#45;3">Severe Drought</div>
-                                </li>
-                                <li class="flex-item">
-                                    <div class="chart-legend-color-container extreme-drought"></div>
-                                    <div class="chart-legend-label-container font-size&#45;&#45;3">Extreme Drought</div>
-                                </li>
-                                <li class="flex-item">
-                                    <div class="chart-legend-color-container exceptional-drought"></div>
-                                    <div class="chart-legend-label-container font-size&#45;&#45;3">Exceptional Drought</div>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-        </div>
-    </div>-->
 </div>
