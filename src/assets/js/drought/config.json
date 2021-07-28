@@ -90,29 +90,29 @@
   "STATE_ADMIN": "state",
 
   "drought_colors" : {
-    "nothing": {
-      "label": "No Drought",
-      "color": ""
-    },
-    "d0": {
-      "label": "Abnormally Dry",
-      "color": "#eee1b4"
-    },
-    "d1": {
-      "label": "Moderate Drought",
-      "color": "#ecd092"
-    },
-    "d2": {
-      "label": "Severe Drought",
-      "color": "#eaa771"
+    "d4": {
+      "label": "Exceptional Drought",
+      "color": "#aa3332"
     },
     "d3": {
       "label": "Extreme Drought",
       "color": "#dc6f4d"
     },
-    "d4": {
-      "label": "Exceptional Drought",
-      "color": "#aa3332"
+    "d2": {
+      "label": "Severe Drought",
+      "color": "#eaa771"
+    },
+    "d1": {
+      "label": "Moderate Drought",
+      "color": "#ecd092"
+    },
+    "d0": {
+      "label": "Abnormally Dry",
+      "color": "#eee1b4"
+    },
+    "nothing": {
+      "label": "No Drought",
+      "color": ""
     }
   }
 }

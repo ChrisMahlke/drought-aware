@@ -259,11 +259,11 @@ body {
   }
 
 
-  #areaChart {
+  #stackedBarchart {
     width: 100%;
   }
 
-  #areaChart > svg {
+  #stackedBarchart > svg {
     width: 100%;
   }
 
@@ -403,6 +403,7 @@ body {
     display: none !important;
     padding: .3em !important;
   }
+
 }
 
 /* Extra large devices (large laptops and desktops, 1200px and up) */
