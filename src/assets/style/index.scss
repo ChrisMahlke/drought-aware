@@ -12,6 +12,17 @@ body {
   background-color: #cac5b1 !important;
 }
 
+.modal-header {
+  background-color: #cac5b1 !important;
+}
+
+.esri-zoom {
+  background-color: transparent !important;
+}
+.esri-zoom .esri-widget--button:first-child {
+  margin-bottom: 4px !important;
+}
+
 /* Extra small devices (phones, 600px and down) */
 @media only screen and (max-width: 600px) {
 
@@ -107,7 +118,7 @@ body {
   #droughtStatusComponent {
     padding: .25em 1em;
     float: left;
-    width: 330px;
+    width: 320px;
     margin-right: .25em;
     background-color: #dddacf !important;
   }
@@ -238,6 +249,8 @@ body {
 
   .outlook-label {
     font-size: .8em;
+    flex: 0 0 auto;
+    width: 100px;
   }
 
   .outlook-value {
@@ -246,6 +259,9 @@ body {
   }
 
 
+  #areaChart {
+    width: 100%;
+  }
 
   #areaChart > svg {
     width: 100%;
@@ -333,6 +349,59 @@ body {
   .chart-legend-label-container {
     float: left;
     padding-left: .25em;
+  }
+
+
+  .esri-legend {
+    width: 200px !important;
+    background-color: #dddacf !important;
+  }
+
+  .esri-legend__layer-caption {
+    margin-bottom: 1em !important;
+  }
+
+  .esri-legend__layer-table {
+    margin-bottom: unset !important;
+  }
+
+  .esri-legend__layer-cell--info {
+    display: none !important;
+  }
+
+  .esri-legend__layer-row {
+    padding-left: .5em !important;
+    position: absolute !important;
+  }
+
+  .esri-legend__layer-body > div:nth-child(1) {
+    top: 50% !important;
+    right: 30px !important;
+  }
+
+  .esri-legend__layer-body > div:nth-child(2) {
+    top: 55% !important;
+    right: 60px !important;
+  }
+
+  .esri-legend__layer-body > div:nth-child(3) {
+    top: 60% !important;
+    right: 90px !important;
+  }
+
+  .esri-legend__layer-body > div:nth-child(4) {
+    top: 65% !important;
+    right: 110px !important;
+  }
+
+  .esri-legend__layer-body > div:nth-child(5) {
+    top: 70% !important;
+    right: 130px !important;
+  }
+
+  .esri-legend__service-label {
+    display: none !important;
+    padding: .3em !important;
   }
 }
 

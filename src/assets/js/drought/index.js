@@ -34,16 +34,17 @@ window.onSignInHandler = (portal) => {
                  MapView, QueryTask, Query,
                  watchUtils, Legend, Home, Search, Zoom]) => {
 
+        // drought data modal (currently an array)
+        let droughtData = [];
         // DOM nodes
         let countyButtonEle = document.getElementById("county");
         let stateButtonEle = document.getElementById("state");
-
         // The URLSearchParams spec defines an interface and convenience methods for working with the query string of a
         // URL (e.g. everything after "?"). This means no more regex'ing and string splitting URLs!
         let params = new URLSearchParams(location.search);
         // url params
-        let selectedX = parseInt(params.get("x"));
-        let selectedY = parseInt(params.get("y"));
+        let selectedX = parseFloat(params.get("x"));
+        let selectedY = parseFloat(params.get("y"));
         // selected admin
         config.selected.adminAreaId = params.get("admin") || config.COUNTY_ADMIN;
         params.set("admin", config.selected.adminAreaId);
@@ -89,7 +90,7 @@ window.onSignInHandler = (portal) => {
             container: "viewDiv",
             map: webmap,
             padding: {
-                bottom: 215
+                bottom: 0
             },
             ui: {
                 components: []
@@ -119,14 +120,12 @@ window.onSignInHandler = (portal) => {
                     return layer.title === "TotalAgSales Centroids - copy";
                 });
 
-                console.debug(agrLayer)
-
-                /*let legendWidget = new Legend({
+                let legendWidget = new Legend({
                     view: mapView,
                     layerInfos: [{
                         layer: agrLayer[0]
                     }]
-                });*/
+                });
 
                 const bookmarks = webmap.bookmarks.items;
                 const bookmarksNavEle = document.getElementsByClassName("bookmarks-nav")[0];
@@ -188,6 +187,9 @@ window.onSignInHandler = (portal) => {
                 });
                 mapView.ui.add("app-title-component", "top-right");
                 mapView.ui.add("administrative-subdivision", "bottom-left");
+                mapView.ui.add(legendWidget, {
+                    position: "bottom-right"
+                });
 
                 let urlExtent = new Extent({
                     "xmin": params.get("xmin") || -14464636.127431296,
@@ -234,8 +236,6 @@ window.onSignInHandler = (portal) => {
                         mapView.popup = null;
 
                         updateSelectedDateLabel(selectedChartDate);
-
-                        //createChart(features);
                     }
                 });
             })
@@ -275,22 +275,48 @@ window.onSignInHandler = (portal) => {
                 const params = new URLSearchParams(location.search);
                 params.set("admin", config.selected.adminAreaId);
                 window.history.replaceState({}, '', `${location.pathname}?${params}`);
+                selectedX = parseFloat(params.get("x"));
+                selectedY = parseFloat(params.get("y"));
+
+                console.debug(selectedX);
+                console.debug(selectedY);
+
+                config.boundaryQuery.geometry.x = selectedX;
+                config.boundaryQuery.geometry.y = selectedY;
+                config.boundaryQuery.geometry.type = "point";
+
+                if (!isNaN(selectedX) && !isNaN(selectedY)) {
+                    mapClickHandler(null);
+                }
             });
         });
 
         function mapClickHandler(event) {
+            console.debug("mapClickHandler", event);
             // show visualization container
             calcite.removeClass(document.getElementById("administrative-subdivision"), "hide");
             calcite.removeClass(document.getElementById("bottom-component"), "hide");
+            document.getElementsByClassName("esri-ui-bottom-left")[0].style.bottom = 215;
+            document.getElementsByClassName("esri-ui-bottom-right")[0].style.bottom = 215;
             document.getElementById("dataComponentLoader").setAttribute("active", "");
 
-            // TODO
+            const params = new URLSearchParams(location.search);
             if (event !== null) {
                 config.boundaryQuery.geometry = event.mapPoint;
-                const params = new URLSearchParams(location.search);
                 params.set("x", event.mapPoint.x);
                 params.set("y", event.mapPoint.y);
                 window.history.replaceState({}, '', `${location.pathname}?${params}`);
+            } else {
+                selectedX = parseFloat(params.get("x"));
+                selectedY = parseFloat(params.get("y"));
+                config.boundaryQuery.geometry = new Point({
+                    "x": selectedX,
+                    "y": selectedY,
+                    "spatialReference": {
+                        "wkid": 3857
+                    },
+                    "type": "point"
+                })
             }
 
             // apply geometry
@@ -332,14 +358,14 @@ window.onSignInHandler = (portal) => {
                     q: droughtQuery
                 }).then(response => {
                     if (response.features.length > 0) {
-                        let features = response.features;
-                        selectedDate = response.features[0].attributes.ddate;
+                        droughtData = response.features;
+                        selectedDate = droughtData[0].attributes.ddate;
                         let formattedSelectedDate = format(selectedDate, "P");
                         let consecutiveWeeksQuery = "";
                         if (config.selected.adminAreaId === config.COUNTY_ADMIN) {
-                            consecutiveWeeksQuery = `name = '${features[0].attributes["name"]}' AND state_abbr = '${features[0].attributes["state_abbr"]}' AND D2_D4 = 0 AND ddate <= date '${formattedSelectedDate}'`;
+                            consecutiveWeeksQuery = `name = '${droughtData[0].attributes["name"]}' AND state_abbr = '${droughtData[0].attributes["state_abbr"]}' AND D2_D4 = 0 AND ddate <= date '${formattedSelectedDate}'`;
                         } else {
-                            consecutiveWeeksQuery = `state_abbr = '${features[0].attributes["state_abbr"]}' AND D2_D4 = 0 AND ddate <= date '${formattedSelectedDate}'`
+                            consecutiveWeeksQuery = `state_abbr = '${droughtData[0].attributes["state_abbr"]}' AND D2_D4 = 0 AND ddate <= date '${formattedSelectedDate}'`
                         }
                         fetchData({
                             url: config.droughtURL + droughtQueryLayerId,
@@ -352,16 +378,35 @@ window.onSignInHandler = (portal) => {
                             const consecutiveWeeks = differenceInWeeks(new Date(selectedDate), new Date(responseDate)) - 1;
 
                             let consecutiveWeeksElement = document.getElementById("consecutiveWeeks");
-                            consecutiveWeeksElement.innerHTML = `${consecutiveWeeks.toString()} weeks`;
+                            let weeksLabel = ``;
                             if (consecutiveWeeks < 1) {
                                 consecutiveWeeksElement.style.color = "#393939";
                             } else if (consecutiveWeeks > 0 && consecutiveWeeks < 8) {
+                                weeksLabel = (consecutiveWeeks < 2) ? "Week" : "Weeks";
                                 consecutiveWeeksElement.style.color = "#e4985a";
                             } else if (consecutiveWeeks > 8) {
                                 consecutiveWeeksElement.style.color = "#b24543";
                             }
+                            consecutiveWeeksElement.innerHTML = `${consecutiveWeeks.toString()} Consecutive ${weeksLabel}`;
                         });
-                        createChart(features);
+
+
+                        let inputDataset = droughtData.map(feature => {
+                            let date = new Date(feature.attributes.ddate);
+                            let year = date.getFullYear(); // 2020
+                            let month = date.getMonth() + 1; // "04"
+                            let day = date.getDate(); // "09"
+                            return {
+                                d0: feature.attributes.d0,
+                                d1: feature.attributes.d1,
+                                d2: feature.attributes.d2,
+                                d3: feature.attributes.d3,
+                                d4: feature.attributes.d4,
+                                nothing: feature.attributes.nothing,
+                                date: new Date(Date.UTC(year, month, day))
+                            };
+                        });
+                        createChart(inputDataset);
                         updateCurrentDroughtStatus(response);
                         updateSelectedLocationComponent(response);
                         document.getElementById("dataComponentLoader").removeAttribute("active");
@@ -567,6 +612,15 @@ window.onSignInHandler = (portal) => {
             document.getElementById("selectedDate").innerHTML = format(new Date(mostRecentFeature["ddate"]), "PPP");
         }
 
+        function updateSelectedDateLabel(date) {
+            const dateObj = new Date(date);
+            document.getElementById("selectedDate").innerHTML = format(dateObj, "PPP");
+        }
+
+        function getFormattedDate(date) {
+            return ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '/' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate())) + '/' + date.getFullYear();
+        }
+
         async function fetchData(params) {
             return await queryService(params);
         }
@@ -585,24 +639,254 @@ window.onSignInHandler = (portal) => {
             return queryTask.execute(query);
         }
 
-        function updateSelectedDateLabel(date) {
-            const dateObj = new Date(date);
-            document.getElementById("selectedDate").innerHTML = format(dateObj, "PPP");
-        }
 
-        const areaChartHeight = 150;
-        const areaChartWidth = 800;
-        const areaChartMargin = {
-            top: 20,
-            right: 0,
-            bottom: 30,
-            left: 30
-        };
-        const keys = ["d4", "d3", "d2", "d1", "d0"];
-        const keyColors = ["#aa3332", "#dc6f4d", "#eaa771", "#ecd092", "#eee1b4"];
+        const keys = ["d4", "d3", "d2", "d1", "d0", "nothing"];
+        const keyColors = ["#730000", "#e60000", "#ffaa00", "#fcd37f", "#ffff00", "rgb(255, 255, 255, 0.0)"];
         let selectedDate = null;
         let selectedLocation = null;
-        function createChart(data) {
+        let areaChartSvg = null;
+        let selId = null;
+        let barChartMargin = null;
+        let barChartWidth = null;
+        let barChartHeight = null;
+        let barChartX = null;
+        let barChartSvg = null;
+        let barChartPath = null;
+        let gx_bar = null;
+        let barChartXAxis = null;
+        let barChartYAxis = null;
+        let scrubber = null;
+        let clickScrubber = null;
+        let selectedEvent = null;
+        let series = null;
+        let colors = null;
+        let chartDimensions = document.getElementById("areaChart");
+        const createChart = (inputDataset) => {
+            debugger
+            series = d3.stack().keys(keys)(inputDataset)
+            colors = d3.scaleOrdinal().domain(keys).range(keyColors);
+
+            selId = new Date(inputDataset[inputDataset.length - 100].date).getTime()
+            d3.select("#areaChart").selectAll("svg").remove();
+            barChartHeight = 150;
+            barChartWidth = chartDimensions.offsetWidth;
+            barChartMargin = {
+                top: 20,
+                right: 0,
+                bottom: 30,
+                left: 30
+            };
+
+            barChartX = d3.scaleBand()
+                .domain(inputDataset.map(d => d.date))
+                .range([barChartMargin.left, barChartWidth - barChartMargin.right])
+                .padding(0.1);
+
+            let barChartY = d3.scaleLinear()
+                .domain([0, d3.max(series, d => d3.max(d, d => d[1]))])
+                .range([barChartHeight - barChartMargin.bottom, barChartMargin.top]);
+
+            barChartXAxis = (g, x) => g
+                .attr("transform", `translate(0,${barChartHeight - barChartMargin.bottom})`)
+                .call(d3.axisBottom(x).tickValues(x.domain()
+                    .filter((e,i) => i % Math.round(barChartWidth/8) === 0))
+                    .tickFormat(d3.timeFormat("%m/%Y")));
+
+            barChartYAxis = (g, y) => g
+                .attr("transform", `translate(${barChartMargin.left},0)`)
+                .call(d3.axisLeft(y));
+
+            let barChartExtent = [
+                [barChartMargin.left, barChartMargin.top],
+                [barChartWidth - barChartMargin.right, barChartHeight - barChartMargin.top]
+            ];
+
+            const barChartZooming = d3.zoom()
+                .scaleExtent([1, 64])
+                .translateExtent(barChartExtent)
+                .extent(barChartExtent)
+                .on("zoom", barChartZoomed);
+
+            barChartSvg = d3.select("#areaChart")
+                .append("svg")
+                .attr("width", barChartWidth)
+                .attr("height", barChartHeight)
+                .on("mouseover", chartMouseOverHandler)
+                .on("mouseout", chartMouseOutHandler);
+
+            barChartSvg.append("clipPath")
+                .attr("id", "chart-clip")
+                .append("rect")
+                .attr("x", barChartMargin.left)
+                .attr("y", barChartMargin.top)
+                .attr("width", barChartWidth - barChartMargin.left - barChartMargin.right)
+                .attr("height", barChartHeight - barChartMargin.top - barChartMargin.bottom);
+
+            barChartPath = barChartSvg.append("g")
+                .attr("class", "bars")
+                .selectAll("g")
+                .data(series)
+                .enter().append("g")
+                .attr("clip-path","url(#chart-clip)")
+                .attr("fill", ({key}) => colors(key))
+                .selectAll("rect")
+                .data(d => {
+                    return d;
+                })
+                .enter().append("rect")
+                .attr("x", d => {
+                    return barChartX(d.data.date);
+                })
+                .attr("y", d => {
+                    return barChartY(d[1]);
+                })
+                .attr("id", d => {
+                    return new Date(d.data.date).getTime();
+                })
+                .attr("height", d => {
+                    return barChartY(d[0]) - barChartY(d[1]);
+                })
+                .attr("width", 1)
+                .on("mousemove", chartMouseMoveHandler)
+                .on("click", chartMouseClickHandler);
+
+            gx_bar = barChartSvg.append("g")
+                .call(barChartXAxis, barChartX);
+
+            barChartSvg.append("g")
+                .call(barChartYAxis, barChartY);
+
+            barChartSvg.call(barChartZooming);
+
+            scrubber = barChartSvg.append("g")
+                .attr("class", "scrubber")
+                .style("display", "none");
+
+            scrubber.append("line")
+                .attr("x1", 0)
+                .attr("y1", 0)
+                .attr("x2", 0)
+                .attr("y2", 120)
+                .attr("stroke-width", .5)
+                .attr("stroke", "#000000")
+                .style("opacity", 1.0);
+
+            clickScrubber = barChartSvg.append("g")
+                .attr("class", "click-scrubber")
+                .style("display", "none");
+
+            clickScrubber.append("line")
+                .attr("x1", 0)
+                .attr("y1", 0)
+                .attr("x2", 0)
+                .attr("y2", 100)
+                .attr("stroke-width", .5)
+                .attr("stroke", "#000000")
+                .style("opacity", 1.0);
+
+            clickScrubber.append("rect")
+                .attr("width", 100)
+                .attr("height", 20)
+                .attr("transform", "translate(-50, -20)")
+                .attr("class", "click-scrubber-text-container")
+                .style("fill", "#454545");
+
+            clickScrubber.append("text")
+                .attr('class', "click-scrubber-text")
+                .attr("dy", "-5")
+                .attr("text-anchor", "middle")
+                .style('font-size', '.75rem')
+                .style('fill', '#fff');
+
+            return barChartSvg.node();
+        }
+
+        function chartMouseOverHandler(event) {
+            scrubber.style("display", "block");
+            d3.select("#areaChartScrubberContent").style("display", "block");
+        }
+
+        function chartMouseOutHandler(event) {
+            scrubber.style("display", "none");
+            d3.select("#areaChartScrubberContent").style("display", "none");
+        }
+
+        function chartMouseMoveHandler(event) {
+            let d = d3.select(this).data()[0]
+            let currentXPosition = d3.pointer(event)[0];
+            let formattedDate = getFormattedDate(d.data.date);
+            d3.select("#areaChartScrubberContentDate").html(formattedDate);
+            d3.select("#areaChartScrubberContent_d4").html(`${Math.round(d.data.d4).toString()} %`);
+            d3.select("#areaChartScrubberContent_d3").html(`${Math.round(d.data.d3).toString()} %`);
+            d3.select("#areaChartScrubberContent_d2").html(`${Math.round(d.data.d2).toString()} %`);
+            d3.select("#areaChartScrubberContent_d1").html(`${Math.round(d.data.d1).toString()} %`);
+            d3.select("#areaChartScrubberContent_d0").html(`${Math.round(d.data.d0).toString()} %`);
+
+            scrubber.attr("transform", "translate(" + (currentXPosition - 2) + "," + 0 + ")");
+            d3.select("#areaChartScrubberContent")
+                .style("position", "relative")
+                .style("left", (currentXPosition - 2) + "px")
+                .style("top", "-300px");
+        }
+
+        function chartMouseClickHandler(event) {
+            selectedEvent = event;
+            let d = d3.select(this).data()[0];
+            selId = new Date(d.data.date).getTime();
+            //d3.selectAll("rect[id='" + selId + "']").each(function(d,i) {
+            //console.debug("The x position of the rect #" + i + " is " + d3.select(this).attr("x"))
+            //    d3.select(this).attr("stroke", "green");
+            //});
+
+            let currentXPosition = d3.pointer(event)[0];
+            clickScrubber.attr("transform", "translate(" + currentXPosition + "," + 20 + ")");
+            clickScrubber.style("display", null);
+            clickScrubber.style("opacity", "1");
+        }
+
+        function barChartZoomed(event) {
+            barChartX.range([barChartMargin.left, barChartWidth - barChartMargin.right].map(d =>
+                event.transform.applyX(d)
+            ));
+            barChartSvg.selectAll(".bars rect").attr("x", d => barChartX(d.data.date)).attr("width", barChartX.bandwidth());
+            gx_bar.call(barChartXAxis, barChartX);
+
+            if (selectedEvent !== null) {
+                let tmp = 0;
+                if (selectedEvent.target !== undefined ) {
+                    tmp = selectedEvent.target.getAttribute("x");
+                } else {
+                    tmp = selectedEvent.attr("x");
+                }
+                d3.selectAll(".click-scrubber").attr("transform", "translate(" + tmp + "," + 20 + ")");
+            }
+        }
+
+        function getFormattedDate(input) {
+            let date = new Date(input);
+            return ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '/' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate())) + '/' + date.getFullYear();
+        }
+
+
+
+
+
+
+
+
+
+        function createChart2(data) {
+            let areaChartHeight = 150;
+            let areaChartWidth = areaChartDimensions.offsetWidth;
+            let areaChartMargin = {
+                top: 20,
+                right: 0,
+                bottom: 30,
+                left: 30
+            };
+            const keys = ["d4", "d3", "d2", "d1", "d0"];
+            const keyColors = ["#aa3332", "#dc6f4d", "#eaa771", "#ecd092", "#eee1b4"];
+
             if (selectedDate) {
                 d3.select("#areaChart").selectAll("svg").remove();
                 try {
@@ -621,10 +905,11 @@ window.onSignInHandler = (portal) => {
                     });
 
                     let series = d3.stack().keys(keys)(inputDataset)
-
                     let colors = d3.scaleOrdinal()
                         .domain(keys)
                         .range(keyColors);
+
+                    /*
 
                     let area = (inputDataset, x) => d3.area()
                         .curve(d3.curveNatural)
@@ -666,7 +951,7 @@ window.onSignInHandler = (portal) => {
 
                     const areaChart = () => {
 
-                        let areaChartSvg = d3.select("#areaChart")
+                        areaChartSvg = d3.select("#areaChart")
                             .append("svg")
                             .attr("width", areaChartWidth)
                             .attr("height", areaChartHeight);
@@ -760,7 +1045,7 @@ window.onSignInHandler = (portal) => {
                                 if (tmp !== undefined) {
                                     selectedLocation = tmp;
                                     let date = new Date(tmp.attributes.ddate);
-                                    let formattedDate = ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '/' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate())) + '/' + date.getFullYear();
+                                    let formattedDate = getFormattedDate(date);
                                     d3.select("#areaChartScrubberContentDate").html(formattedDate);
                                     d3.select("#areaChartScrubberContent_d4").html(`${Math.round(tmp.attributes.d4).toString()} %`);
                                     d3.select("#areaChartScrubberContent_d3").html(`${Math.round(tmp.attributes.D3_D4).toString()} %`);
@@ -777,64 +1062,71 @@ window.onSignInHandler = (portal) => {
                             .on("click", function (event) {
                                 selectedDate = selectedLocation.attributes.ddate;
                                 let date = new Date(selectedDate);
-                                let formattedDate = ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '/' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate())) + '/' + date.getFullYear();
+                                let formattedDate = getFormattedDate(date);
                                 let currentXPosition = d3.pointer(event)[0];
                                 d3.select(".click-scrubber-text").text(formattedDate);
                                 clickScrubber.attr("transform", "translate(" + currentXPosition + "," + 20 + ")");
                                 clickScrubber.style("display", null);
                                 clickScrubber.style("opacity", "1");
-
-
-                                const endDate = new Date(selectedDate);
-                                const startDate = new Date(endDate.getTime() - (60 * 60 * 24 * 7 * 1000));
-
-                                //updateSelectedDateLabel(selectedDate);
-
-                                const urlSearchParams = new URLSearchParams(location.search);
+                                let endDate = new Date(selectedDate);
+                                let startDate = new Date(endDate.getTime() - (60 * 60 * 24 * 7 * 1000));
+                                let urlSearchParams = new URLSearchParams(location.search);
                                 urlSearchParams.set("date", selectedDate.toString());
                                 window.history.replaceState({}, '', `${location.pathname}?${urlSearchParams}`);
 
-                                const layersToRemove = mapView.map.layers.filter(lyr => {
+                                let layersToRemove = mapView.map.layers.filter(lyr => {
                                     if (lyr.title === config.drought_layer_name) {
                                         return lyr;
                                     }
                                 });
                                 mapView.map.removeMany(layersToRemove.items);
 
-                                const layer = new FeatureLayer({
+                                let layer = new FeatureLayer({
                                     url: config.droughtURL,
                                     layerId: 2,
                                     timeExtent: {
                                         start: startDate,
                                         end: endDate
                                     },
-                                    opacity: 0.75,
+                                    opacity: 0.65,
                                     title: config.drought_layer_name,
                                     useViewTime: false
                                 });
                                 mapView.map.add(layer, 0);
                             });
 
-
                         areaChartSvg.call(areaChartZooming);
-
                         return areaChartSvg.node();
                     }
 
                     function areaChartZoomed(event) {
                         xz_area = event.transform.rescaleX(areaChartX);
                         let xPos = xz_area(selectedDate);
-                        //let w = (areaChartWidth - areaChartMargin.left - areaChartMargin.right);
-                        d3.selectAll(".click-scrubber").attr("transform", "translate(" + xPos + "," + 20 + ")").style("opacity", (xPos > 30 && xPos < 800) ? 1 : 0);
+                         d3.selectAll(".click-scrubber").attr("transform", "translate(" + xPos + "," + 20 + ")").style("opacity", (xPos > 30 && xPos < areaChartWidth) ? 1 : 0);
                         areaChartPath.attr("d", area(inputDataset, xz_area));
                         gx_area.call(areaChartXAxis, xz_area);
                     }
 
-                    areaChart();
+                    areaChart();*/
                 } catch (error) {
                     console.debug(error);
                 }
             }
         }
+
+        function reportWindowSize(event) {
+            //console.debug(areaChartDimensions.offsetWidth);
+            /*createChart(droughtData);
+            selectedDate = selectedLocation.attributes.ddate;
+            let date = new Date(selectedDate);
+            let formattedDate = ((date.getMonth() > 8) ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '/' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate())) + '/' + date.getFullYear();
+            let currentXPosition = d3.pointer(event)[0];
+            d3.select(".click-scrubber-text").text(formattedDate);
+            clickScrubber.attr("transform", "translate(" + currentXPosition + "," + 20 + ")");
+            clickScrubber.style("display", null);
+            clickScrubber.style("opacity", "1");*/
+        }
+
+        window.onresize = reportWindowSize;
     });
 }
