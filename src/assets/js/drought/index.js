@@ -174,7 +174,7 @@ window.onSignInHandler = (portal) => {
             // app header
             const appHdrComponent = document.getElementById("appHdrComponent");
             response.ui.add("appHdrComponent", appHeaderPosition);
-            //appHdrComponent.style.display = "block";
+            appHdrComponent.style.display = "block";
 
             calcite.addClass(document.getElementById("splash"), "hide");
             calcite.addClass(document.getElementsByClassName("app-loader")[0], "hide");
