@@ -1,11 +1,42 @@
 <div class="wrapper">
-    <div class="mobile-header hide">
-            <div class="mobile-header-menu-btn btn btn-large js-drawer-toggle icon-ui-menu" data-drawer="top-nav"></div>
-            <div class="btn btn-small sign-in-btn">Sign In</div>
-            <div class="btn btn-small sign-out-btn hide">Sign Out</div>
-        </div>
 
-    <div id="bookmark-component" class="esri-widget">
+    <div class="hide">
+        <div class="sign-in-btn"></div>
+        <div class="sign-out-btn"></div>
+    </div>
+
+    <calcite-loader
+            class="app-loader"
+            active=""
+            type="indeterminate"
+            scale="l"
+            no-padding=""
+            value="0"
+            style="
+                --calcite-ui-brand: rgba(170, 51, 50, 1);
+                --calcite-ui-brand-hover: rgba(220, 111, 77, 1);
+                --calcite-ui-brand-press: rgba(234, 167, 113, 1);"
+    ></calcite-loader>
+
+    <calcite-alert
+            class="calcite-theme-light custom-alert"
+            icon="exclamation-mark-circle"
+            auto-dismiss="true"
+            auto-dismiss-duration="medium"
+            active="false"
+            scale="m"
+            color="red"
+            aria-hidden="false"
+            role="alert">
+        <div slot="title" class="alert-title"></div>
+        <div slot="message" class="alert-message"></div>
+        <calcite-link slot="link" title="my action" role="presentation" class="alert-link"></calcite-link>
+    </calcite-alert>
+
+    <div id="splash"></div>
+
+    <div id="viewDiv"><div>
+    <!--<div id="bookmark-component" class="esri-widget">
             <nav class="bookmarks-nav"></nav>
         </div>
 
@@ -40,9 +71,9 @@
                         no-padding=""
                         value="0"
                         style="
-                    --calcite-ui-brand: rgba(170, 51, 50, 1);
-                    --calcite-ui-brand-hover: rgba(220, 111, 77, 1);
-                    --calcite-ui-brand-press: rgba(234, 167, 113, 1);"
+                    &#45;&#45;calcite-ui-brand: rgba(170, 51, 50, 1);
+                    &#45;&#45;calcite-ui-brand-hover: rgba(220, 111, 77, 1);
+                    &#45;&#45;calcite-ui-brand-press: rgba(234, 167, 113, 1);"
                 ></calcite-loader>
 
                 <div id="droughtStatusComponent">
@@ -139,23 +170,23 @@
                             <ul class="flex-container longhand">
                                 <li class="flex-item">
                                     <div class="chart-legend-color-container abnormally-dry"></div>
-                                    <div class="chart-legend-label-container font-size--3">Abnormally Dry</div>
+                                    <div class="chart-legend-label-container font-size&#45;&#45;3">Abnormally Dry</div>
                                 </li>
                                 <li class="flex-item">
                                     <div class="chart-legend-color-container moderate-drought"></div>
-                                    <div class="chart-legend-label-container font-size--3">Moderate Drought</div>
+                                    <div class="chart-legend-label-container font-size&#45;&#45;3">Moderate Drought</div>
                                 </li>
                                 <li class="flex-item">
                                     <div class="chart-legend-color-container severe-drought"></div>
-                                    <div class="chart-legend-label-container font-size--3">Severe Drought</div>
+                                    <div class="chart-legend-label-container font-size&#45;&#45;3">Severe Drought</div>
                                 </li>
                                 <li class="flex-item">
                                     <div class="chart-legend-color-container extreme-drought"></div>
-                                    <div class="chart-legend-label-container font-size--3">Extreme Drought</div>
+                                    <div class="chart-legend-label-container font-size&#45;&#45;3">Extreme Drought</div>
                                 </li>
                                 <li class="flex-item">
                                     <div class="chart-legend-color-container exceptional-drought"></div>
-                                    <div class="chart-legend-label-container font-size--3">Exceptional Drought</div>
+                                    <div class="chart-legend-label-container font-size&#45;&#45;3">Exceptional Drought</div>
                                 </li>
                             </ul>
                         </div>
@@ -190,31 +221,31 @@
         </div>
 
     <div class="js-modal modal-overlay" data-modal="foo">
-            <div class="modal-content column-12" role="dialog" aria-labelledby="modal" role="dialog" style="color: #6f3f14; background-color: #cac5b1">
+        <div class="modal-content column-12" role="dialog" aria-labelledby="modal" role="dialog" style="color: #6f3f14; background-color: #cac5b1">
 
-                <a class="js-modal-toggle right" href="#" aria-label="close-modal">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 32 32" class="svg-icon"><path d="M18.404 16l9.9 9.9-2.404 2.404-9.9-9.9-9.9 9.9L3.696 25.9l9.9-9.9-9.9-9.898L6.1 3.698l9.9 9.899 9.9-9.9 2.404 2.406-9.9 9.898z"/></svg>
-                </a>
+            <a class="js-modal-toggle right" href="#" aria-label="close-modal">
+                <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 32 32" class="svg-icon"><path d="M18.404 16l9.9 9.9-2.404 2.404-9.9-9.9-9.9 9.9L3.696 25.9l9.9-9.9-9.9-9.898L6.1 3.698l9.9 9.899 9.9-9.9 2.404 2.406-9.9 9.898z"/></svg>
+            </a>
 
-                <div class="font-size-2 avenir-demi">About this App</div>
-                <div>
-                    The Drought Aware app is intended to provide the latest information about current, future and historical drought conditions in the United States. The data shown here from ArcGIS Living Atlas are authoritative U.S. government sources, including:
-                </div>
-                <div>
-                    <ul>
-                        <li>NOAA NIDIS <a href="https://www.drought.gov/" target="_blank" class="custom-link">US Drought Monitor</a> and NOAA Climate Prediction Center <a href="https://www.cpc.ncep.noaa.gov/products/expert_assessment/mdo_summary.php" target="_blank" class="custom-link">Monthly</a> and <a href="https://www.cpc.ncep.noaa.gov/products/expert_assessment/sdo_summary.php" target="_blank" class="custom-link">Seasonal Drought Outlooks</a></li>
-                        <li>The USDA <a href="https://livingatlas.arcgis.com/en/browse/#d=2&q=%22USDA%20Census%20of%20Agriculture%22&type=layers&cont=true&authoritative=true" target="_blank" class="custom-link">2017 Census of Agriculture</a> for agricultural values and employment</li>
-                        <li>U.S. Census <a href="https://livingatlas.arcgis.com/en/browse/#d=2&q=%22ACS%20Population%20Variables%20-%20Boundaries%22&type=layers&cont=true&authoritative=true" target="_blank" class="custom-link">American Community Survey</a> for state and county population totals for the past year</li>
-                    </ul>
-                </div>
-                <div class="font-size-2 avenir-demi">Use this App</div>
-                <div>Click a location in the U.S. to see the current Drought Monitor information and potential impacts. These values can be viewed by county or state totals from the selector at the top right. Expanding either the Contiguous or inset maps will allow you to zoom into areas.
-                    The time series graph will change the display of the Drought Monitor map, however, all of the other values (outlooks, agriculture, etc) are fixed in time.</div>
+            <div class="font-size-2 avenir-demi">About this App</div>
+            <div>
+                The Drought Aware app is intended to provide the latest information about current, future and historical drought conditions in the United States. The data shown here from ArcGIS Living Atlas are authoritative U.S. government sources, including:
+            </div>
+            <div>
+                <ul>
+                    <li>NOAA NIDIS <a href="https://www.drought.gov/" target="_blank" class="custom-link">US Drought Monitor</a> and NOAA Climate Prediction Center <a href="https://www.cpc.ncep.noaa.gov/products/expert_assessment/mdo_summary.php" target="_blank" class="custom-link">Monthly</a> and <a href="https://www.cpc.ncep.noaa.gov/products/expert_assessment/sdo_summary.php" target="_blank" class="custom-link">Seasonal Drought Outlooks</a></li>
+                    <li>The USDA <a href="https://livingatlas.arcgis.com/en/browse/#d=2&q=%22USDA%20Census%20of%20Agriculture%22&type=layers&cont=true&authoritative=true" target="_blank" class="custom-link">2017 Census of Agriculture</a> for agricultural values and employment</li>
+                    <li>U.S. Census <a href="https://livingatlas.arcgis.com/en/browse/#d=2&q=%22ACS%20Population%20Variables%20-%20Boundaries%22&type=layers&cont=true&authoritative=true" target="_blank" class="custom-link">American Community Survey</a> for state and county population totals for the past year</li>
+                </ul>
+            </div>
+            <div class="font-size-2 avenir-demi">Use this App</div>
+            <div>Click a location in the U.S. to see the current Drought Monitor information and potential impacts. These values can be viewed by county or state totals from the selector at the top right. Expanding either the Contiguous or inset maps will allow you to zoom into areas.
+                The time series graph will change the display of the Drought Monitor map, however, all of the other values (outlooks, agriculture, etc) are fixed in time.</div>
 
 
-                <div class="text-center leader-half">
-                    <button class="modal-close-btn btn btn-clear btn-large js-modal-toggle">Close</button>
-                </div>
+            <div class="text-center leader-half">
+                <button class="modal-close-btn btn btn-clear btn-large js-modal-toggle">Close</button>
             </div>
         </div>
+    </div>-->
 </div>
