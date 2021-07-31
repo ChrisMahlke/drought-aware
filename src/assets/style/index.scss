@@ -107,8 +107,15 @@ body {
 }
 
 /* Small devices (portrait tablets and large phones, 600px and up) */
-@media only screen and (min-width: 600px) {
-
+@media only screen and (max-width: 375px) {
+  #appHdrComponent {
+    line-height: unset;
+    padding: .25em;
+    background-color: #dddacf !important;
+    width: 100%;
+    position: absolute;
+    top: 0;
+  }
 }
 
 /* Medium devices (landscape tablets, 768px and up) */
@@ -118,6 +125,26 @@ body {
 
 /* Large devices (laptops/desktops, 992px and up) */
 @media only screen and (min-width: 992px) {
+  #appHdrComponent {
+    line-height: unset;
+    padding: .25em;
+    border-radius: .15em;
+    background-color: #dddacf !important;
+    max-width: 350px;
+  }
+
+  #bookmarkComponent {
+    position: absolute;
+    z-index: 99;
+    top: 15px;
+    left: 55px;
+    background-color: #dddacf !important;
+  }
+
+  .bookmark-btn {
+    background-color: #dddacf;
+    border: 1px solid #c5bfa7;
+  }
 /*
   #bookmark-component {
     position: absolute;
@@ -508,17 +535,18 @@ body {
 }
 
 /* Phone */
-@media only screen and (max-width: 480px) {
+/*@media only screen and (max-width: 480px) {
 
-}
+}*/
 
 /* Tablet */
-@media only screen and (max-width: 600px) {
+/*@media only screen and (max-width: 600px) {
 
-}
+}*/
 
 /* Desktop */
+/*
 @media only screen and (max-width: 768px) {
 
 
-}
+}*/
