@@ -52,6 +52,14 @@ body {
   height: 100%;
   width: 100%;
 }
+
+.esri-zoom {
+  background-color: transparent !important;
+}
+.esri-zoom .esri-widget--button:first-child {
+  margin-bottom: 4px !important;
+}
+
 /*
 #appContainer {
 
@@ -118,7 +126,10 @@ and (orientation: portrait) {
     padding: .25em;
     background-color: #dddacf !important;
     width: 100%;
+  }
 
+  #bookmarkComponent {
+    display: none;
   }
 }
 
@@ -133,7 +144,10 @@ and (orientation: portrait) {
     padding: .25em;
     background-color: #dddacf !important;
     width: 100%;
+  }
 
+  #bookmarkComponent {
+    display: none;
   }
 }
 
@@ -163,6 +177,79 @@ and (orientation: portrait) {
   .bookmark-btn {
     background-color: #dddacf;
     border: 1px solid #c5bfa7;
+  }
+
+  .esri-search {
+    position: absolute !important;
+    z-index: 99 !important;
+    top: 50px !important;
+    left: 55px !important;
+    width: 235px !important;
+  }
+
+  .esri-search__form > input {
+    background-color: #dddacf !important;
+  }
+
+  .esri-widget--button {
+    background-color: #dddacf !important;
+  }
+
+  .esri-legend {
+    width: 200px !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .esri-legend__layer-caption {
+    margin-bottom: 1em !important;
+  }
+
+  .esri-legend__layer-table {
+    margin-bottom: unset !important;
+  }
+
+  .esri-legend__layer-cell--info {
+    display: none !important;
+  }
+
+  .esri-legend__layer-row {
+    padding-left: .5em !important;
+    position: absolute !important;
+  }
+
+  .esri-legend__layer-body > div:nth-child(1) {
+    top: 50% !important;
+    right: 50px !important;
+  }
+
+  .esri-legend__layer-body > div:nth-child(2) {
+    top: 55% !important;
+    right: 80px !important;
+  }
+
+  .esri-legend__layer-body > div:nth-child(3) {
+    top: 60% !important;
+    right: 110px !important;
+  }
+
+  .esri-legend__layer-body > div:nth-child(4) {
+    top: 65% !important;
+    right: 130px !important;
+  }
+
+  .esri-legend__layer-body > div:nth-child(5) {
+    top: 70% !important;
+    right: 150px !important;
+  }
+
+  .esri-legend__service-label {
+    display: none !important;
+    padding: .3em !important;
+  }
+
+  .esri-legend__message {
+    display: none !important;
   }
 /*
   #bookmark-component {

@@ -31,14 +31,21 @@ window.onSignInHandler = (portal) => {
 
         const isMobile = isMobileBrowser();
 
+        // TODO Consider using destructuring
         let zoomPosition = "top-left";
+        let homePosition = "top-left";
         let appHeaderPosition = "top-right";
+        let legendPosition = "bottom-right";
         if (isMobile) {
             zoomPosition = "bottom-right";
+            homePosition = "bottom-right";
             appHeaderPosition = "manual";
         }
 
-        // fetch the latest date in the service
+        // Fetch the latest date in the service
+        // We will use the response to apply the correct Time Extent to the drought layer
+        // This query also doubles as a check to determine if the drought feature service is operational.
+        // If this query returns an error the entire app is un-usable.
         fetchData({
             url: config.droughtURL + "/2?resultRecordCount=1",
             returnGeometry: false,
@@ -121,8 +128,18 @@ window.onSignInHandler = (portal) => {
 
         function errorHandler(error) {
             console.debug("ERROR", error);
-            document.getElementsByClassName("alert-title")[0].innerHTML = error.message;
-            document.getElementsByClassName("alert-message")[0].innerHTML = `Http Status Code: ${error.details.httpStatus}<br />URL: ${error.details.url}<br />`;
+
+            const {
+                details: {
+                    httpStatus,
+                    messages,
+                    url
+                },
+                message
+            } = error;
+
+            document.getElementsByClassName("alert-title")[0].innerHTML = message;
+            document.getElementsByClassName("alert-message")[0].innerHTML = `Http Status Code: ${httpStatus}<br />URL: ${url}<br />`;
             document.getElementsByClassName("alert-link")[0].innerHTML = "contact support";
             document.getElementsByClassName("custom-alert")[0].setAttribute("icon", "exclamation-mark-circle");
             document.getElementsByClassName("custom-alert")[0].setAttribute("active", "true");
@@ -130,7 +147,7 @@ window.onSignInHandler = (portal) => {
         }
 
         function webMapLoadedSuccessHandler(response) {
-            console.debug("webMapLoadedSuccessHandler", response)
+            console.debug("WebMap Success", response)
         }
 
         function webMapLoadedErrorHandler(error) {
@@ -145,39 +162,30 @@ window.onSignInHandler = (portal) => {
         }
 
         function viewLoadedSuccessHandler(response) {
-            console.debug("viewLoadedSuccessHandler", response);
+            console.debug("View Success", response);
 
             // zoom
-            const zoomWidget = new Zoom({
-                view: response.ui.view
-            });
-            response.ui.add(zoomWidget, {
-                position: zoomPosition
-            });
+            addZoomWidget(response);
+            // home
+            addHomeWidget(response);
             // bookmarks
-            /*const bookmarks = response.map.bookmarks.items;
-            const bookmarksNavEle = document.getElementsByClassName("bookmarks-nav")[0];
-            const bookmarkElements = bookmarks.map(createBookmarkElement);
-            bookmarksNavEle.append(...bookmarkElements);
-            bookmarksNavEle.addEventListener("click", event => {
-                bookmarks.forEach(bookmark => {
-                    if (bookmark.uid === event.target.id) {
-                        response.goTo(bookmark.extent)
-                            .catch(function(error) {
-                                if (error.name !== "AbortError") {
-                                    console.error(error);
-                                }
-                            });
-                    }
-                });
-            });*/
+            addBookmarksWidget(response);
+            // search
+            addSearchWidget(response);
             // app header
-            const appHdrComponent = document.getElementById("appHdrComponent");
-            response.ui.add("appHdrComponent", appHeaderPosition);
-            appHdrComponent.style.display = "block";
+            addAppHeaderWidget(response);
+            // legend
+            addLegendWidget(response);
 
+            response.on("click", mapClickHandler);
+
+            // splash screen
             calcite.addClass(document.getElementById("splash"), "hide");
             calcite.addClass(document.getElementsByClassName("app-loader")[0], "hide");
+        }
+
+        function mapClickHandler(event) {
+            console.debug(event);
         }
 
         function viewLoadedErrorHandler(error) {
@@ -196,6 +204,99 @@ window.onSignInHandler = (portal) => {
             return check;
         }
 
+
+
+        function addZoomWidget(response) {
+            const zoomWidget = new Zoom({
+                view: response
+            });
+            response.ui.add(zoomWidget, {
+                position: zoomPosition
+            });
+        }
+
+        function addHomeWidget(response) {
+            const homeWidget = new Home({
+                view: response
+            });
+            response.ui.add(homeWidget, {
+                position: homePosition
+            });
+        }
+
+        function addSearchWidget(response) {
+            const searchWidget = new Search({
+                view: response,
+                resultGraphicEnabled: false,
+                popupEnabled: false
+            });
+            response.ui.add(searchWidget, {
+                position: ""
+            });
+            searchWidget.on("search-complete", searchCompleteHandler);
+        }
+
+        function addLegendWidget(response) {
+            const {
+                map : {
+                    allLayers: {
+                        items = { items: [] }
+                    }
+                },
+            } = response;
+
+            let agrLayer = items.filter(layer => {
+                return layer.title === "TotalAgSales Centroids - copy";
+            });
+
+            if (agrLayer.length > 0) {
+                let legendWidget = new Legend({
+                    view: response,
+                    layerInfos: [{
+                        layer: agrLayer[0]
+                    }]
+                });
+                response.ui.add(legendWidget, {
+                    position: legendPosition
+                });
+            }
+        }
+
+        function searchCompleteHandler(event) {
+            //let resultGeometry = event.results[0].results[0].feature.geometry;
+            //let resultExtent = event.results[0].results[0].extent;
+            /*config.boundaryQuery.geometry = resultGeometry;
+            mapClickHandler({
+                "mapPoint": new Point({
+                    "x": event.results[0].results[0].feature.geometry.x,
+                    "y": event.results[0].results[0].feature.geometry.y,
+                    "spatialReference": {
+                        "wkid": 3857
+                    },
+                    "type": "point"
+                })
+            });*/
+        }
+
+        function addBookmarksWidget(response) {
+            const bookmarks = response.map.bookmarks.items;
+            const bookmarksNavEle = document.getElementsByClassName("bookmarks-container")[1];
+            const bookmarkElements = bookmarks.map(createBookmarkElement);
+            bookmarksNavEle.append(...bookmarkElements);
+            bookmarksNavEle.addEventListener("click", event => {
+                bookmarks.forEach(bookmark => {
+                    if (bookmark.uid === event.target.id) {
+                        response.goTo(bookmark.extent)
+                            .catch(function(error) {
+                                if (error.name !== "AbortError") {
+                                    console.error(error);
+                                }
+                            });
+                    }
+                });
+            });
+        }
+
         function createBookmarkElement(bookmark) {
             let bookmarkEle = document.createElement("div");
             bookmarkEle.setAttribute("class", "btn btn-grouped btn-small btn-white bookmark-btn");
@@ -204,7 +305,11 @@ window.onSignInHandler = (portal) => {
             return bookmarkEle;
         }
 
-
+        function addAppHeaderWidget(response) {
+            const appHdrComponent = document.getElementById("appHdrComponent");
+            response.ui.add("appHdrComponent", appHeaderPosition);
+            appHdrComponent.style.display = "block";
+        }
 
 
 
@@ -518,6 +623,7 @@ window.onSignInHandler = (portal) => {
             mapView.map.add(layer, 0);
         });*/
 
+        /*
         function mapClickHandler(event) {
 
             // show visualization container
@@ -682,7 +788,7 @@ window.onSignInHandler = (portal) => {
                     q: ""
                 }).then(seasonalDroughtOutlookResponseHandler);
             });
-        }
+        }*/
 
         function highestValueAndKey(obj) {
             let [highestItems] = Object.entries(obj).sort(([ ,v1], [ ,v2]) => v2 - v1);
