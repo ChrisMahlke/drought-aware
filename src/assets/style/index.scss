@@ -116,13 +116,51 @@ and (orientation: portrait) {
     display: none;
   }
 
+  #administrativeSubdivision > fieldset {
+    display: none;
+  }
+
+  #bottomComponent {
+    z-index: 15;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 215px;
+    background-color: transparent;
+    display: block !important;
+    overflow: scroll !important;
+  }
+
+  #dataComponentLoader {
+    position: absolute;
+    margin-left: 50%;
+  }
+
+  #droughtStatusComponent {
+    padding: .25em 1em;
+    width: 100%;
+    background-color: #dddacf !important;
+  }
+
+  #agrComponent {
+    padding: .25em 1em;
+    width: 100%;
+    background-color: #dddacf !important;
+    margin-top: .25em;
+  }
+
+  #historicRecordComponent {
+    padding: .25em 1em;
+    background-color: #dddacf !important;
+    width: 100%;
+    margin-top: .25em;
+  }
+
+
+
   .esri-search {
-    position: absolute !important;
-    z-index: 99 !important;
-    bottom: 0 !important;
-    width: 100% !important;
-    left: 0 !important;
-    right: 0 !important;
+    display: none !important;
   }
 
   .esri-zoom {
@@ -130,6 +168,10 @@ and (orientation: portrait) {
   }
 
   .esri-home {
+    display: none !important;
+  }
+
+  .esri-legend {
     display: none !important;
   }
 }
@@ -151,13 +193,12 @@ and (orientation: portrait) {
     display: none;
   }
 
+  #administrativeSubdivision > fieldset {
+    display: none;
+  }
+
   .esri-search {
-    position: absolute !important;
-    z-index: 99 !important;
-    bottom: 0 !important;
-    width: 100% !important;
-    left: 0 !important;
-    right: 0 !important;
+    display: none !important;
   }
 
   .esri-zoom {
@@ -165,6 +206,10 @@ and (orientation: portrait) {
   }
 
   .esri-home {
+    display: none !important;
+  }
+
+  .esri-legend {
     display: none !important;
   }
 }
