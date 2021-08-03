@@ -19,7 +19,7 @@
     </div>
 
     <calcite-loader
-            class="app-loader"
+            id="appLoadingIndicator"
             active=""
             type="indeterminate"
             scale="l"
@@ -35,7 +35,7 @@
             class="calcite-theme-light custom-alert"
             icon="exclamation-mark-circle"
             auto-dismiss="true"
-            auto-dismiss-duration="medium"
+            auto-dismiss-duration="slow"
             active="false"
             scale="m"
             color="red"
@@ -65,28 +65,11 @@
             </div>
 
             <div style="float: right;">
-                <calcite-icon icon="information" scale="s" class="js-modal-toggle" data-modal="foo"></calcite-icon>
-            </div>
-        </div>
-    <div>
-</div>
-    <!--<div id="bookmark-component" class="esri-widget">
-            <nav class="bookmarks-nav"></nav>
-        </div>
-
-    <div id="app-title-component" class="esri-widget">
-            <div style="float: left; max-width: 320px;">
-                <div style="font-size: 2.5em; color: #6f3f14;">Esri Drought Aware</div>
-                <div style="font-size: .85em; color: #a67a53;">Statistics and impacts of drought in the U.S.A.  Click on the map or search for a location for more information.</div>
-                <div style="font-size: .7em; color: #6c6c6c;">Source: <a href="https://www.noaa.gov/" target="_blank" class="custom-link">NOAA</a>, <a href="https://www.census.gov/" target="_blank" class="custom-link">Census</a>, <a href="https://www.nass.usda.gov/" target="_blank" class="custom-link">USDA</a></div>
-            </div>
-
-            <div style="float: right;">
-                <calcite-icon icon="information" scale="s" class="js-modal-toggle" data-modal="foo"></calcite-icon>
+                <calcite-icon icon="information" scale="m" class="information-icon js-modal-toggle" data-modal="foo"></calcite-icon>
             </div>
         </div>
 
-    <div id="administrative-subdivision" class="esri-widget hide js-animation animate-in-up">
+        <div id="administrativeSubdivision" class="esri-widget js-animation animate-in-up" style="display: none;">
             <fieldset class="radio-group">
                 <input class="radio-group-input" type="radio" id="county" name="adminboundary" data-admin-area-id="county" checked/>
                 <label class="radio-group-label admin-sub-label btn-small" for="county">County</label>
@@ -95,166 +78,163 @@
             </fieldset>
         </div>
 
-    <div id="viewDiv">
-            <div id="bottom-component" class="esri-widget hide js-animation animate-in-up">
+        <div id="bottomComponent" class="esri-widget js-animation animate-in-up" style="display: none;">
 
-                <calcite-loader
-                        id="dataComponentLoader"
-                        type="indeterminate"
-                        scale="m"
-                        no-padding=""
-                        value="0"
-                        style="
-                    &#45;&#45;calcite-ui-brand: rgba(170, 51, 50, 1);
-                    &#45;&#45;calcite-ui-brand-hover: rgba(220, 111, 77, 1);
-                    &#45;&#45;calcite-ui-brand-press: rgba(234, 167, 113, 1);"
-                ></calcite-loader>
+            <calcite-loader
+                    id="dataComponentLoader"
+                    type="indeterminate"
+                    scale="m"
+                    no-padding=""
+                    value="0"
+                    style="
+                    --calcite-ui-brand: rgba(170, 51, 50, 1);
+                    --calcite-ui-brand-hover: rgba(220, 111, 77, 1);
+                    --calcite-ui-brand-press: rgba(234, 167, 113, 1);"
+            ></calcite-loader>
 
-                <div id="droughtStatusComponent">
+            <div id="droughtStatusComponent">
+                <div class="component-hdr">CURRENT DROUGHT STATUS AS OF <span id="selectedDate">DECEMBER 31, 2021</span></div>
+                <div class="drought-status-label"></div>
+                <div class="drought-status-location-label">San Bernardino, California</div>
+                <div class="drought-status-location-population">POPULATION: <span id="population"></span></div>
 
-                    <div class="component-hdr">CURRENT DROUGHT STATUS AS OF <span id="selectedDate">DECEMBER 31, 2021</span></div>
-                    <div class="drought-status-label"></div>
-                    <div class="drought-status-location-label">San Bernardino, California</div>
-                    <div class="drought-status-location-population">POPULATION: <span id="population"></span></div>
-
-                    <div class="outlook-container">
-                        <div class="component-hdr outlook-container-hdr">OUTLOOK</div>
-                        <div class="outlook-flex-container">
-                            <div class="outlook-flex-child outlook-label" style="line-height: 1.3;">
-                                <div>MONTHLY</div>
-                                <div id="monthlyOutlookDate"></div>
-                            </div>
-                            <div id="monthlyOutlookLabel" class="outlook-flex-child outlook-value"></div>
+                <div class="outlook-container">
+                    <div class="component-hdr outlook-container-hdr">OUTLOOK</div>
+                    <div class="outlook-flex-container">
+                        <div class="outlook-flex-child outlook-label" style="line-height: 1.3;">
+                            <div>MONTHLY</div>
+                            <div id="monthlyOutlookDate"></div>
                         </div>
-                        <div class="outlook-flex-container" style="margin-top: .35em;">
-                            <div class="outlook-flex-child outlook-label" style="line-height: 1.3;">
-                                <div>SEASONAL</div>
-                                <div id="seasonalOutlookDate">DECEMBER 2021</div>
-                            </div>
-                            <div id="seasonalOutlookLabel" class="outlook-flex-child outlook-value">Drought Removal Likely</div>
-                        </div>
+                        <div id="monthlyOutlookLabel" class="outlook-flex-child outlook-value"></div>
                     </div>
-                </div>
-
-                <div id="agrComponent">
-                    <div class="component-hdr">AGRICULTURE IMPACTS</div>
-                    <div class="drought-status-label"><span id="consecutiveWeeks"></span></div>
-                    <div class="drought-status-location-label">Severe Drought (D2+)</div>
-
-                    <div class="agr-container">
-                        <div class="agr-flex-container">
-                            <div class="agr-flex-child agr-label">JOBS</div>
-                            <div id="jobs" class="agr-flex-child agr-value"></div>
+                    <div class="outlook-flex-container" style="margin-top: .35em;">
+                        <div class="outlook-flex-child outlook-label" style="line-height: 1.3;">
+                            <div>SEASONAL</div>
+                            <div id="seasonalOutlookDate">DECEMBER 2021</div>
                         </div>
-                        <div class="agr-flex-container" style="margin-top: .75em;">
-                            <div class="agr-flex-child agr-label">TOTAL SALES</div>
-                            <div class="agr-flex-child agr-value">
-                                <span id="totalSales"></span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="crops-container">
-                        <div class="agr-flex-container">
-                            <div class="crops-flex-child">
-                                <span class="crops-label">SOY</span>
-                                <span id="soySales" class="crops-value"></span>
-                            </div>
-                            <div class="crops-flex-child">
-                                <span class="crops-label">HAY</span>
-                                <span id="haySales" class="crops-value"></span>
-                            </div>
-                        </div>
-                        <div class="agr-flex-container">
-                            <div class="crops-flex-child">
-                                <span class="crops-label">CORN</span>
-                                <span id="cornSales" class="crops-value"></span>
-                            </div>
-                            <div class="crops-flex-child">
-                                <span class="crops-label">LIVESTOCK</span>
-                                <span id="livestockSales" class="crops-value"></span>
-                            </div>
-                        </div>
-                        <div class="agr-flex-container">
-                            <div class="crops-flex-child">
-                                <span class="crops-label">WINTER WHEAT</span>
-                                <span id="wheatSales" class="crops-value"></span>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-
-                <div id="historicRecordComponent">
-
-                    <div class="component-hdr">
-                        <div style="float: left;">HISTORIC RECORD </div>
-                        <div class="reset-chart-icon-container">
-                            CURRENT WEEK
-                        </div>
-                        <div class="chart-info-icon-container avenir-light">
-                            Use the mouse wheel to zoom in on the chart and select a point in time to view the drought data.
-                        </div>
-                    </div>
-
-                    <div>
-                        <div id="stackedBarchart"></div>
-
-                        <div class="chart-legend">
-                            <ul class="flex-container longhand">
-                                <li class="flex-item">
-                                    <div class="chart-legend-color-container abnormally-dry"></div>
-                                    <div class="chart-legend-label-container font-size&#45;&#45;3">Abnormally Dry</div>
-                                </li>
-                                <li class="flex-item">
-                                    <div class="chart-legend-color-container moderate-drought"></div>
-                                    <div class="chart-legend-label-container font-size&#45;&#45;3">Moderate Drought</div>
-                                </li>
-                                <li class="flex-item">
-                                    <div class="chart-legend-color-container severe-drought"></div>
-                                    <div class="chart-legend-label-container font-size&#45;&#45;3">Severe Drought</div>
-                                </li>
-                                <li class="flex-item">
-                                    <div class="chart-legend-color-container extreme-drought"></div>
-                                    <div class="chart-legend-label-container font-size&#45;&#45;3">Extreme Drought</div>
-                                </li>
-                                <li class="flex-item">
-                                    <div class="chart-legend-color-container exceptional-drought"></div>
-                                    <div class="chart-legend-label-container font-size&#45;&#45;3">Exceptional Drought</div>
-                                </li>
-                            </ul>
-                        </div>
-
-                        <div id="areaChartScrubberContent" style="display: none">
-                            <div id="areaChartScrubberContentDate"></div>
-                            <div>
-                                <div class="scrubberHoverCatViz abnormally-dry"></div>
-                                <div id="areaChartScrubberContent_d0" style="margin-left: 3em"></div>
-                            </div>
-                            <div>
-                                <div class="scrubberHoverCatViz moderate-drought"></div>
-                                <div id="areaChartScrubberContent_d1" style="margin-left: 3em"></div>
-                            </div>
-                            <div>
-                                <div class="scrubberHoverCatViz severe-drought"></div>
-                                <div id="areaChartScrubberContent_d2" style="margin-left: 3em"></div>
-                            </div>
-                            <div>
-                                <div class="scrubberHoverCatViz extreme-drought"></div>
-                                <div id="areaChartScrubberContent_d3" style="margin-left: 3em"></div>
-                            </div>
-                            <div>
-                                <div class="scrubberHoverCatViz exceptional-drought"></div>
-                                <div id="areaChartScrubberContent_d4" style="margin-left: 3em"></div>
-                            </div>
-                        </div>
-
+                        <div id="seasonalOutlookLabel" class="outlook-flex-child outlook-value">Drought Removal Likely</div>
                     </div>
                 </div>
             </div>
-        </div>
 
-    <div class="js-modal modal-overlay" data-modal="foo">
+            <div id="agrComponent">
+                <div class="component-hdr">AGRICULTURE IMPACTS</div>
+                <div class="drought-status-label"><span id="consecutiveWeeks"></span></div>
+                <div class="drought-status-location-label">Severe Drought (D2+)</div>
+
+                <div class="agr-container">
+                    <div class="agr-flex-container">
+                        <div class="agr-flex-child agr-label">JOBS</div>
+                        <div id="jobs" class="agr-flex-child agr-value"></div>
+                    </div>
+                    <div class="agr-flex-container" style="margin-top: .75em;">
+                        <div class="agr-flex-child agr-label">TOTAL SALES</div>
+                        <div class="agr-flex-child agr-value">
+                            <span id="totalSales"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="crops-container">
+                    <div class="agr-flex-container">
+                        <div class="crops-flex-child">
+                            <span class="crops-label">SOY</span>
+                            <span id="soySales" class="crops-value"></span>
+                        </div>
+                        <div class="crops-flex-child">
+                            <span class="crops-label">HAY</span>
+                            <span id="haySales" class="crops-value"></span>
+                        </div>
+                    </div>
+                    <div class="agr-flex-container">
+                        <div class="crops-flex-child">
+                            <span class="crops-label">CORN</span>
+                            <span id="cornSales" class="crops-value"></span>
+                        </div>
+                        <div class="crops-flex-child">
+                            <span class="crops-label">LIVESTOCK</span>
+                            <span id="livestockSales" class="crops-value"></span>
+                        </div>
+                    </div>
+                    <div class="agr-flex-container">
+                        <div class="crops-flex-child">
+                            <span class="crops-label">WINTER WHEAT</span>
+                            <span id="wheatSales" class="crops-value"></span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div id="historicRecordComponent">
+                <div class="component-hdr">
+                    <div style="float: left;">HISTORIC RECORD </div>
+                    <div class="reset-chart-icon-container">
+                        CURRENT WEEK
+                    </div>
+                    <div class="chart-info-icon-container avenir-light">
+                        Use the mouse wheel to zoom in on the chart and select a point in time to view the drought data.
+                    </div>
+                </div>
+
+                <div>
+                    <div id="stackedBarchart"></div>
+
+                    <div class="chart-legend">
+                        <ul class="flex-container longhand">
+                            <li class="flex-item">
+                                <div class="chart-legend-color-container abnormally-dry"></div>
+                                <div class="chart-legend-label-container font-size&#45;&#45;3">Abnormally Dry</div>
+                            </li>
+                            <li class="flex-item">
+                                <div class="chart-legend-color-container moderate-drought"></div>
+                                <div class="chart-legend-label-container font-size&#45;&#45;3">Moderate Drought</div>
+                            </li>
+                            <li class="flex-item">
+                                <div class="chart-legend-color-container severe-drought"></div>
+                                <div class="chart-legend-label-container font-size&#45;&#45;3">Severe Drought</div>
+                            </li>
+                            <li class="flex-item">
+                                <div class="chart-legend-color-container extreme-drought"></div>
+                                <div class="chart-legend-label-container font-size&#45;&#45;3">Extreme Drought</div>
+                            </li>
+                            <li class="flex-item">
+                                <div class="chart-legend-color-container exceptional-drought"></div>
+                                <div class="chart-legend-label-container font-size&#45;&#45;3">Exceptional Drought</div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div id="areaChartScrubberContent" style="display: none">
+                        <div id="areaChartScrubberContentDate"></div>
+                        <div>
+                            <div class="scrubberHoverCatViz abnormally-dry"></div>
+                            <div id="areaChartScrubberContent_d0" style="margin-left: 3em"></div>
+                        </div>
+                        <div>
+                            <div class="scrubberHoverCatViz moderate-drought"></div>
+                            <div id="areaChartScrubberContent_d1" style="margin-left: 3em"></div>
+                        </div>
+                        <div>
+                            <div class="scrubberHoverCatViz severe-drought"></div>
+                            <div id="areaChartScrubberContent_d2" style="margin-left: 3em"></div>
+                        </div>
+                        <div>
+                            <div class="scrubberHoverCatViz extreme-drought"></div>
+                            <div id="areaChartScrubberContent_d3" style="margin-left: 3em"></div>
+                        </div>
+                        <div>
+                            <div class="scrubberHoverCatViz exceptional-drought"></div>
+                            <div id="areaChartScrubberContent_d4" style="margin-left: 3em"></div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    <div>
+
+    <div class="js-modal modal-overlay" data-modal="foo" style="display: none;">
         <div class="modal-content column-12" role="dialog" aria-labelledby="modal" role="dialog" style="color: #6f3f14; background-color: #cac5b1">
 
             <a class="js-modal-toggle right" href="#" aria-label="close-modal">
@@ -263,7 +243,7 @@
 
             <div class="font-size-2 avenir-demi">About this App</div>
             <div>
-                The Drought Aware app is intended to provide the latest information about current, future and historical drought conditions in the United States. The data shown here from ArcGIS Living Atlas are authoritative U.S. government sources, including:
+                The Drought Aware app is intended to provide the latest information about current, future, and historical drought conditions in the United States. The data shown here from <a href="https://www.arcgis.com/home/group.html?id=b67c85e0a4f2486dbdcbab0785cc42e7#overview" target="_blank">ArcGIS Living Atlas</a> are authoritative U.S. government sources, including:
             </div>
             <div>
                 <ul>
@@ -273,13 +253,15 @@
                 </ul>
             </div>
             <div class="font-size-2 avenir-demi">Use this App</div>
-            <div>Click a location in the U.S. to see the current Drought Monitor information and potential impacts. These values can be viewed by county or state totals from the selector at the top right. Expanding either the Contiguous or inset maps will allow you to zoom into areas.
-                The time series graph will change the display of the Drought Monitor map, however, all of the other values (outlooks, agriculture, etc) are fixed in time.</div>
+            <div>Click a location in the U.S. to see the current Drought Monitor information and potential impacts. These values can be viewed by county or state totals from the selector at the bottom left. Agriculture summaries are based on the USDA’s 2017 Census of Agriculture and are the best available data (though not all areas report data). Highlighted are some of the most economically important yet drought sensitive products. The time series graph will change the display of the Drought Monitor map, however, all of the other values (outlooks, agriculture, etc) are fixed in time. </div>
 
+            <div>
+                This app was designed by Esri’s <a href="https://www.esri.com/arcgis-blog/author/dpisut-2/" target="_blank">Dan Pisut</a>, <a href="https://www.esri.com/arcgis-blog/author/emeriam/" target="_blank">Emily Meriam</a>, and Chris Mahlke. The source code for the app can be found on GitHub. For questions, please contact environment@esri.com.
+            </div>
 
             <div class="text-center leader-half">
                 <button class="modal-close-btn btn btn-clear btn-large js-modal-toggle">Close</button>
             </div>
         </div>
     </div>
-</div>-->
+</div>
