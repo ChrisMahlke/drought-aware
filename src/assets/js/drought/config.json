@@ -28,6 +28,13 @@
     }
   ],
 
+  "widgetPositions": {
+    "appHeader": "top-right",
+    "home": "top-left",
+    "legend": "bottom-right",
+    "zoom": "top-left"
+  },
+
   "maskSymbol": {
     "type": "simple-fill",
     "color": [128, 128, 128, 0.0],

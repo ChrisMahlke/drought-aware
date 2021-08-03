@@ -53,6 +53,14 @@ body {
   width: 100%;
 }
 
+.esri-widget--button {
+  background-color: #dddacf !important;
+}
+
+.esri-search__form > input {
+  background-color: #dddacf !important;
+}
+
 .esri-zoom {
   background-color: transparent !important;
 }
@@ -84,34 +92,7 @@ body {
   border-color: #b39e4d;
   color: #a67a53;
 }
-/*
-#appContainer {
 
-}
-
-
-
-.esri-zoom {
-  background-color: transparent !important;
-}
-.esri-zoom .esri-widget--button:first-child {
-  margin-bottom: 4px !important;
-}
-
-
-
-.scrim {
-  display: flex;
-  position: absolute;
-  user-select: none;
-  overflow: hidden;
-  inset: 0px;
-  align-content: center;
-  align-items: center;
-  animation: 250ms ease-in-out 0s 1 normal none running calcite-scrim-fade-in;
-  background-color: var(--calcite-scrim-background);
-}
-*/
 /* Extra small devices (phones, 600px and down) */
 @media only screen and (max-width: 600px) {
 
@@ -134,6 +115,23 @@ and (orientation: portrait) {
   #bookmarkComponent {
     display: none;
   }
+
+  .esri-search {
+    position: absolute !important;
+    z-index: 99 !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    left: 0 !important;
+    right: 0 !important;
+  }
+
+  .esri-zoom {
+    display: none !important;
+  }
+
+  .esri-home {
+    display: none !important;
+  }
 }
 
 /* iPhone XR */
@@ -151,6 +149,23 @@ and (orientation: portrait) {
 
   #bookmarkComponent {
     display: none;
+  }
+
+  .esri-search {
+    position: absolute !important;
+    z-index: 99 !important;
+    bottom: 0 !important;
+    width: 100% !important;
+    left: 0 !important;
+    right: 0 !important;
+  }
+
+  .esri-zoom {
+    display: none !important;
+  }
+
+  .esri-home {
+    display: none !important;
   }
 }
 
@@ -471,11 +486,13 @@ and (orientation: portrait) {
     cursor: pointer;
   }
 
+  /* Bookmark - Start */
   .bookmark-btn {
     background-color: #dddacf;
     border: 1px solid #c5bfa7;
   }
 
+  /* Search - Start */
   .esri-search {
     position: absolute !important;
     z-index: 99 !important;
@@ -484,14 +501,7 @@ and (orientation: portrait) {
     width: 235px !important;
   }
 
-  .esri-search__form > input {
-    background-color: #dddacf !important;
-  }
-
-  .esri-widget--button {
-    background-color: #dddacf !important;
-  }
-
+  /* Legend - Start */
   .esri-legend {
     width: 200px !important;
     background: transparent !important;
@@ -554,20 +564,3 @@ and (orientation: portrait) {
 @media only screen and (min-width: 1200px) {
 
 }
-
-/* Phone */
-/*@media only screen and (max-width: 480px) {
-
-}*/
-
-/* Tablet */
-/*@media only screen and (max-width: 600px) {
-
-}*/
-
-/* Desktop */
-/*
-@media only screen and (max-width: 768px) {
-
-
-}*/
