@@ -3,9 +3,17 @@ import config from './config.json';
 
 import { loadCss, loadModules } from 'esri-loader';
 
+import * as AppHeaderComponent from './header/index';
+import * as BookmarksComponent from './bookmarks/index';
+import * as HomeComponent from './home/index';
+import * as LegendComponent from './legend/index';
+import * as QueryUtils from './utils/QueryUtils';
+import * as SearchComponent from './search/index';
+import * as ZoomComponent from './zoom/index';
+
 import * as calcite from "calcite-web";
 import * as d3 from "d3";
-import { differenceInWeeks, format } from 'date-fns'
+import { differenceInWeeks, format } from 'date-fns';
 
 window.onSignInHandler = (portal) => {
     // initialize calcite
@@ -20,16 +28,61 @@ window.onSignInHandler = (portal) => {
         "esri/Graphic",
         "esri/geometry/Extent",
         "esri/views/MapView",
-        "esri/tasks/QueryTask",
-        "esri/tasks/support/Query",
-        "esri/core/watchUtils",
-        "esri/widgets/Legend",
-        "esri/widgets/Home",
-        "esri/widgets/Search",
-        "esri/widgets/Zoom",
-    ]).then(([WebMap, Point, FeatureLayer, Graphic, Extent, MapView, QueryTask, Query, watchUtils, Legend, Home, Search, Zoom]) => {
+        "esri/core/watchUtils"
+    ]).then(([WebMap, Point, FeatureLayer, Graphic, Extent, MapView, watchUtils]) => {
 
         const isMobile = isMobileBrowser();
+
+        // DOM Nodes used by the app
+        let informationIcon = document.getElementsByClassName("information-icon")[0];
+        let adminSubdivision = document.getElementById("administrativeSubdivision");
+        let bottomComponent = document.getElementById("bottomComponent");
+        let countyButtonEle = document.getElementById("county");
+        let stateButtonEle = document.getElementById("state");
+
+        // The URLSearchParams spec defines an interface and convenience methods for working with the query string of a
+        // URL (e.g. everything after "?"). This means no more regex'ing and string splitting URLs!
+        let params = new URLSearchParams(location.search);
+        // url params
+        let selectedX = parseFloat(params.get("x"));
+        let selectedY = parseFloat(params.get("y"));
+        config.selected.adminAreaId = params.get("admin") || config.COUNTY_ADMIN;
+        params.set("admin", config.selected.adminAreaId);
+        // If there was no selected point, do not append it to the URL
+        window.history.replaceState({}, '', `${location.pathname}?${params}`);
+
+        // Hydrate the boundary query from url params
+        let boundaryQueryUrl = "";
+        let boundaryQueryOutFields = [];
+        if (config.selected.adminAreaId === config.COUNTY_ADMIN) {
+            boundaryQueryUrl = config.county_boundary;
+            boundaryQueryOutFields = config.county_boundary_outfields;
+        } else {
+            boundaryQueryUrl = config.state_boundary;
+            boundaryQueryOutFields = config.state_boundary_outfields;
+            // update admin toggle buttons
+            countyButtonEle.checked = false;
+            stateButtonEle.checked = true;
+        }
+
+        config.boundaryQuery = {
+            url: boundaryQueryUrl,
+            returnGeometry: true,
+            outFields: boundaryQueryOutFields,
+            geometry: new Point({
+                "x": selectedX,
+                "y": selectedY,
+                "spatialReference": {
+                    "wkid": 3857
+                },
+                "type": "point"
+            }),
+            q: ""
+        };
+
+
+        let selectedDateObj = {};
+        let inputDataset = [];
 
         // TODO Consider using destructuring
         let zoomPosition = "top-left";
@@ -42,11 +95,16 @@ window.onSignInHandler = (portal) => {
             appHeaderPosition = "manual";
         }
 
+        // WebMap
+        let webMap = null;
+        // MapView
+        let mapView = null;
+
         // Fetch the latest date in the service
         // We will use the response to apply the correct Time Extent to the drought layer
         // This query also doubles as a check to determine if the drought feature service is operational.
         // If this query returns an error the entire app is un-usable.
-        fetchData({
+        QueryUtils.fetchData({
             url: config.droughtURL + "/2?resultRecordCount=1",
             returnGeometry: false,
             orderByFields: ["ddate DESC"],
@@ -55,17 +113,17 @@ window.onSignInHandler = (portal) => {
         }).then(successHandler).catch(errorHandler);
 
         function successHandler(response) {
-            console.debug(response.features);
-            const webMap = new WebMap({
+            const { features } = response;
+            selectedDateObj = selectedDateHandler(parseInt(params.get("date")) || features[0].attributes.ddate);
+
+            webMap = new WebMap({
                 portalItem: {
                     id: config.webMapId
                 }
             });
 
-            const mapView = new MapView({
-                // ID of DOM element containing the view
+            mapView = new MapView({
                 container: "viewDiv",
-                // Map/WebMap object
                 map: webMap,
                 constraints: {
                     snapToZoom: true,
@@ -90,28 +148,6 @@ window.onSignInHandler = (portal) => {
             });
             watchUtils.whenTrue(mapView, "ready", (ready) => {
                 console.debug("READY", ready);
-
-                /*setTimeout(function() {
-                    mapView.goTo(new Extent({
-                        xmax: -12478726.20683796,
-                        xmin: -14351127.65171114,
-                        ymax: 6435504.570345156,
-                        ymin: 5558618.981857847,
-                        spatialReference: {
-                            wkid: 102100
-                        }
-                    })).catch(function(error) {
-                            if (error.name !== "AbortError") {
-                                console.error(error);
-                            }
-                        });
-                }, 5000);*/
-            });
-            watchUtils.init(mapView, "extent", (extent) => {
-                console.debug("EXTENT", extent);
-            });
-            watchUtils.watch(mapView, "navigating", (navigating) => {
-                console.debug("NAVIGATING", navigating);
             });
             watchUtils.when(mapView, "animation", function(animation) {
                 console.debug("1", animation.state); // prints out "running"
@@ -124,6 +160,10 @@ window.onSignInHandler = (portal) => {
             });
 
             watchUtils.whenTrue(mapView, "stationary", viewStationaryHandler);
+
+            calcite.addEvent(informationIcon, "click", function (event) {
+                document.getElementsByClassName("modal-overlay")[0].style.display = "flex";
+            })
         }
 
         function errorHandler(error) {
@@ -165,285 +205,25 @@ window.onSignInHandler = (portal) => {
             console.debug("View Success", response);
 
             // zoom
-            addZoomWidget(response);
-            // home
-            addHomeWidget(response);
-            // bookmarks
-            addBookmarksWidget(response);
-            // search
-            addSearchWidget(response);
-            // app header
-            addAppHeaderWidget(response);
-            // legend
-            addLegendWidget(response);
-
-            response.on("click", mapClickHandler);
-
-            // splash screen
-            calcite.addClass(document.getElementById("splash"), "hide");
-            calcite.addClass(document.getElementsByClassName("app-loader")[0], "hide");
-        }
-
-        function mapClickHandler(event) {
-            console.debug(event);
-        }
-
-        function viewLoadedErrorHandler(error) {
-            // Use the errback function to handle when the view doesn't load properly
-            console.log("MAPVIEW", error);
-        }
-
-        function viewStationaryHandler(response) {
-            console.debug("stationary", response)
-        }
-
-        function isMobileBrowser() {
-            let check = false;
-            (function (a) { if (/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(a) || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0, 4)))
-                check = true; })(navigator.userAgent || navigator.vendor || window.opera);
-            return check;
-        }
-
-
-
-        function addZoomWidget(response) {
-            const zoomWidget = new Zoom({
-                view: response
-            });
-            response.ui.add(zoomWidget, {
+            ZoomComponent.init({
+                view: response,
                 position: zoomPosition
             });
-        }
-
-        function addHomeWidget(response) {
-            const homeWidget = new Home({
-                view: response
-            });
-            response.ui.add(homeWidget, {
+            // home
+            HomeComponent.init({
+                view: response,
                 position: homePosition
             });
-        }
-
-        function addSearchWidget(response) {
-            const searchWidget = new Search({
+            // bookmarks
+            BookmarksComponent.init({
+                view: response
+            });
+            // search
+            SearchComponent.init({
                 view: response,
-                resultGraphicEnabled: false,
-                popupEnabled: false
-            });
-            response.ui.add(searchWidget, {
                 position: ""
-            });
-            searchWidget.on("search-complete", searchCompleteHandler);
-        }
-
-        function addLegendWidget(response) {
-            const {
-                map : {
-                    allLayers: {
-                        items = { items: [] }
-                    }
-                },
-            } = response;
-
-            let agrLayer = items.filter(layer => {
-                return layer.title === "TotalAgSales Centroids - copy";
-            });
-
-            if (agrLayer.length > 0) {
-                let legendWidget = new Legend({
-                    view: response,
-                    layerInfos: [{
-                        layer: agrLayer[0]
-                    }]
-                });
-                response.ui.add(legendWidget, {
-                    position: legendPosition
-                });
-            }
-        }
-
-        function searchCompleteHandler(event) {
-            //let resultGeometry = event.results[0].results[0].feature.geometry;
-            //let resultExtent = event.results[0].results[0].extent;
-            /*config.boundaryQuery.geometry = resultGeometry;
-            mapClickHandler({
-                "mapPoint": new Point({
-                    "x": event.results[0].results[0].feature.geometry.x,
-                    "y": event.results[0].results[0].feature.geometry.y,
-                    "spatialReference": {
-                        "wkid": 3857
-                    },
-                    "type": "point"
-                })
-            });*/
-        }
-
-        function addBookmarksWidget(response) {
-            const bookmarks = response.map.bookmarks.items;
-            const bookmarksNavEle = document.getElementsByClassName("bookmarks-container")[1];
-            const bookmarkElements = bookmarks.map(createBookmarkElement);
-            bookmarksNavEle.append(...bookmarkElements);
-            bookmarksNavEle.addEventListener("click", event => {
-                bookmarks.forEach(bookmark => {
-                    if (bookmark.uid === event.target.id) {
-                        response.goTo(bookmark.extent)
-                            .catch(function(error) {
-                                if (error.name !== "AbortError") {
-                                    console.error(error);
-                                }
-                            });
-                    }
-                });
-            });
-        }
-
-        function createBookmarkElement(bookmark) {
-            let bookmarkEle = document.createElement("div");
-            bookmarkEle.setAttribute("class", "btn btn-grouped btn-small btn-white bookmark-btn");
-            bookmarkEle.setAttribute("id", bookmark.uid);
-            bookmarkEle.innerHTML = bookmark.name;
-            return bookmarkEle;
-        }
-
-        function addAppHeaderWidget(response) {
-            const appHdrComponent = document.getElementById("appHdrComponent");
-            response.ui.add("appHdrComponent", appHeaderPosition);
-            appHdrComponent.style.display = "block";
-        }
-
-
-
-
-
-        /*
-        // drought data modal (currently an array)
-        let inputDataset = [];
-        // DOM nodes
-        let countyButtonEle = document.getElementById("county");
-        let stateButtonEle = document.getElementById("state");
-        // The URLSearchParams spec defines an interface and convenience methods for working with the query string of a
-        // URL (e.g. everything after "?"). This means no more regex'ing and string splitting URLs!
-        let params = new URLSearchParams(location.search);
-        // url params
-        let selectedX = parseFloat(params.get("x"));
-        let selectedY = parseFloat(params.get("y"));
-        // selected admin
-        config.selected.adminAreaId = params.get("admin") || config.COUNTY_ADMIN;
-        params.set("admin", config.selected.adminAreaId);
-        // If there was no selected point, do not append it to the URL
-        window.history.replaceState({}, '', `${location.pathname}?${params}`);
-
-        // Hydrate the boundary query from url params
-        let boundaryQueryUrl = "";
-        let boundaryQueryOutFields = [];
-        if (config.selected.adminAreaId === config.COUNTY_ADMIN) {
-            boundaryQueryUrl = config.county_boundary;
-            boundaryQueryOutFields = config.county_boundary_outfields;
-        } else {
-            boundaryQueryUrl = config.state_boundary;
-            boundaryQueryOutFields = config.state_boundary_outfields;
-            // update admin toggle buttons
-            countyButtonEle.checked = false;
-            stateButtonEle.checked = true;
-        }
-
-        config.boundaryQuery = {
-            url: boundaryQueryUrl,
-            returnGeometry: true,
-            outFields: boundaryQueryOutFields,
-            geometry: new Point({
-                "x": selectedX,
-                "y": selectedY,
-                "spatialReference": {
-                    "wkid": 3857
-                },
-                "type": "point"
-            }),
-            q: ""
-        };
-
-        let webmap = new WebMap({
-            portalItem: {
-                id: config.webMapId
-            }
-        });
-
-        let mapView = new MapView({
-            container: "viewDiv",
-            map: webmap,
-            padding: {
-                bottom: 0
-            },
-            ui: {
-                components: []
-            }
-        });
-        mapView.popup = null;
-        mapView.on("click", mapClickHandler);
-
-        webmap.load()
-            .then(function() {
-                // load the basemap to get its layers created
-                console.debug("Basemap loaded");
-                return webmap.basemap.load();
-            })
-            .then(function() {
-                // grab all the layers and load them
-                const allLayers = webmap.allLayers;
-                const promises = allLayers.map(function(layer) {
-                    return layer.load();
-                });
-                console.debug("Layers loaded");
-                return Promise.all(promises.toArray());
-            })
-            .then(function(layers) {
-                console.debug("All layers loaded");
-                let agrLayer = layers.filter(layer => {
-                    return layer.title === "TotalAgSales Centroids - copy";
-                });
-
-                let legendWidget = new Legend({
-                    view: mapView,
-                    layerInfos: [{
-                        layer: agrLayer[0]
-                    }]
-                });
-
-                const bookmarks = webmap.bookmarks.items;
-                const bookmarksNavEle = document.getElementsByClassName("bookmarks-nav")[0];
-                bookmarks.forEach(bookmark => {
-                    let bookmarkEle = document.createElement("div");
-                    bookmarkEle.setAttribute("class", "btn btn-grouped btn-small btn-white bookmark-btn");
-                    bookmarkEle.setAttribute("id", bookmark.uid);
-                    bookmarkEle.innerHTML = bookmark.name;
-                    bookmarksNavEle.appendChild(bookmarkEle);
-                });
-                bookmarksNavEle.addEventListener("click", event => {
-                    bookmarks.forEach(bookmark => {
-                        if (bookmark.uid === event.target.id) {
-                            mapView.goTo(bookmark.extent)
-                                .catch(function(error) {
-                                    if (error.name !== "AbortError") {
-                                        console.error(error);
-                                    }
-                                });
-                        }
-                    });
-                });
-
-                const homeWidget = new Home({
-                    view: mapView
-                });
-
-                const zoomWidget = new Zoom({
-                    view: mapView
-                });
-
-                const searchWidget = new Search({
-                    view: mapView,
-                    resultGraphicEnabled: false
-                });
-                searchWidget.on("search-complete", event => {
+            }).then(response => {
+                response.on("search-complete", event => {
                     let resultGeometry = event.results[0].results[0].feature.geometry;
                     let resultExtent = event.results[0].results[0].extent;
                     config.boundaryQuery.geometry = resultGeometry;
@@ -457,180 +237,154 @@ window.onSignInHandler = (portal) => {
                             "type": "point"
                         })
                     });
-
-                    mapView.goTo(resultExtent)
-                        .catch(function(error) {
-                            if (error.name !== "AbortError") {
-                                console.error(error);
-                            }
-                        });
                 });
-
-                mapView.ui.add("bookmark-component", "");
-                mapView.ui.add(zoomWidget, {
-                    position: "top-left"
-                });
-                mapView.ui.add(homeWidget, {
-                    position: "top-left"
-                });
-                mapView.ui.add(searchWidget, {
-                    position: ""
-                });
-                mapView.ui.add("app-title-component", "top-right");
-                mapView.ui.add("administrative-subdivision", "bottom-left");
-                mapView.ui.add(legendWidget, {
-                    position: "bottom-right"
-                });
-
-                let urlExtent = new Extent({
-                    "xmin": params.get("xmin") || -14464636.127431296,
-                    "ymin": params.get("ymin") || 3973666.0196191105,
-                    "xmax": params.get("xmax") || -7028842.015851326,
-                    "ymax": params.get("ymax") || 6414758.95493385,
-                    "spatialReference": {
-                        "wkid": 3857
-                    }
-                });
-                mapView.goTo(urlExtent)
-                    .catch(function(error) {
-                        if (error.name !== "AbortError") {
-                            console.error(error);
-                        }
-                    });
-
-                // fetch the latest date in the service
-                fetchData({
-                    url: config.droughtURL + "/2?resultRecordCount=1",
-                    returnGeometry: false,
-                    orderByFields: ["ddate DESC"],
-                    outFields: ["ddate"],
-                    q: ""
-                }).then(response => {
-                    if (response.features.length > 0) {
-                        const features = response.features;
-                        const selectedChartDate = parseInt(params.get("date")) || features[0].attributes.ddate;
-                        const endDate = new Date(selectedChartDate);
-                        const startDate = new Date(endDate.getTime() - (60 * 60 * 24 * 7 * 1000));
-
-                        const layer = new FeatureLayer({
-                            url: config.droughtURL,
-                            layerId: 2,
-                            timeExtent: {
-                                start: startDate,
-                                end: endDate
-                            },
-                            opacity: 0.65,
-                            title: config.drought_layer_name,
-                            useViewTime: false
-                        });
-                        mapView.map.add(layer, 2);
-                        mapView.popup = null;
-
-                        updateSelectedDateLabel(selectedChartDate);
-
-                        //document.getElementById("appLoader").style.display = "none";
-                    }
-                });
+            }, error => {
+                console.debug(error)
             })
-            .catch(function(error) {
-                console.debug("ERROR", error);
-                alert("One or more of the drought services is currently down\n\n" + error.message);
+            // app header
+            AppHeaderComponent.init({
+                view: response,
+                position: appHeaderPosition
+            });
+            // legend
+            LegendComponent.init({
+                view: response,
+                position: legendPosition
+            });
+            // Administrative level toggle
+            mapView.ui.add("administrativeSubdivision", "bottom-left");
+
+            response.on("click", mapClickHandler);
+
+            //
+            let params = new URLSearchParams(location.search);
+            let urlExtent = new Extent({
+                "xmin": params.get("xmin") || webMap.initialViewProperties.viewpoint.targetGeometry.xmin,
+                "ymin": params.get("ymin") || webMap.initialViewProperties.viewpoint.targetGeometry.ymin,
+                "xmax": params.get("xmax") || webMap.initialViewProperties.viewpoint.targetGeometry.xmax,
+                "ymax": params.get("ymax") || webMap.initialViewProperties.viewpoint.targetGeometry.ymax,
+                "spatialReference": {
+                    "wkid": 3857
+                }
+            });
+            mapView.goTo(urlExtent)
+                .catch(function(error) {
+                    if (error.name !== "AbortError") {
+                        console.error(error);
+                    }
+                });
+
+            addLayer({
+                "url": config.droughtURL,
+                "start": selectedDateObj.startDate,
+                "end": selectedDateObj.endDate,
+                "title": config.drought_layer_name,
+                "view": mapView
             });
 
-        // Watch view's stationary property for becoming true.
-        watchUtils.whenTrue(mapView, "stationary", function() {
-            // Get the new extent of the view only when view is stationary.
-            const currentExtent = mapView.extent;
-            if (currentExtent) {
-                const params = new URLSearchParams(location.search);
-                params.set("xmin", currentExtent.xmin);
-                params.set("ymin", currentExtent.ymin);
-                params.set("xmax", currentExtent.xmax);
-                params.set("ymax", currentExtent.ymax);
-                window.history.replaceState({}, '', `${location.pathname}?${params}`);
+            if (!isNaN(selectedX) && !isNaN(selectedY)) {
+                mapClickHandler(null);
             }
-        });
 
-        if (!isNaN(selectedX) && !isNaN(selectedY)) {
-            mapClickHandler(null);
+            // splash screen
+            calcite.addClass(document.getElementById("splash"), "hide");
+            calcite.addClass(document.getElementById("appLoadingIndicator"), "hide");
+
+            document.querySelectorAll(".radio-group-input").forEach(item => {
+                item.addEventListener("click", event => {
+                    config.selected.adminAreaId = event.target.id;
+                    if (config.selected.adminAreaId === config.COUNTY_ADMIN) {
+                        config.boundaryQuery.url = config.county_boundary;
+                        config.boundaryQuery.outFields = config.county_boundary_outfields;
+                    } else if (config.selected.adminAreaId === config.STATE_ADMIN) {
+                        config.boundaryQuery.url = config.state_boundary;
+                        config.boundaryQuery.outFields = config.state_boundary_outfields;
+                    }
+
+                    const params = new URLSearchParams(location.search);
+                    params.set("admin", config.selected.adminAreaId);
+                    window.history.replaceState({}, '', `${location.pathname}?${params}`);
+                    selectedX = parseFloat(params.get("x"));
+                    selectedY = parseFloat(params.get("y"));
+
+                    config.boundaryQuery.geometry.x = selectedX;
+                    config.boundaryQuery.geometry.y = selectedY;
+                    config.boundaryQuery.geometry.type = "point";
+
+                    if (!isNaN(selectedX) && !isNaN(selectedY)) {
+                        mapClickHandler(null);
+                    }
+                });
+            });
+
+            document.getElementsByClassName("reset-chart-icon-container")[0].addEventListener("click", (event) => {
+                selId = new Date(inputDataset[inputDataset.length - 1].date).getTime();
+                selectedEvent = d3.select("rect[id='" + selId + "']");
+                let initXPosition = d3.select("rect[id='" + selId + "']").attr("x");
+                // mouse-over scrubber
+                clickScrubber.attr("transform", "translate(" + parseFloat(initXPosition) + "," + 20 + ")");
+                clickScrubber.style("display", null);
+                clickScrubber.style("opacity", "1");
+                let formattedDate = getFormattedDate(new Date(parseInt(selId)));
+                d3.select(".click-scrubber-text").text(formattedDate);
+
+                let endDate = new Date(inputDataset[inputDataset.length - 1].date);
+                let startDate = new Date(endDate.getTime() - (60 * 60 * 24 * 7 * 1000));
+                let urlSearchParams = new URLSearchParams(location.search);
+                urlSearchParams.set("date", selId.toString());
+                window.history.replaceState({}, '', `${location.pathname}?${urlSearchParams}`);
+
+                let layersToRemove = mapView.map.layers.filter(lyr => {
+                    if (lyr.title === config.drought_layer_name) {
+                        return lyr;
+                    }
+                });
+                mapView.map.removeMany(layersToRemove.items);
+
+                let layer = new FeatureLayer({
+                    url: config.droughtURL,
+                    layerId: 2,
+                    timeExtent: {
+                        start: startDate,
+                        end: endDate
+                    },
+                    opacity: 0.65,
+                    title: config.drought_layer_name,
+                    useViewTime: false
+                });
+                mapView.map.add(layer, 0);
+            });
         }
 
-        document.querySelectorAll(".radio-group-input").forEach(item => {
-            item.addEventListener("click", event => {
-                config.selected.adminAreaId = event.target.id;
-                if (config.selected.adminAreaId === config.COUNTY_ADMIN) {
-                    config.boundaryQuery.url = config.county_boundary;
-                    config.boundaryQuery.outFields = config.county_boundary_outfields;
-                } else if (config.selected.adminAreaId === config.STATE_ADMIN) {
-                    config.boundaryQuery.url = config.state_boundary;
-                    config.boundaryQuery.outFields = config.state_boundary_outfields;
-                }
+        function viewLoadedErrorHandler(error) {
+            // Use the errback function to handle when the view doesn't load properly
+            console.log("MAPVIEW", error);
+        }
 
-                const params = new URLSearchParams(location.search);
-                params.set("admin", config.selected.adminAreaId);
-                window.history.replaceState({}, '', `${location.pathname}?${params}`);
-                selectedX = parseFloat(params.get("x"));
-                selectedY = parseFloat(params.get("y"));
 
-                console.debug(selectedX);
-                console.debug(selectedY);
 
-                config.boundaryQuery.geometry.x = selectedX;
-                config.boundaryQuery.geometry.y = selectedY;
-                config.boundaryQuery.geometry.type = "point";
-
-                if (!isNaN(selectedX) && !isNaN(selectedY)) {
-                    mapClickHandler(null);
-                }
-            });
-        });
-
-        document.getElementsByClassName("reset-chart-icon-container")[0].addEventListener("click", (event) => {
-            selId = new Date(inputDataset[inputDataset.length - 1].date).getTime();
-            selectedEvent = d3.select("rect[id='" + selId + "']");
-            let initXPosition = d3.select("rect[id='" + selId + "']").attr("x");
-            // mouse-over scrubber
-            clickScrubber.attr("transform", "translate(" + parseFloat(initXPosition) + "," + 20 + ")");
-            clickScrubber.style("display", null);
-            clickScrubber.style("opacity", "1");
-            let formattedDate = getFormattedDate(new Date(parseInt(selId)));
-            d3.select(".click-scrubber-text").text(formattedDate);
-
-            let endDate = new Date(inputDataset[inputDataset.length - 1].date);
-            let startDate = new Date(endDate.getTime() - (60 * 60 * 24 * 7 * 1000));
-            let urlSearchParams = new URLSearchParams(location.search);
-            urlSearchParams.set("date", selId.toString());
-            window.history.replaceState({}, '', `${location.pathname}?${urlSearchParams}`);
-
-            let layersToRemove = mapView.map.layers.filter(lyr => {
-                if (lyr.title === config.drought_layer_name) {
-                    return lyr;
-                }
-            });
-            mapView.map.removeMany(layersToRemove.items);
-
-            let layer = new FeatureLayer({
-                url: config.droughtURL,
+        function addLayer(params) {
+            const layer = new FeatureLayer({
+                url: params.url,
                 layerId: 2,
                 timeExtent: {
-                    start: startDate,
-                    end: endDate
+                    start: params.start,
+                    end: params.end
                 },
                 opacity: 0.65,
-                title: config.drought_layer_name,
+                title: params.title,
                 useViewTime: false
             });
-            mapView.map.add(layer, 0);
-        });*/
+            params.view.map.add(layer, 2);
+            params.view.popup = null;
+        }
 
-        /*
         function mapClickHandler(event) {
-
-            // show visualization container
-            calcite.removeClass(document.getElementById("administrative-subdivision"), "hide");
-            calcite.removeClass(document.getElementById("bottom-component"), "hide");
-            document.getElementsByClassName("esri-ui-bottom-left")[0].style.bottom = 215;
-            document.getElementsByClassName("esri-ui-bottom-right")[0].style.bottom = 215;
+            console.debug(event);
+            adminSubdivision.style.display = "unset";
+            bottomComponent.style.display = "flex";
+            document.getElementsByClassName("esri-ui-bottom-left")[0].style.bottom = "215";
+            document.getElementsByClassName("esri-ui-bottom-right")[0].style.bottom = "215";
             document.getElementById("dataComponentLoader").setAttribute("active", "");
 
             const params = new URLSearchParams(location.search);
@@ -652,10 +406,13 @@ window.onSignInHandler = (portal) => {
                 })
             }
 
-            // apply geometry
-            fetchData(config.boundaryQuery).then(retrieveGeometryResponseHandler).then(response => {
+
+            QueryUtils.fetchData(config.boundaryQuery).then(retrieveGeometryResponseHandler).then(response => {
+                console.debug(response);
                 let selectedFeature = response.features[0];
                 config.selected.state_name = selectedFeature.attributes["STATE_NAME"];
+
+
 
                 // Agriculture + Population
                 let agrQuery = "";
@@ -666,12 +423,42 @@ window.onSignInHandler = (portal) => {
                     config.selected.state_fips = response.features[0].attributes["STATE_FIPS"];
                     agrQuery = `SateFIPS = '${config.selected.state_fips}'`;
                 }
-                fetchData({
+                QueryUtils.fetchData({
                     url: config.agricultureImpactURL,
                     returnGeometry: false,
                     outFields: ["*"],
                     q: agrQuery
                 }).then(updateAgriculturalImpactComponent);
+
+
+
+                // Monthly outlook
+                QueryUtils.fetchData({
+                    url: config.monthlyDroughtOutlookURL,
+                    returnGeometry: false,
+                    outFields: ["*"],
+                    spatialRel: "esriSpatialRelIntersects",
+                    orderByFields: ["fid_persis desc", "fid_improv desc", "fid_dev desc", "fid_remove desc"],
+                    geometryType: "esriGeometryPolygon",
+                    geometry: selectedFeature.geometry,
+                    q: ""
+                }).then(monthlyDroughtOutlookResponseHandler);
+
+
+
+                // Season outlook
+                QueryUtils.fetchData({
+                    url: config.seasonalDroughtOutlookURL,
+                    returnGeometry: false,
+                    outFields: ["*"],
+                    spatialRel: "esriSpatialRelIntersects",
+                    orderByFields: ["fid_persis desc", "fid_improv desc", "fid_dev desc", "fid_remove desc"],
+                    geometryType: "esriGeometryPolygon",
+                    geometry: selectedFeature.geometry,
+                    q: ""
+                }).then(seasonalDroughtOutlookResponseHandler);
+
+
 
                 // Drought
                 let droughtQuery = "";
@@ -683,7 +470,7 @@ window.onSignInHandler = (portal) => {
                     droughtQueryLayerId = "0";
                     droughtQuery = `admin_fips  = ${config.selected.state_fips}`;
                 }
-                fetchData({
+                QueryUtils.fetchData({
                     url: config.droughtURL + droughtQueryLayerId,
                     returnGeometry: false,
                     orderByFields: ["ddate DESC"],
@@ -700,7 +487,7 @@ window.onSignInHandler = (portal) => {
                         } else {
                             consecutiveWeeksQuery = `state_abbr = '${droughtData[0].attributes["state_abbr"]}' AND D2_D4 = 0 AND ddate <= date '${formattedSelectedDate}'`
                         }
-                        fetchData({
+                        QueryUtils.fetchData({
                             url: config.droughtURL + droughtQueryLayerId,
                             returnGeometry: false,
                             orderByFields: ["ddate desc"],
@@ -726,9 +513,6 @@ window.onSignInHandler = (portal) => {
 
                         inputDataset = droughtData.map(feature => {
                             let date = new Date(feature.attributes.ddate);
-                            //let year = date.getFullYear(); // 2020
-                            //let month = date.getMonth(); // "04"
-                            //let day = date.getDate(); // "09"
                             return {
                                 d0: feature.attributes.d0,
                                 d1: feature.attributes.d1,
@@ -763,32 +547,37 @@ window.onSignInHandler = (portal) => {
                         document.getElementById("dataComponentLoader").removeAttribute("active");
                     }
                 });
-
-                // Monthly outlook
-                fetchData({
-                    url: config.monthlyDroughtOutlookURL,
-                    returnGeometry: false,
-                    outFields: ["*"],
-                    spatialRel: "esriSpatialRelIntersects",
-                    orderByFields: ["fid_persis desc", "fid_improv desc", "fid_dev desc", "fid_remove desc"],
-                    geometryType: "esriGeometryPolygon",
-                    geometry: selectedFeature.geometry,
-                    q: ""
-                }).then(monthlyDroughtOutlookResponseHandler);
-
-                // Season outlook
-                fetchData({
-                    url: config.seasonalDroughtOutlookURL,
-                    returnGeometry: false,
-                    outFields: ["*"],
-                    spatialRel: "esriSpatialRelIntersects",
-                    orderByFields: ["fid_persis desc", "fid_improv desc", "fid_dev desc", "fid_remove desc"],
-                    geometryType: "esriGeometryPolygon",
-                    geometry: selectedFeature.geometry,
-                    q: ""
-                }).then(seasonalDroughtOutlookResponseHandler);
             });
-        }*/
+        }
+
+        function viewStationaryHandler(response) {
+            // Get the new extent of the view only when view is stationary.
+            const currentExtent = mapView.extent;
+            if (currentExtent) {
+                const params = new URLSearchParams(location.search);
+                params.set("xmin", currentExtent.xmin);
+                params.set("ymin", currentExtent.ymin);
+                params.set("xmax", currentExtent.xmax);
+                params.set("ymax", currentExtent.ymax);
+                window.history.replaceState({}, '', `${location.pathname}?${params}`);
+            }
+        }
+
+        function selectedDateHandler(inputDate) {
+            let endDate = new Date(inputDate);
+            return {
+                "selectedDate" : inputDate,
+                "startDate": new Date(endDate.getTime() - (60 * 60 * 24 * 7 * 1000)),
+                "endDate": endDate
+            }
+        }
+
+        function isMobileBrowser() {
+            let check = false;
+            (function (a) { if (/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino/i.test(a) || /1207|6310|6590|3gso|4thp|50[1-6]i|770s|802s|a wa|abac|ac(er|oo|s\-)|ai(ko|rn)|al(av|ca|co)|amoi|an(ex|ny|yw)|aptu|ar(ch|go)|as(te|us)|attw|au(di|\-m|r |s )|avan|be(ck|ll|nq)|bi(lb|rd)|bl(ac|az)|br(e|v)w|bumb|bw\-(n|u)|c55\/|capi|ccwa|cdm\-|cell|chtm|cldc|cmd\-|co(mp|nd)|craw|da(it|ll|ng)|dbte|dc\-s|devi|dica|dmob|do(c|p)o|ds(12|\-d)|el(49|ai)|em(l2|ul)|er(ic|k0)|esl8|ez([4-7]0|os|wa|ze)|fetc|fly(\-|_)|g1 u|g560|gene|gf\-5|g\-mo|go(\.w|od)|gr(ad|un)|haie|hcit|hd\-(m|p|t)|hei\-|hi(pt|ta)|hp( i|ip)|hs\-c|ht(c(\-| |_|a|g|p|s|t)|tp)|hu(aw|tc)|i\-(20|go|ma)|i230|iac( |\-|\/)|ibro|idea|ig01|ikom|im1k|inno|ipaq|iris|ja(t|v)a|jbro|jemu|jigs|kddi|keji|kgt( |\/)|klon|kpt |kwc\-|kyo(c|k)|le(no|xi)|lg( g|\/(k|l|u)|50|54|\-[a-w])|libw|lynx|m1\-w|m3ga|m50\/|ma(te|ui|xo)|mc(01|21|ca)|m\-cr|me(rc|ri)|mi(o8|oa|ts)|mmef|mo(01|02|bi|de|do|t(\-| |o|v)|zz)|mt(50|p1|v )|mwbp|mywa|n10[0-2]|n20[2-3]|n30(0|2)|n50(0|2|5)|n7(0(0|1)|10)|ne((c|m)\-|on|tf|wf|wg|wt)|nok(6|i)|nzph|o2im|op(ti|wv)|oran|owg1|p800|pan(a|d|t)|pdxg|pg(13|\-([1-8]|c))|phil|pire|pl(ay|uc)|pn\-2|po(ck|rt|se)|prox|psio|pt\-g|qa\-a|qc(07|12|21|32|60|\-[2-7]|i\-)|qtek|r380|r600|raks|rim9|ro(ve|zo)|s55\/|sa(ge|ma|mm|ms|ny|va)|sc(01|h\-|oo|p\-)|sdk\/|se(c(\-|0|1)|47|mc|nd|ri)|sgh\-|shar|sie(\-|m)|sk\-0|sl(45|id)|sm(al|ar|b3|it|t5)|so(ft|ny)|sp(01|h\-|v\-|v )|sy(01|mb)|t2(18|50)|t6(00|10|18)|ta(gt|lk)|tcl\-|tdg\-|tel(i|m)|tim\-|t\-mo|to(pl|sh)|ts(70|m\-|m3|m5)|tx\-9|up(\.b|g1|si)|utst|v400|v750|veri|vi(rg|te)|vk(40|5[0-3]|\-v)|vm40|voda|vulc|vx(52|53|60|61|70|80|81|83|85|98)|w3c(\-| )|webc|whit|wi(g |nc|nw)|wmlb|wonu|x700|yas\-|your|zeto|zte\-/i.test(a.substr(0, 4)))
+                check = true; })(navigator.userAgent || navigator.vendor || window.opera);
+            return check;
+        }
 
         function highestValueAndKey(obj) {
             let [highestItems] = Object.entries(obj).sort(([ ,v1], [ ,v2]) => v2 - v1);
@@ -963,31 +752,8 @@ window.onSignInHandler = (portal) => {
             document.getElementById("selectedDate").innerHTML = format(new Date(mostRecentFeature["ddate"]), "PPP");
         }
 
-        function updateSelectedDateLabel(date) {
-            const dateObj = new Date(date);
-            document.getElementById("selectedDate").innerHTML = format(dateObj, "PPP");
-        }
-
         function getFormattedDate(date) {
             return (date.getMonth() > 8 ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '/' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate())) + '/' + date.getFullYear();
-        }
-
-        async function fetchData(params) {
-            return await queryService(params);
-        }
-
-        function queryService(params) {
-            let queryTask = new QueryTask({
-                url: params.url
-            });
-            let query = new Query();
-            query.returnGeometry = params.returnGeometry;
-            query.outFields = params.outFields;
-            query.orderByFields = params.orderByFields;
-            query.geometry = params.geometry;
-            query.inSR = 102003;
-            query.where = params.q;
-            return queryTask.execute(query);
         }
 
         const keys = Object.keys(config.drought_colors);
@@ -1200,6 +966,7 @@ window.onSignInHandler = (portal) => {
         function chartMouseClickHandler(event) {
             selectedEvent = event;
             let d = d3.select(this).data()[0];
+
             selId = new Date(d.data.date).getTime();
 
             d3.select(".click-scrubber-text").text(getFormattedDate(d.data.date));
