@@ -13,9 +13,9 @@ export async function init(params) {
             params.view.ui.add(searchWidget, {
                 position: params.position
             });
-            searchWidget.when(function(){
+            searchWidget.when(() => {
                 resolve(searchWidget)
-            }, function(error){
+            }, error => {
                 resolve(error);
             });
         });

@@ -33,8 +33,10 @@ window.onSignInHandler = (portal) => {
 
         const isMobile = isMobileBrowser();
 
-        // DOM Nodes used by the app
-        let informationIcon = document.getElementsByClassName("information-icon")[0];
+        // Cache DOM Nodes used by the app
+        let bottomLeft = null;
+        let bottomRight = null;
+        let dataComponentLoadingIndicator = document.getElementById("dataComponentLoader");
         let adminSubdivision = document.getElementById("administrativeSubdivision");
         let bottomComponent = document.getElementById("bottomComponent");
         let countyButtonEle = document.getElementById("county");
@@ -84,15 +86,10 @@ window.onSignInHandler = (portal) => {
         let selectedDateObj = {};
         let inputDataset = [];
 
-        // TODO Consider using destructuring
-        let zoomPosition = "top-left";
-        let homePosition = "top-left";
-        let appHeaderPosition = "top-right";
-        let legendPosition = "bottom-right";
         if (isMobile) {
-            zoomPosition = "bottom-right";
-            homePosition = "bottom-right";
-            appHeaderPosition = "manual";
+            config.widgetPositions.appHeader = "manual";
+            config.widgetPositions.home = "bottom-right";
+            config.widgetPositions.zoom = "bottom-right";
         }
 
         // WebMap
@@ -137,7 +134,7 @@ window.onSignInHandler = (portal) => {
             webMap.when(webMapLoadedSuccessHandler, webMapLoadedErrorHandler);
             mapView.when(viewLoadedSuccessHandler, viewLoadedErrorHandler);
 
-            watchUtils.watch(mapView, "resizing", (resizing) => {
+            /*watchUtils.watch(mapView, "resizing", (resizing) => {
                 console.debug("resizing", resizing);
             });
             watchUtils.when(webMap, "loadStatus", (loadStatus) => {
@@ -157,31 +154,25 @@ window.onSignInHandler = (portal) => {
                     .catch(function(animation) {
                         console.debug("3", animation.state); // prints out "stopped"
                     });
-            });
+            });*/
 
             watchUtils.whenTrue(mapView, "stationary", viewStationaryHandler);
 
+            let informationIcon = document.getElementsByClassName("information-icon")[0];
             calcite.addEvent(informationIcon, "click", function (event) {
                 document.getElementsByClassName("modal-overlay")[0].style.display = "flex";
             })
+
+            bottomLeft = document.getElementsByClassName("esri-ui-bottom-left")[0];
+            bottomRight = document.getElementsByClassName("esri-ui-bottom-right")[0];
         }
 
         function errorHandler(error) {
-            console.debug("ERROR", error);
-
-            const {
-                details: {
-                    httpStatus,
-                    messages,
-                    url
-                },
-                message
-            } = error;
-
-            document.getElementsByClassName("alert-title")[0].innerHTML = message;
-            document.getElementsByClassName("alert-message")[0].innerHTML = `Http Status Code: ${httpStatus}<br />URL: ${url}<br />`;
+            document.getElementsByClassName("alert-title")[0].innerHTML = error.message;
             document.getElementsByClassName("alert-link")[0].innerHTML = "contact support";
             document.getElementsByClassName("custom-alert")[0].setAttribute("icon", "exclamation-mark-circle");
+            document.getElementsByClassName("custom-alert")[0].setAttribute("color", "red");
+            document.getElementsByClassName("custom-alert")[0].setAttribute("auto-dismiss-duration", "slow");
             document.getElementsByClassName("custom-alert")[0].setAttribute("active", "true");
             document.getElementsByClassName("custom-alert")[0].setAttribute("aria-hidden", "true");
         }
@@ -197,6 +188,8 @@ window.onSignInHandler = (portal) => {
             document.getElementsByClassName("alert-message")[0].innerHTML = `${error.details.error.message}<br />${error.details.error.details.url}</br />`;
             document.getElementsByClassName("alert-link")[0].innerHTML = "contact support";
             document.getElementsByClassName("custom-alert")[0].setAttribute("icon", "exclamation-mark-circle");
+            document.getElementsByClassName("custom-alert")[0].setAttribute("color", "red");
+            document.getElementsByClassName("custom-alert")[0].setAttribute("auto-dismiss-duration", "slow");
             document.getElementsByClassName("custom-alert")[0].setAttribute("active", "true");
             document.getElementsByClassName("custom-alert")[0].setAttribute("aria-hidden", "true");
         }
@@ -207,12 +200,12 @@ window.onSignInHandler = (portal) => {
             // zoom
             ZoomComponent.init({
                 view: response,
-                position: zoomPosition
+                position: config.widgetPositions.zoom
             });
             // home
             HomeComponent.init({
                 view: response,
-                position: homePosition
+                position: config.widgetPositions.home
             });
             // bookmarks
             BookmarksComponent.init({
@@ -244,12 +237,12 @@ window.onSignInHandler = (portal) => {
             // app header
             AppHeaderComponent.init({
                 view: response,
-                position: appHeaderPosition
+                position: config.widgetPositions.appHeader
             });
             // legend
             LegendComponent.init({
                 view: response,
-                position: legendPosition
+                position: config.widgetPositions.legend
             });
             // Administrative level toggle
             mapView.ui.add("administrativeSubdivision", "bottom-left");
@@ -340,19 +333,13 @@ window.onSignInHandler = (portal) => {
                     }
                 });
                 mapView.map.removeMany(layersToRemove.items);
-
-                let layer = new FeatureLayer({
-                    url: config.droughtURL,
-                    layerId: 2,
-                    timeExtent: {
-                        start: startDate,
-                        end: endDate
-                    },
-                    opacity: 0.65,
-                    title: config.drought_layer_name,
-                    useViewTime: false
-                });
-                mapView.map.add(layer, 0);
+                addLayer({
+                    "url": config.droughtURL,
+                    "start": startDate,
+                    "end": endDate,
+                    "title": config.drought_layer_name,
+                    "view": mapView
+                })
             });
         }
 
@@ -360,8 +347,6 @@ window.onSignInHandler = (portal) => {
             // Use the errback function to handle when the view doesn't load properly
             console.log("MAPVIEW", error);
         }
-
-
 
         function addLayer(params) {
             const layer = new FeatureLayer({
@@ -380,13 +365,6 @@ window.onSignInHandler = (portal) => {
         }
 
         function mapClickHandler(event) {
-            console.debug(event);
-            adminSubdivision.style.display = "unset";
-            bottomComponent.style.display = "flex";
-            document.getElementsByClassName("esri-ui-bottom-left")[0].style.bottom = "215";
-            document.getElementsByClassName("esri-ui-bottom-right")[0].style.bottom = "215";
-            document.getElementById("dataComponentLoader").setAttribute("active", "");
-
             const params = new URLSearchParams(location.search);
             if (event !== null) {
                 config.boundaryQuery.geometry = event.mapPoint;
@@ -406,147 +384,157 @@ window.onSignInHandler = (portal) => {
                 })
             }
 
-
             QueryUtils.fetchData(config.boundaryQuery).then(retrieveGeometryResponseHandler).then(response => {
-                console.debug(response);
-                let selectedFeature = response.features[0];
-                config.selected.state_name = selectedFeature.attributes["STATE_NAME"];
+                if (response.features.length > 0) {
+                    adminSubdivision.style.display = "unset";
+                    bottomComponent.style.display = "flex";
+                    bottomLeft.style.bottom = "215";
+                    bottomRight.style.bottom = "215";
+                    dataComponentLoadingIndicator.setAttribute("active", "");
 
+                    let selectedFeature = response.features[0];
+                    config.selected.state_name = selectedFeature.attributes["STATE_NAME"];
 
-
-                // Agriculture + Population
-                let agrQuery = "";
-                if (config.selected.adminAreaId === config.COUNTY_ADMIN) {
-                    config.selected.county_fips = response.features[0].attributes["FIPS"];
-                    agrQuery = `CountyFIPS = '${config.selected.county_fips}'`;
-                } else if (config.selected.adminAreaId === config.STATE_ADMIN) {
-                    config.selected.state_fips = response.features[0].attributes["STATE_FIPS"];
-                    agrQuery = `SateFIPS = '${config.selected.state_fips}'`;
-                }
-                QueryUtils.fetchData({
-                    url: config.agricultureImpactURL,
-                    returnGeometry: false,
-                    outFields: ["*"],
-                    q: agrQuery
-                }).then(updateAgriculturalImpactComponent);
-
-
-
-                // Monthly outlook
-                QueryUtils.fetchData({
-                    url: config.monthlyDroughtOutlookURL,
-                    returnGeometry: false,
-                    outFields: ["*"],
-                    spatialRel: "esriSpatialRelIntersects",
-                    orderByFields: ["fid_persis desc", "fid_improv desc", "fid_dev desc", "fid_remove desc"],
-                    geometryType: "esriGeometryPolygon",
-                    geometry: selectedFeature.geometry,
-                    q: ""
-                }).then(monthlyDroughtOutlookResponseHandler);
-
-
-
-                // Season outlook
-                QueryUtils.fetchData({
-                    url: config.seasonalDroughtOutlookURL,
-                    returnGeometry: false,
-                    outFields: ["*"],
-                    spatialRel: "esriSpatialRelIntersects",
-                    orderByFields: ["fid_persis desc", "fid_improv desc", "fid_dev desc", "fid_remove desc"],
-                    geometryType: "esriGeometryPolygon",
-                    geometry: selectedFeature.geometry,
-                    q: ""
-                }).then(seasonalDroughtOutlookResponseHandler);
-
-
-
-                // Drought
-                let droughtQuery = "";
-                let droughtQueryLayerId = "";
-                if (config.selected.adminAreaId === config.COUNTY_ADMIN) {
-                    droughtQueryLayerId = "1";
-                    droughtQuery = `admin_fips = ${config.selected.county_fips}`;
-                } else {
-                    droughtQueryLayerId = "0";
-                    droughtQuery = `admin_fips  = ${config.selected.state_fips}`;
-                }
-                QueryUtils.fetchData({
-                    url: config.droughtURL + droughtQueryLayerId,
-                    returnGeometry: false,
-                    orderByFields: ["ddate DESC"],
-                    outFields: ["*"],
-                    q: droughtQuery
-                }).then(response => {
-                    if (response.features.length > 0) {
-                        let droughtData = response.features;
-                        selectedDate = droughtData[0].attributes.ddate;
-                        let formattedSelectedDate = format(selectedDate, "P");
-                        let consecutiveWeeksQuery = "";
-                        if (config.selected.adminAreaId === config.COUNTY_ADMIN) {
-                            consecutiveWeeksQuery = `name = '${droughtData[0].attributes["name"]}' AND state_abbr = '${droughtData[0].attributes["state_abbr"]}' AND D2_D4 = 0 AND ddate <= date '${formattedSelectedDate}'`;
-                        } else {
-                            consecutiveWeeksQuery = `state_abbr = '${droughtData[0].attributes["state_abbr"]}' AND D2_D4 = 0 AND ddate <= date '${formattedSelectedDate}'`
-                        }
-                        QueryUtils.fetchData({
-                            url: config.droughtURL + droughtQueryLayerId,
-                            returnGeometry: false,
-                            orderByFields: ["ddate desc"],
-                            outFields: ["*"],
-                            q: consecutiveWeeksQuery
-                        }).then(response => {
-                            let responseDate = response.features[0].attributes.ddate;
-                            const consecutiveWeeks = differenceInWeeks(new Date(selectedDate), new Date(responseDate)) - 1;
-
-                            let consecutiveWeeksElement = document.getElementById("consecutiveWeeks");
-                            let weeksLabel = `Weeks`;
-                            if (consecutiveWeeks < 1) {
-                                consecutiveWeeksElement.style.color = "#393939";
-                            } else if (consecutiveWeeks > 0 && consecutiveWeeks < 8) {
-                                weeksLabel = (consecutiveWeeks < 2) ? "Week" : "Weeks";
-                                consecutiveWeeksElement.style.color = "#e4985a";
-                            } else if (consecutiveWeeks > 8) {
-                                weeksLabel = (consecutiveWeeks < 2) ? "Week" : "Weeks";
-                                consecutiveWeeksElement.style.color = "#b24543";
-                            }
-                            consecutiveWeeksElement.innerHTML = `${consecutiveWeeks.toString()} Consecutive ${weeksLabel}`;
-                        });
-
-                        inputDataset = droughtData.map(feature => {
-                            let date = new Date(feature.attributes.ddate);
-                            return {
-                                d0: feature.attributes.d0,
-                                d1: feature.attributes.d1,
-                                d2: feature.attributes.d2,
-                                d3: feature.attributes.d3,
-                                d4: feature.attributes.d4,
-                                nothing: feature.attributes.nothing,
-                                date: date//new Date(Date.UTC(year, month, day))
-                            };
-                        });
-                        inputDataset.reverse();
-
-                        let params = new URLSearchParams(location.search);
-                        let selId = params.get("date") || new Date(inputDataset[inputDataset.length - 1].date).getTime();
-                        createChart({
-                            data: inputDataset,
-                            selected: selId
-                        });
-
-                        // selected date/time
-                        selectedEvent = d3.select("rect[id='" + selId + "']");
-                        let initXPosition = d3.select("rect[id='" + selId + "']").attr("x");
-                        // mouse-over scrubber
-                        clickScrubber.attr("transform", "translate(" + parseFloat(initXPosition) + "," + 20 + ")");
-                        clickScrubber.style("display", null);
-                        clickScrubber.style("opacity", "1");
-                        let formattedDate = getFormattedDate(new Date(parseInt(selId)));
-                        d3.select(".click-scrubber-text").text(formattedDate);
-
-                        updateCurrentDroughtStatus(response);
-                        updateSelectedLocationComponent(response);
-                        document.getElementById("dataComponentLoader").removeAttribute("active");
+                    // Agriculture + Population
+                    let agrQuery = "";
+                    if (config.selected.adminAreaId === config.COUNTY_ADMIN) {
+                        config.selected.county_fips = response.features[0].attributes["FIPS"];
+                        agrQuery = `CountyFIPS = '${config.selected.county_fips}'`;
+                    } else if (config.selected.adminAreaId === config.STATE_ADMIN) {
+                        config.selected.state_fips = response.features[0].attributes["STATE_FIPS"];
+                        agrQuery = `SateFIPS = '${config.selected.state_fips}'`;
                     }
-                });
+                    QueryUtils.fetchData({
+                        url: config.agricultureImpactURL,
+                        returnGeometry: false,
+                        outFields: ["*"],
+                        q: agrQuery
+                    }).then(updateAgriculturalImpactComponent);
+
+
+                    // Monthly outlook
+                    QueryUtils.fetchData({
+                        url: config.monthlyDroughtOutlookURL,
+                        returnGeometry: false,
+                        outFields: ["*"],
+                        spatialRel: "esriSpatialRelIntersects",
+                        orderByFields: ["fid_persis desc", "fid_improv desc", "fid_dev desc", "fid_remove desc"],
+                        geometryType: "esriGeometryPolygon",
+                        geometry: selectedFeature.geometry,
+                        q: ""
+                    }).then(monthlyDroughtOutlookResponseHandler);
+
+
+                    // Season outlook
+                    QueryUtils.fetchData({
+                        url: config.seasonalDroughtOutlookURL,
+                        returnGeometry: false,
+                        outFields: ["*"],
+                        spatialRel: "esriSpatialRelIntersects",
+                        orderByFields: ["fid_persis desc", "fid_improv desc", "fid_dev desc", "fid_remove desc"],
+                        geometryType: "esriGeometryPolygon",
+                        geometry: selectedFeature.geometry,
+                        q: ""
+                    }).then(seasonalDroughtOutlookResponseHandler);
+
+
+                    // Drought
+                    let droughtQuery = "";
+                    let droughtQueryLayerId = "";
+                    if (config.selected.adminAreaId === config.COUNTY_ADMIN) {
+                        droughtQueryLayerId = "1";
+                        droughtQuery = `admin_fips = ${config.selected.county_fips}`;
+                    } else {
+                        droughtQueryLayerId = "0";
+                        droughtQuery = `admin_fips  = ${config.selected.state_fips}`;
+                    }
+                    QueryUtils.fetchData({
+                        url: config.droughtURL + droughtQueryLayerId,
+                        returnGeometry: false,
+                        orderByFields: ["ddate DESC"],
+                        outFields: ["*"],
+                        q: droughtQuery
+                    }).then(response => {
+                        if (response.features.length > 0) {
+                            let droughtData = response.features;
+                            selectedDate = droughtData[0].attributes.ddate;
+                            let formattedSelectedDate = format(selectedDate, "P");
+                            let consecutiveWeeksQuery = "";
+                            if (config.selected.adminAreaId === config.COUNTY_ADMIN) {
+                                consecutiveWeeksQuery = `name = '${droughtData[0].attributes["name"]}' AND state_abbr = '${droughtData[0].attributes["state_abbr"]}' AND D2_D4 = 0 AND ddate <= date '${formattedSelectedDate}'`;
+                            } else {
+                                consecutiveWeeksQuery = `state_abbr = '${droughtData[0].attributes["state_abbr"]}' AND D2_D4 = 0 AND ddate <= date '${formattedSelectedDate}'`
+                            }
+                            QueryUtils.fetchData({
+                                url: config.droughtURL + droughtQueryLayerId,
+                                returnGeometry: false,
+                                orderByFields: ["ddate desc"],
+                                outFields: ["*"],
+                                q: consecutiveWeeksQuery
+                            }).then(response => {
+                                let responseDate = response.features[0].attributes.ddate;
+                                const consecutiveWeeks = differenceInWeeks(new Date(selectedDate), new Date(responseDate)) - 1;
+
+                                let consecutiveWeeksElement = document.getElementById("consecutiveWeeks");
+                                let weeksLabel = `Weeks`;
+                                if (consecutiveWeeks < 1) {
+                                    consecutiveWeeksElement.style.color = "#393939";
+                                } else if (consecutiveWeeks > 0 && consecutiveWeeks < 8) {
+                                    weeksLabel = (consecutiveWeeks < 2) ? "Week" : "Weeks";
+                                    consecutiveWeeksElement.style.color = "#e4985a";
+                                } else if (consecutiveWeeks > 8) {
+                                    weeksLabel = (consecutiveWeeks < 2) ? "Week" : "Weeks";
+                                    consecutiveWeeksElement.style.color = "#b24543";
+                                }
+                                consecutiveWeeksElement.innerHTML = `${consecutiveWeeks.toString()} Consecutive ${weeksLabel}`;
+                            });
+
+                            inputDataset = droughtData.map(feature => {
+                                let date = new Date(feature.attributes.ddate);
+                                return {
+                                    d0: feature.attributes.d0,
+                                    d1: feature.attributes.d1,
+                                    d2: feature.attributes.d2,
+                                    d3: feature.attributes.d3,
+                                    d4: feature.attributes.d4,
+                                    nothing: feature.attributes.nothing,
+                                    date: date//new Date(Date.UTC(year, month, day))
+                                };
+                            });
+                            inputDataset.reverse();
+
+                            let params = new URLSearchParams(location.search);
+                            let selId = params.get("date") || new Date(inputDataset[inputDataset.length - 1].date).getTime();
+                            createChart({
+                                data: inputDataset,
+                                selected: selId
+                            });
+
+                            // selected date/time
+                            selectedEvent = d3.select("rect[id='" + selId + "']");
+                            let initXPosition = d3.select("rect[id='" + selId + "']").attr("x");
+                            // mouse-over scrubber
+                            clickScrubber.attr("transform", "translate(" + parseFloat(initXPosition) + "," + 20 + ")");
+                            clickScrubber.style("display", null);
+                            clickScrubber.style("opacity", "1");
+                            let formattedDate = getFormattedDate(new Date(parseInt(selId)));
+                            d3.select(".click-scrubber-text").text(formattedDate);
+
+                            updateCurrentDroughtStatus(response);
+                            updateSelectedLocationComponent(response);
+                            dataComponentLoadingIndicator.removeAttribute("active");
+                        }
+                    });
+                } else {
+                    document.getElementsByClassName("alert-title")[0].innerHTML = "Select another location please.";
+                    document.getElementsByClassName("alert-message")[0].innerHTML = "Please select a location in the United States or Puerto Rico.";
+                    document.getElementsByClassName("alert-link")[0].innerHTML = "";
+                    document.getElementsByClassName("custom-alert")[0].setAttribute("icon", "exclamation-mark-triangle");
+                    document.getElementsByClassName("custom-alert")[0].setAttribute("color", "yellow");
+                    document.getElementsByClassName("custom-alert")[0].setAttribute("auto-dismiss-duration", "fast");
+                    document.getElementsByClassName("custom-alert")[0].setAttribute("active", "true");
+                    document.getElementsByClassName("custom-alert")[0].setAttribute("aria-hidden", "true");
+                }
             });
         }
 
@@ -742,6 +730,12 @@ window.onSignInHandler = (portal) => {
             if (mostRecentFeature["nothing"] === 100) {
                 label = config.drought_colors.nothing.label;
                 color = config.drought_colors.nothing.color;
+            } else if (key === "d0") {
+                label = config.drought_colors[key].label;
+                color = "#b19657";
+            } else if (key === "d1") {
+                label = config.drought_colors[key].label;
+                color = "#cb9362";
             } else {
                 label = config.drought_colors[key].label;
                 color = config.drought_colors[key].color;
@@ -997,18 +991,13 @@ window.onSignInHandler = (portal) => {
                 }
             });
             mapView.map.removeMany(layersToRemove.items);
-            let layer = new FeatureLayer({
-                url: config.droughtURL,
-                layerId: 2,
-                timeExtent: {
-                    start: startDate,
-                    end: endDate
-                },
-                opacity: 0.65,
-                title: config.drought_layer_name,
-                useViewTime: false
+            addLayer({
+                "url": config.droughtURL,
+                "start": startDate,
+                "end": endDate,
+                "title": config.drought_layer_name,
+                "view": mapView
             });
-            mapView.map.add(layer, 0);
         }
 
         function barChartZoomed(event) {

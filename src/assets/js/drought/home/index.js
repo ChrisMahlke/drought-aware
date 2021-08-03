@@ -1,19 +1,21 @@
 import { loadModules } from 'esri-loader';
 
-export function init(params) {
-    addHomeWidget(params.view, params.position);
-}
-
-
-function addHomeWidget(view, position) {
-    loadModules([
-        "esri/widgets/Home"
-    ]).then(([Home]) => {
-        const widget = new Home({
-            view: view
-        });
-        view.ui.add(widget, {
-            position: position
+export async function init(params) {
+    return await new Promise((resolve, reject) => {
+        loadModules([
+            "esri/widgets/Home"
+        ]).then(([Home]) => {
+            const widget = new Home({
+                view: params.view
+            });
+            params.view.ui.add(widget, {
+                position: params.position
+            });
+            widget.when(() => {
+                resolve(widget)
+            }, error => {
+                resolve(error)
+            });
         });
     });
 }

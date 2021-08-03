@@ -7,13 +7,13 @@
 	<title><%= htmlWebpackPlugin.options.title %></title>
 
 	<link rel="icon" href="//www.esri.com/favicon.ico">
-
-	<script type="module" src="https://unpkg.com/@esri/calcite-components/dist/calcite/calcite.esm.js"></script>
 	<link rel="stylesheet" type="text/css" href="https://unpkg.com/@esri/calcite-components/dist/calcite/calcite.css" />
 </head>
 
 <body>
 	<%= require('html-loader?interpolate!./pages/' + htmlWebpackPlugin.options.pageName + '.html') %>
 </body>
+
+<script type="module" src="https://unpkg.com/@esri/calcite-components/dist/calcite/calcite.esm.js"></script>
 
 </html>
