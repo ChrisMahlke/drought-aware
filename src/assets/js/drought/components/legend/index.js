@@ -14,7 +14,7 @@ export async function init(params) {
             } = params.view;
 
             let agrLayer = items.filter(layer => {
-                return layer.title === "TotalAgSales Centroids - copy";
+                return layer.title === "TotalAgSales Centroids";
             });
 
             if (agrLayer.length > 0) {
