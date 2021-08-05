@@ -16,7 +16,7 @@ function addBookmarksWidget(response) {
         bookmarks.forEach(bookmark => {
             if (bookmark.uid === event.target.id) {
                 response.goTo(bookmark.extent)
-                    .catch(function(error) {
+                    .catch(function (error) {
                         if (error.name !== "AbortError") {
                             console.error(error);
                         }
