@@ -1,5 +1,7 @@
-import { loadModules } from 'esri-loader';
-
+/**
+ *
+ * @param params
+ */
 export function init(params) {
     addBookmarksWidget(params.view);
 }
