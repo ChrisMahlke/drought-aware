@@ -16,7 +16,6 @@ import * as ZoomComponent from './components/zoom/index';
 import * as calcite from "calcite-web";
 import * as d3 from "d3";
 import { differenceInWeeks, format } from 'date-fns';
-import {hydrateMapViewErrorAlert, hydrateWebMapErrorAlert} from "./utils/ErrorHandler";
 
 window.onSignInHandler = (portal) => {
     // initialize calcite
@@ -888,7 +887,7 @@ window.onSignInHandler = (portal) => {
 
             d3.select("#click-scrubber-text-container").attr("transform", "translate(-" + 100 + ",-" + 20 + ")");
             d3.select(".click-scrubber-text").attr("transform", "translate(-" + 50 + ",0)");
-            
+
             function formatTick(d) {
                 return this.parentNode.nextSibling ? `\xa0${d}` : `${d}%`;
             }
