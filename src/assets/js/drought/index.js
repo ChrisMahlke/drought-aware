@@ -126,7 +126,8 @@ window.onSignInHandler = (portal) => {
                 map: webMap,
                 constraints: {
                     snapToZoom: true,
-                    minScale: 30999535
+                    minScale: 30999535,
+                    maxScale: 577791
                 },
                 ui: {
                     components: []
