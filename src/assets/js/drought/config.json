@@ -32,7 +32,7 @@
   "widgetPositions": {
     "appHeader": "top-right",
     "home": "top-left",
-    "legend": "bottom-right",
+    "legend": "manual",
     "zoom": "top-left"
   },
 

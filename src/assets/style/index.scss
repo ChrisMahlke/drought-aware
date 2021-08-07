@@ -138,9 +138,7 @@ and (orientation: portrait) {
   }
 
   #droughtStatusComponent {
-    padding: .25em 1em;
     width: 100%;
-    background-color: #dddacf !important;
   }
 
   #agrComponent {
@@ -262,19 +260,17 @@ and (orientation: portrait) {
   }
 
   #droughtStatusComponent {
-    padding: .25em 1em;
-    float: left;
+    float: right;
     width: 320px;
+    margin-left: .25em;
     margin-right: .25em;
-    background-color: #dddacf !important;
   }
 
   #agrComponent {
     padding: .25em 1em;
-    float: left;
+    float: right;
     width: 380px;
     background-color: #dddacf !important;
-    margin-right: .25em;
   }
 
   #historicRecordComponent {
@@ -294,13 +290,11 @@ and (orientation: portrait) {
 
 
   .drought-status-label {
-    font-size: 1.2em;
-    font-weight: bolder;
-    margin-top: .45em;
+
   }
 
   .drought-status-location-label {
-    font-size: 0.95em;
+
   }
 
   .drought-status-location-population {
@@ -308,13 +302,15 @@ and (orientation: portrait) {
   }
 
   .outlook-container {
-    margin-top: 1em;
+    background-color: #dddacf;
+    padding: .25em 1em;
+    height: 50%;
+    margin-top: .25em;
   }
 
   .section-hdr {
     font-size: 0.95em;
   }
-
 
   .monthly-outlook-container {
     padding-left: 1em;
@@ -333,11 +329,8 @@ and (orientation: portrait) {
     font-size: 0.80em;
   }
 
-
-
-
   .agr-container {
-    margin-top: 1em;
+
   }
 
   .agr-flex-container {
@@ -345,12 +338,11 @@ and (orientation: portrait) {
   }
 
   .agr-label {
-    text-align: right;
+
   }
 
   .agr-value {
-    font-size: 1.4em;
-    text-align: left;
+
   }
 
   .agr-flex-child {
@@ -364,7 +356,7 @@ and (orientation: portrait) {
 
 
   .crops-container {
-    margin-top: 1em;
+
   }
 
   .crops-flex-child {
@@ -376,7 +368,7 @@ and (orientation: portrait) {
   }
 
   .crops-label {
-    font-size: .8em;
+
   }
 
   .crops-value {
@@ -392,7 +384,7 @@ and (orientation: portrait) {
   }
 
   .outlook-flex-child:first-child {
-    margin-left: 1em;
+
   }
 
   .outlook-label {
@@ -497,6 +489,7 @@ and (orientation: portrait) {
   .chart-legend-label-container {
     float: left;
     padding-left: .25em;
+    font-size: 0.80em;
   }
 
   .chart-info-icon-container {

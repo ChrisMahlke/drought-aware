@@ -24,9 +24,7 @@ export async function init(params) {
                         layer: agrLayer[0]
                     }]
                 });
-                params.view.ui.add(widget, {
-                    position: params.position
-                });
+                //params.view.ui.add(widget);
                 widget.when(() => {
                     resolve(widget)
                 }, error => {
