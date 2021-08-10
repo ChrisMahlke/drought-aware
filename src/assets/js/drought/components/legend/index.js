@@ -13,22 +13,22 @@ export async function init(params) {
                 },
             } = params.view;
 
-            let agrLayer = items.filter(layer => {
+            let agrLayer = items.find(layer => {
                 return layer.title === "TotalAgSales Centroids";
             });
 
-            if (agrLayer.length > 0) {
+            if (agrLayer) {
                 let widget = new Legend({
                     view: params.view,
                     layerInfos: [{
-                        layer: agrLayer[0]
+                        layer: agrLayer
                     }]
                 });
-                //params.view.ui.add(widget);
+                params.view.ui.add(widget);
                 widget.when(() => {
-                    resolve(widget)
+                    resolve(agrLayer)
                 }, error => {
-                    resolve(error);
+                    reject(error);
                 });
             }
         });

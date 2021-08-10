@@ -3,7 +3,6 @@ import config from "../../config.json";
 import {format} from "date-fns";
 import * as LayerUtils from './../../utils/LayerUtils';
 
-let selId = null;
 let barChartMargin = null;
 let barChartWidth = null;
 let barChartHeight = null;
@@ -41,7 +40,7 @@ export function createChart(params) {
     mapView = params.view;
 
     // TODO
-    barChartHeight = 145;
+    barChartHeight = 135;
     barChartWidth = chartNode.offsetWidth;
     barChartMargin = {
         top: 25,
@@ -234,8 +233,6 @@ function chartMouseClickHandler(event) {
     selectedEvent = event;
     let d = d3.select(this).data()[0];
 
-    selId = new Date(d.data.date).getTime();
-
     d3.select(".click-scrubber-text").text(getFormattedDate(d.data.date));
 
     let pageX = event.pageX;
@@ -255,7 +252,7 @@ function chartMouseClickHandler(event) {
     let endDate = new Date(d.data.date);
     let startDate = new Date(endDate.getTime() - (60 * 60 * 24 * 7 * 1000));
     let urlSearchParams = new URLSearchParams(location.search);
-    urlSearchParams.set("date", selId.toString());
+    urlSearchParams.set("date", new Date(d.data.date).getTime().toString());
     window.history.replaceState({}, '', `${location.pathname}?${urlSearchParams}`);
 
     LayerUtils.removeLayers(mapView);
@@ -266,7 +263,6 @@ function chartMouseClickHandler(event) {
         "title": config.drought_layer_name,
         "view": mapView
     });
-    document.getElementsByClassName("selectedDate")[0].innerHTML = format(new Date(endDate), "PPP");
 }
 
 function barChartZoomed(event) {
@@ -295,4 +291,8 @@ export function setScrubberPosition(xPos) {
     clickScrubber.attr("transform", "translate(" + parseFloat(xPos) + "," + 20 + ")");
     clickScrubber.style("display", null);
     clickScrubber.style("opacity", "1");
+}
+
+export function setSelectedEvent(se) {
+    selectedEvent = se;
 }

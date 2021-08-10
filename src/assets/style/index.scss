@@ -279,6 +279,17 @@ and (orientation: portrait) {
     flex-grow: 1;
   }
 
+  .chart-flex-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: nowrap;
+  }
+
+  .item1 {
+    /* flex:0 1 auto; */
+    align-self:auto;
+  }
 
 
 
@@ -287,18 +298,32 @@ and (orientation: portrait) {
     font-weight: bold;
   }
 
+  .component-label {
+    font-size: 0.8em;
+  }
+
+  .component-label-center {
+    text-align: center;
+  }
+
+  component-value {
+    font-size: 1.0em;
+  }
 
 
-  .drought-status-label {
+
+  .drought-status {
 
   }
 
-  .drought-status-location-label {
+  .selected-location {
 
   }
 
-  .drought-status-location-population {
-    font-size: 0.85em;
+  .trend-container {
+    background-color: #dddacf;
+    padding: .25em 1em;
+    height: 50%;
   }
 
   .outlook-container {
@@ -329,20 +354,12 @@ and (orientation: portrait) {
     font-size: 0.80em;
   }
 
-  .agr-container {
-
-  }
-
   .agr-flex-container {
     display: flex;
   }
 
-  .agr-label {
-
-  }
-
-  .agr-value {
-
+  .total-sales {
+    text-align: center;
   }
 
   .agr-flex-child {
@@ -364,14 +381,6 @@ and (orientation: portrait) {
   }
 
   .crops-flex-child:first-child {
-
-  }
-
-  .crops-label {
-
-  }
-
-  .crops-value {
 
   }
 
@@ -495,18 +504,18 @@ and (orientation: portrait) {
   .chart-info-icon-container {
     text-align: center;
     color: #494949;
-    font-weight: normal;
   }
 
-  .reset-chart-icon-container {
-    float: right;
-    background-color: #c3c3c3;
-    padding: .15em .5em;
-    border-radius: 3px;
+  .reset-chart-btn {
+    background-color: transparent;
+    color: #525252;
+    border-color: #b5b5b5;
   }
 
-  .reset-chart-icon-container:hover {
-    cursor: pointer;
+  .reset-chart-btn:hover {
+    background-color: transparent;
+    color: #525252;
+    border-color: #717171;
   }
 
   #administrativeSubdivision > fieldset {
@@ -541,17 +550,12 @@ and (orientation: portrait) {
 
   /* Legend - Start */
   .esri-legend {
-    width: 200px !important;
     background: transparent !important;
     box-shadow: none !important;
   }
 
   .esri-legend__layer-caption {
-    margin-bottom: 1em !important;
-  }
-
-  .esri-legend__layer-table {
-    margin-bottom: unset !important;
+    display: none !important;
   }
 
   .esri-legend__layer-cell--info {
@@ -564,28 +568,28 @@ and (orientation: portrait) {
   }
 
   .esri-legend__layer-body > div:nth-child(1) {
-    top: 50% !important;
-    right: 50px !important;
+    bottom: 35px;
+    right: 130px;
   }
 
   .esri-legend__layer-body > div:nth-child(2) {
-    top: 55% !important;
-    right: 80px !important;
+    bottom: 37px;
+    right: 170px;
   }
 
   .esri-legend__layer-body > div:nth-child(3) {
-    top: 60% !important;
-    right: 110px !important;
+    bottom: 40px;
+    right: 210px;
   }
 
   .esri-legend__layer-body > div:nth-child(4) {
-    top: 65% !important;
-    right: 130px !important;
+    bottom: 43px;
+    right: 250px;
   }
 
   .esri-legend__layer-body > div:nth-child(5) {
-    top: 70% !important;
-    right: 145px !important;
+    bottom: 46px;
+    right: 290px;
   }
 
   .esri-legend__service-label {
@@ -595,6 +599,14 @@ and (orientation: portrait) {
 
   .esri-legend__message {
     display: none !important;
+  }
+
+  #legendLabels {
+    text-align: center;
+    font-size: 0.8em;
+    padding-top: .5em;
+    margin-left: 15%;
+    margin-right: 15%;
   }
 }
 

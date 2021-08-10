@@ -46,6 +46,8 @@ window.onSignInHandler = (portal) => {
         let countyButtonEle = document.getElementById("county");
         let stateButtonEle = document.getElementById("state");
 
+        let selectedDate = null;
+
         // The URLSearchParams spec defines an interface and convenience methods for working with the query string of a
         // URL (e.g. everything after "?"). This means no more regex'ing and string splitting URLs!
         let params = new URLSearchParams(location.search);
@@ -211,30 +213,29 @@ window.onSignInHandler = (portal) => {
             });
 
             // legend
-            let legend = LegendComponent.init({
+            LegendComponent.init({
                 view: response,
                 position: config.widgetPositions.legend
-            });
-            legend.then(response => {
-                let ActiveLayerInfoCollection = response.activeLayerInfos;
-                let legendElements = ActiveLayerInfoCollection.items[0].legendElements[0];
-                legendElements.infos.forEach(info => {
-                    console.debug(info);
-                    // create svg element:
-                    let svg = d3.select("#legendWidget").append("svg").attr("width", 25).attr("height", 25)
-// Add the path using this helper function
-                    svg.append('circle')
-                        .attr('cx', 10)
-                        .attr('cy', 10)
-                        .attr('r', info.size)
-                        .attr('stroke', 'black')
-                        .attr('fill', '#69a3b2');
+            }).then(response => {
+                let visualVariables = response.renderer.visualVariables[0];
+                console.debug(visualVariables);
+                console.debug(visualVariables.minDataValue);
+                console.debug(visualVariables.maxDataValue);
+
+                let formatter = new Intl.NumberFormat('en-US', {
+                    style: 'currency',
+                    currency: 'USD',
+                    // These options are needed to round to whole numbers if that's what you want.
+                    //minimumFractionDigits: 0, // (this suffices for whole numbers, but will print 2500.10 as $2,500.1)
+                    maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
                 });
+                document.getElementById("minValue").innerHTML = formatter.format(visualVariables.minDataValue);
+                document.getElementById("maxValue").innerHTML = formatter.format(visualVariables.maxDataValue);
+                document.getElementById("legendWidget").appendChild(document.getElementsByClassName("esri-legend")[0]);
             });
 
-            // Administrative level toggle
             mapView.ui.add("administrativeSubdivision", "bottom-left");
-
+            
             response.on("click", mapClickHandler);
 
             //
@@ -298,19 +299,19 @@ window.onSignInHandler = (portal) => {
                 });
             });
 
-            document.getElementsByClassName("reset-chart-icon-container")[0].addEventListener("click", (event) => {
-                Chart.selId = new Date(inputDataset[inputDataset.length - 1].date).getTime();
-                Chart.selectedEvent = d3.select("rect[id='" + Chart.selId + "']");
-                let initXPosition = d3.select("rect[id='" + Chart.selId + "']").attr("x");
+            document.getElementsByClassName("reset-chart-btn")[0].addEventListener("click", (event) => {
+                let mostRecentDate = new Date(inputDataset[inputDataset.length - 1].date).getTime();
+                Chart.setSelectedEvent(d3.select("rect[id='" + mostRecentDate + "']"));
+                let initXPosition = d3.select("rect[id='" + mostRecentDate + "']").attr("x");
                 // mouse-over scrubber
                 Chart.setScrubberPosition(initXPosition);
-                let formattedDate = getFormattedDate(new Date(parseInt(Chart.selId)));
+                let formattedDate = getFormattedDate(new Date(parseInt(mostRecentDate)));
                 d3.select(".click-scrubber-text").text(formattedDate);
 
                 let endDate = new Date(inputDataset[inputDataset.length - 1].date);
                 let startDate = new Date(endDate.getTime() - (60 * 60 * 24 * 7 * 1000));
                 let urlSearchParams = new URLSearchParams(location.search);
-                urlSearchParams.set("date", Chart.selId.toString());
+                urlSearchParams.set("date", mostRecentDate.toString());
                 window.history.replaceState({}, '', `${location.pathname}?${urlSearchParams}`);
 
                 LayerUtils.removeLayers(mapView);
@@ -417,8 +418,8 @@ window.onSignInHandler = (portal) => {
                     }).then(response => {
                         if (response.features.length > 0) {
                             let droughtData = response.features;
-                            Chart.selectedDate = droughtData[0].attributes.ddate;
-                            let formattedSelectedDate = format(Chart.selectedDate, "P");
+                            selectedDate = droughtData[0].attributes.ddate;
+                            let formattedSelectedDate = format(selectedDate, "P");
                             let consecutiveWeeksQuery = "";
                             if (config.selected.adminAreaId === config.COUNTY_ADMIN) {
                                 consecutiveWeeksQuery = `name = '${droughtData[0].attributes["name"]}' AND state_abbr = '${droughtData[0].attributes["state_abbr"]}' AND D2_D4 = 0 AND ddate <= date '${formattedSelectedDate}'`;
@@ -433,7 +434,7 @@ window.onSignInHandler = (portal) => {
                                 q: consecutiveWeeksQuery
                             }).then(response => {
                                 let responseDate = response.features[0].attributes.ddate;
-                                const consecutiveWeeks = differenceInWeeks(new Date(Chart.selectedDate), new Date(responseDate)) - 1;
+                                const consecutiveWeeks = differenceInWeeks(new Date(selectedDate), new Date(responseDate)) - 1;
 
                                 let consecutiveWeeksElement = document.getElementById("consecutiveWeeks");
                                 //let weeksLabel = `Weeks`;
@@ -464,18 +465,18 @@ window.onSignInHandler = (portal) => {
                             inputDataset.reverse();
 
                             let params = new URLSearchParams(location.search);
-                            let selId = params.get("date") || new Date(inputDataset[inputDataset.length - 1].date).getTime();
+                            let dateFromUrl = params.get("date") || new Date(inputDataset[inputDataset.length - 1].date).getTime();
                             Chart.createChart({
                                 data: inputDataset,
                                 view: mapView
                             });
 
                             // selected date/time
-                            Chart.selectedEvent = d3.select("rect[id='" + selId + "']");
-                            let initXPosition = d3.select("rect[id='" + selId + "']").attr("x");
+                            Chart.setSelectedEvent(d3.select("rect[id='" + dateFromUrl + "']"));
+                            let initXPosition = d3.select("rect[id='" + dateFromUrl + "']").attr("x");
                             // mouse-over scrubber
                             Chart.setScrubberPosition(initXPosition);
-                            let formattedDate = getFormattedDate(new Date(parseInt(selId)));
+                            let formattedDate = getFormattedDate(new Date(parseInt(dateFromUrl)));
                             d3.select(".click-scrubber-text").text(formattedDate);
 
                             updateDroughtStatusComponent(response);
@@ -607,7 +608,7 @@ window.onSignInHandler = (portal) => {
                 if (config.selected.adminAreaId !== config.COUNTY_ADMIN) {
                     label = `${config.selected.state_name}`;
                 }
-                document.getElementsByClassName("drought-status-location-label")[0].innerHTML = label;
+                document.getElementsByClassName("selected-location")[0].innerHTML = label;
             }
         }
 
@@ -669,7 +670,6 @@ window.onSignInHandler = (portal) => {
             }
         }
 
-
         function updateDroughtStatusComponent(droughtQueryResponse) {
             console.debug("updateDroughtStatusComponent");
             let { attributes } = droughtQueryResponse.features[0];
@@ -697,10 +697,9 @@ window.onSignInHandler = (portal) => {
                 label = config.drought_colors[key].label;
                 color = config.drought_colors[key].color;
             }
-            let currentDroughtStatusElement = document.getElementsByClassName("drought-status-label")[0];
-            currentDroughtStatusElement.innerHTML = label;
-            currentDroughtStatusElement.style.color = color;
-            //document.getElementsByClassName("selectedDate")[0].innerHTML = format(new Date(attributes["ddate"]), "PPP");
+            let currentDroughtStatusElement = document.getElementsByClassName("drought-status")[0];
+            currentDroughtStatusElement.innerHTML = attributes["D1_D4"];//label;
+            //currentDroughtStatusElement.style.color = color;
         }
 
         function getFormattedDate(date) {

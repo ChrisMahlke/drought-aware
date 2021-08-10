@@ -81,7 +81,7 @@
                 <label class="radio-group-label admin-sub-label btn-small" for="county">County</label>
                 <input class="radio-group-input" type="radio" id="state" name="adminboundary"
                        data-admin-area-id="state"/>
-                <label class="radio-group-label admin-sub-label  btn-small" for="state">State</label>
+                <label class="radio-group-label admin-sub-label btn-small" for="state">State</label>
             </fieldset>
         </div>
 
@@ -100,14 +100,17 @@
             ></calcite-loader>
 
             <div id="historicRecordComponent">
-                <div class="component-hdr">
-                    <div style="float: left;">HISTORIC RECORD</div>
-                    <div class="reset-chart-icon-container">CURRENT WEEK</div>
-                    <div class="chart-info-icon-container">
-                        <div class="drought-status-label"></div>
-                        <div class="drought-status-location-label"></div>
+                <div class="chart-flex-container">
+                    <div class="item1">
+                        <span class="component-hdr">HISTORIC RECORD</span>
                     </div>
+                    <div class="chart-info-icon-container">
+                        <div class="selected-location"></div>
+                        <div><span class="drought-status"></span>% of the area with drought conditions.</div>
+                    </div>
+                    <div class="btn btn-small btn-clear reset-chart-btn">Current Week</div>
                 </div>
+
                 <div>
                     <div id="stackedBarchart"></div>
                     <div class="chart-legend">
@@ -162,20 +165,19 @@
 
             <div id="droughtStatusComponent">
 
-                <div style="background-color: #dddacf; padding: .25em 1em; height: 50%;">
+                <div class="trend-container">
                     <div class="component-hdr">DROUGHT TREND</div>
-                    <div class="drought-status-location-label">Severe Drought (D2+)</div>
-                    <div class="drought-status-label">Past Consecutive Weeks: <span id="consecutiveWeeks"></span></div>
-                    <div class="drought-status-location-population">Population Affected: <span id="population"></span>
-                    </div>
+                    <div class="component-label">Severe Drought (D2+)</div>
+                    <div class="component-label">Past Consecutive Weeks: <span id="consecutiveWeeks"></span></div>
+                    <div class="component-label">Population Affected: <span id="population"></span></div>
                 </div>
 
                 <div class="outlook-container">
-                    <div class="component-hdr outlook-container-hdr">DROUGHT OUTLOOK</div>
+                    <div class="component-hdr">DROUGHT OUTLOOK</div>
 
                     <div class="outlook-flex-container">
                         <div class="outlook-flex-child outlook-label" style="line-height: 1.3;">
-                            <div>MONTHLY</div>
+                            <div class="component-label">MONTHLY</div>
                             <div id="monthlyOutlookDate"></div>
                         </div>
                         <div id="monthlyOutlookLabel" class="outlook-flex-child outlook-value"></div>
@@ -183,7 +185,7 @@
 
                     <div class="outlook-flex-container" style="margin-top: .35em;">
                         <div class="outlook-flex-child outlook-label" style="line-height: 1.3;">
-                            <div>SEASONAL</div>
+                            <div class="component-label">SEASONAL</div>
                             <div id="seasonalOutlookDate"></div>
                         </div>
                         <div id="seasonalOutlookLabel" class="outlook-flex-child outlook-value"></div>
@@ -193,42 +195,58 @@
 
             <div id="agrComponent">
                 <div class="component-hdr">AGRICULTURAL IMPACT</div>
-                <div class="agr-container">
-                    <div class="agr-label">Agricultural Jobs at Risk: <span id="jobs" class="agr-value"></span></div>
-                </div>
+
+                <div class="component-label">Agricultural Jobs at Risk: <span id="jobs" class="component-value"></span></div>
 
                 <div class="crops-container">
                     <div class="agr-flex-container">
                         <div class="crops-flex-child">
-                            <span class="crops-label">Soy: </span>
-                            <span id="soySales" class="crops-value"></span>
+                            <span class="component-label">Soy: </span>
+                            <span id="soySales" class="component-value"></span>
                         </div>
                         <div class="crops-flex-child">
-                            <span class="crops-label">Hay: </span>
-                            <span id="haySales" class="crops-value"></span>
-                        </div>
-                    </div>
-                    <div class="agr-flex-container">
-                        <div class="crops-flex-child">
-                            <span class="crops-label">Corn: </span>
-                            <span id="cornSales" class="crops-value"></span>
-                        </div>
-                        <div class="crops-flex-child">
-                            <span class="crops-label">Livestock: </span>
-                            <span id="livestockSales" class="crops-value"></span>
+                            <span class="component-label">Hay: </span>
+                            <span id="haySales" class="component-value"></span>
                         </div>
                     </div>
+
                     <div class="agr-flex-container">
                         <div class="crops-flex-child">
-                            <span class="crops-label">Winter Wheat: </span>
-                            <span id="wheatSales" class="crops-value"></span>
+                            <span class="component-label">Corn: </span>
+                            <span id="cornSales" class="component-value"></span>
+                        </div>
+                        <div class="crops-flex-child">
+                            <span class="component-label">Livestock: </span>
+                            <span id="livestockSales" class="component-value"></span>
+                        </div>
+                    </div>
+
+                    <div class="agr-flex-container">
+                        <div class="crops-flex-child">
+                            <span class="component-label">Winter Wheat: </span>
+                            <span id="wheatSales" class="component-value"></span>
+                        </div>
+                    </div>
+
+                    <div class="agr-flex-container component-label-center">
+                        <div class="crops-flex-child">
+                            <span class="component-label">Total Sales: </span>
+                            <span id="totalSales" class="component-value"></span>
                         </div>
                     </div>
                 </div>
 
-                <div>
-                    <div class="agr-label">Total Sale: <span id="totalSales"></span></div>
-                    <div id="legendWidget"></div>
+                <div id="legendWidget"></div>
+
+                <div id="legendLabels">
+                    <div class="agr-flex-container">
+                        <div class="crops-flex-child">
+                            <span id="minValue" class="component-value"></span>
+                        </div>
+                        <div class="crops-flex-child">
+                            <span id="maxValue" class="component-value"></span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
