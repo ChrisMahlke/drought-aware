@@ -93,6 +93,10 @@ body {
   color: #a67a53;
 }
 
+.component-value {
+  font-size: 1em;
+}
+
 /* Extra small devices (phones, 600px and down) */
 @media only screen and (max-width: 600px) {
 
@@ -154,7 +158,6 @@ and (orientation: portrait) {
     width: 100%;
     margin-top: .25em;
   }
-
 
 
   .esri-search {
@@ -273,6 +276,10 @@ and (orientation: portrait) {
     background-color: #dddacf !important;
   }
 
+  .reset-app-btn {
+    position: absolute; top: 0; right: 0;
+  }
+
   #historicRecordComponent {
     padding: .25em 1em;
     background-color: #dddacf !important;
@@ -306,10 +313,6 @@ and (orientation: portrait) {
     text-align: center;
   }
 
-  component-value {
-    font-size: 1.0em;
-  }
-
 
 
   .drought-status {
@@ -317,7 +320,11 @@ and (orientation: portrait) {
   }
 
   .selected-location {
+    font-weight: bold;
+  }
 
+  .drought-percentage-container {
+    font-size: 0.85em;
   }
 
   .trend-container {
@@ -573,23 +580,23 @@ and (orientation: portrait) {
   }
 
   .esri-legend__layer-body > div:nth-child(2) {
-    bottom: 37px;
-    right: 170px;
+    bottom: 36px;
+    right: 180px;
   }
 
   .esri-legend__layer-body > div:nth-child(3) {
-    bottom: 40px;
+    bottom: 37px;
     right: 210px;
   }
 
   .esri-legend__layer-body > div:nth-child(4) {
-    bottom: 43px;
-    right: 250px;
+    bottom: 38px;
+    right: 230px;
   }
 
   .esri-legend__layer-body > div:nth-child(5) {
-    bottom: 46px;
-    right: 290px;
+    bottom: 39px;
+    right: 270px;
   }
 
   .esri-legend__service-label {

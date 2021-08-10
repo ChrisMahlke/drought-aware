@@ -106,7 +106,7 @@
                     </div>
                     <div class="chart-info-icon-container">
                         <div class="selected-location"></div>
-                        <div><span class="drought-status"></span>% of the area with drought conditions.</div>
+                        <div class="drought-percentage-container"><span class="drought-status"></span>% of the area with drought conditions.</div>
                     </div>
                     <div class="btn btn-small btn-clear reset-chart-btn">Current Week</div>
                 </div>
@@ -167,9 +167,15 @@
 
                 <div class="trend-container">
                     <div class="component-hdr">DROUGHT TREND</div>
-                    <div class="component-label">Severe Drought (D2+)</div>
-                    <div class="component-label">Past Consecutive Weeks: <span id="consecutiveWeeks"></span></div>
-                    <div class="component-label">Population Affected: <span id="population"></span></div>
+                    <div>
+                        <span class="component-label">Population Affected: </span>
+                        <span id="population" class="component-value"></span>
+                    </div>
+                    <div>
+                        <span class="component-label">For the past </span>
+                        <span id="consecutiveWeeks" class="component-value"></span>
+                        <span class="component-label"> weeks this area has experienced Severe Drought conditions.</span>
+                    </div>
                 </div>
 
                 <div class="outlook-container">
@@ -196,7 +202,12 @@
             <div id="agrComponent">
                 <div class="component-hdr">AGRICULTURAL IMPACT</div>
 
-                <div class="component-label">Agricultural Jobs at Risk: <span id="jobs" class="component-value"></span></div>
+                <calcite-button class="reset-app-btn" appearance="transparent" color="neutral" icon-start="x-circle" round scale="m"></calcite-button>
+
+                <div>
+                    <span class="component-label">Agricultural Jobs at Risk: </span>
+                    <span id="jobs" class="component-value"></span>
+                </div>
 
                 <div class="crops-container">
                     <div class="agr-flex-container">

@@ -144,18 +144,23 @@ window.onSignInHandler = (portal) => {
             watchUtils.whenTrue(mapView, "stationary", viewStationaryHandler);
 
             let informationIcon = document.getElementsByClassName("information-icon")[0];
-            calcite.addEvent(informationIcon, "click", function (event) {
+            calcite.addEvent(informationIcon, "click", event => {
                 document.getElementsByClassName("modal-overlay")[0].style.display = "flex";
-            })
+            });
+
+            let resetAppBtnEle = document.getElementsByClassName("reset-app-btn")[0];
+            calcite.addEvent(resetAppBtnEle, "click", event => {
+                bottomComponent.style.display = "none";
+                adminSubdivision.style.display = "none";
+                for (const graphic of mapView.graphics){
+                    if (graphic.attributes === "BOUNDARY") {
+                        mapView.graphics.remove(graphic);
+                    }
+                }
+            });
 
             bottomLeft = document.getElementsByClassName("esri-ui-bottom-left")[0];
             bottomRight = document.getElementsByClassName("esri-ui-bottom-right")[0];
-
-            //setMostRecentDateLabel(features[0].attributes.ddate);
-        }
-
-        function setMostRecentDateLabel(date) {
-            document.getElementsByClassName("mostRecentDate")[0].innerHTML = format(new Date(date), "PPP");
         }
 
         function webMapLoadedSuccessHandler(response) {
@@ -235,7 +240,7 @@ window.onSignInHandler = (portal) => {
             });
 
             mapView.ui.add("administrativeSubdivision", "bottom-left");
-            
+
             response.on("click", mapClickHandler);
 
             //
@@ -435,18 +440,7 @@ window.onSignInHandler = (portal) => {
                             }).then(response => {
                                 let responseDate = response.features[0].attributes.ddate;
                                 const consecutiveWeeks = differenceInWeeks(new Date(selectedDate), new Date(responseDate)) - 1;
-
                                 let consecutiveWeeksElement = document.getElementById("consecutiveWeeks");
-                                //let weeksLabel = `Weeks`;
-                                if (consecutiveWeeks < 1) {
-                                    consecutiveWeeksElement.style.color = "#393939";
-                                } else if (consecutiveWeeks > 0 && consecutiveWeeks < 8) {
-                                    //weeksLabel = (consecutiveWeeks < 2) ? "Week" : "Weeks";
-                                    consecutiveWeeksElement.style.color = "#e4985a";
-                                } else if (consecutiveWeeks > 8) {
-                                    //weeksLabel = (consecutiveWeeks < 2) ? "Week" : "Weeks";
-                                    consecutiveWeeksElement.style.color = "#b24543";
-                                }
                                 consecutiveWeeksElement.innerHTML = `${consecutiveWeeks.toString()}`;//${weeksLabel}`;
                             });
 
@@ -459,7 +453,8 @@ window.onSignInHandler = (portal) => {
                                     d3: feature.attributes.d3,
                                     d4: feature.attributes.d4,
                                     nothing: feature.attributes.nothing,
-                                    date: date//new Date(Date.UTC(year, month, day))
+                                    date: date,
+                                    d1_d4: feature.attributes.D1_D4,
                                 };
                             });
                             inputDataset.reverse();
@@ -479,7 +474,7 @@ window.onSignInHandler = (portal) => {
                             let formattedDate = getFormattedDate(new Date(parseInt(dateFromUrl)));
                             d3.select(".click-scrubber-text").text(formattedDate);
 
-                            updateDroughtStatusComponent(response);
+                            updateDroughtStatusComponent(response, parseInt(dateFromUrl));
                             updateSelectedLocationComponent(response);
                             dataComponentLoadingIndicator.removeAttribute("active");
                         }
@@ -670,36 +665,14 @@ window.onSignInHandler = (portal) => {
             }
         }
 
-        function updateDroughtStatusComponent(droughtQueryResponse) {
-            console.debug("updateDroughtStatusComponent");
-            let { attributes } = droughtQueryResponse.features[0];
-            let drought = {
-                d0 : attributes["d0"],
-                d1 : attributes["d1"],
-                d2 : attributes["d2"],
-                d3 : attributes["d3"],
-                d4 : attributes["d4"]
-            };
-            let condition = highestValueAndKey(drought);
-            let key = condition["key"];
-            let label = "";
-            let color = "";
-            if (attributes["nothing"] === 100) {
-                label = config.drought_colors.nothing.label;
-                color = config.drought_colors.nothing.color;
-            } else if (key === "d0") {
-                label = config.drought_colors[key].label;
-                color = "#b19657";
-            } else if (key === "d1") {
-                label = config.drought_colors[key].label;
-                color = "#cb9362";
-            } else {
-                label = config.drought_colors[key].label;
-                color = config.drought_colors[key].color;
-            }
+        function updateDroughtStatusComponent(droughtQueryResponse, selectedDate) {
+            let { features } = droughtQueryResponse;
+            let found = features.find(feature => {
+                return selectedDate === feature.attributes.ddate;
+            });
+            let { attributes } = found;
             let currentDroughtStatusElement = document.getElementsByClassName("drought-status")[0];
-            currentDroughtStatusElement.innerHTML = attributes["D1_D4"];//label;
-            //currentDroughtStatusElement.style.color = color;
+            currentDroughtStatusElement.innerHTML = attributes["D1_D4"];
         }
 
         function getFormattedDate(date) {
