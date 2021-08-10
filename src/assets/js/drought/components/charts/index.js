@@ -232,7 +232,7 @@ function chartMouseMoveHandler(event) {
 function chartMouseClickHandler(event) {
     selectedEvent = event;
     let d = d3.select(this).data()[0];
-
+    console.debug(d);
     d3.select(".click-scrubber-text").text(getFormattedDate(d.data.date));
 
     let pageX = event.pageX;
@@ -263,6 +263,8 @@ function chartMouseClickHandler(event) {
         "title": config.drought_layer_name,
         "view": mapView
     });
+    let currentDroughtStatusElement = document.getElementsByClassName("drought-status")[0];
+    currentDroughtStatusElement.innerHTML = d.data.d1_d4;
 }
 
 function barChartZoomed(event) {
