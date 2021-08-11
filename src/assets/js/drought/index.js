@@ -126,6 +126,7 @@ window.onSignInHandler = (portal) => {
                     id: config.webMapId
                 }
             });
+            webMap.when(webMapLoadedSuccessHandler, ErrorHandler.hydrateWebMapErrorAlert);
 
             mapView = new MapView({
                 container: "viewDiv",
@@ -139,16 +140,9 @@ window.onSignInHandler = (portal) => {
                     components: []
                 }
             });
-
-            webMap.when(webMapLoadedSuccessHandler, ErrorHandler.hydrateWebMapErrorAlert);
             mapView.when(viewLoadedSuccessHandler, ErrorHandler.hydrateMapViewErrorAlert);
 
             watchUtils.whenTrue(mapView, "stationary", viewStationaryHandler);
-
-            let informationIcon = document.getElementsByClassName("information-icon")[0];
-            calcite.addEvent(informationIcon, "click", event => {
-                document.getElementsByClassName("modal-overlay")[0].style.display = "flex";
-            });
 
             let resetAppBtnEle = document.getElementsByClassName("reset-app-btn")[0];
             calcite.addEvent(resetAppBtnEle, "click", event => {
@@ -170,8 +164,6 @@ window.onSignInHandler = (portal) => {
         }
 
         function viewLoadedSuccessHandler(response) {
-            console.debug("View Success", response);
-
             // zoom
             ZoomComponent.init({
                 view: response,
@@ -195,13 +187,12 @@ window.onSignInHandler = (portal) => {
                 position: ""
             }).then(response => {
                 response.on("search-complete", event => {
-                    let resultGeometry = event.results[0].results[0].feature.geometry;
-                    let resultExtent = event.results[0].results[0].extent;
-                    config.boundaryQuery.geometry = resultGeometry;
+                    const feature = event.results[0].results[0].feature;
+                    config.boundaryQuery.geometry = feature.geometry;
                     mapClickHandler({
                         "mapPoint": new Point({
-                            "x": event.results[0].results[0].feature.geometry.x,
-                            "y": event.results[0].results[0].feature.geometry.y,
+                            "x": feature.geometry.x,
+                            "y": feature.geometry.y,
                             "spatialReference": {
                                 "wkid": 3857
                             },
@@ -236,8 +227,8 @@ window.onSignInHandler = (portal) => {
                     //minimumFractionDigits: 0, // (this suffices for whole numbers, but will print 2500.10 as $2,500.1)
                     maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
                 });
-                document.getElementById("minValue").innerHTML = formatter.format(visualVariables.minDataValue);
-                document.getElementById("maxValue").innerHTML = formatter.format(visualVariables.maxDataValue);
+                document.getElementById("minValue").innerHTML = "< $50 million"//formatter.format(visualVariables.minDataValue);
+                document.getElementById("maxValue").innerHTML = "> $1 Billion"//formatter.format(visualVariables.maxDataValue);
                 document.getElementById("legendWidget").appendChild(document.getElementsByClassName("esri-legend")[0]);
             });
 
