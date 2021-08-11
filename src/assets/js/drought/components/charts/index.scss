@@ -1,0 +1,18 @@
+.chart-legend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chart-legend-color-container {
+  height: 5px;
+  width: 25px;
+  float: left;
+  margin-top: .5em;
+}
+
+.chart-legend-label-container {
+  float: left;
+  padding-left: .25em;
+  font-size: 0.80em;
+}

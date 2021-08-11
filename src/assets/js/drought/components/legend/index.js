@@ -1,3 +1,4 @@
+import "./index.scss";
 import { loadModules } from 'esri-loader';
 
 export async function init(params) {

@@ -1,6 +1,7 @@
+import "./index.scss";
 import * as d3 from "d3";
 import config from "../../config.json";
-import {format} from "date-fns";
+import * as FormatUtils from './../../utils/FormatUtils';
 import * as LayerUtils from './../../utils/LayerUtils';
 
 let barChartMargin = null;
@@ -215,7 +216,7 @@ function chartMouseMoveHandler(event) {
     if ((window.innerWidth - pageX) < 150) {
         pageX = pageX - 150;
     }
-    let formattedDate = getFormattedDate(d.data.date);
+    let formattedDate = FormatUtils.getFormattedDate(d.data.date);
     d3.select("#areaChartScrubberContentDate").html(formattedDate);
     d3.select("#areaChartScrubberContent_d4").html(`${Math.round(d.data.d4).toString()} %`);
     d3.select("#areaChartScrubberContent_d3").html(`${Math.round(d.data.d3).toString()} %`);
@@ -233,7 +234,7 @@ function chartMouseClickHandler(event) {
     selectedEvent = event;
     let d = d3.select(this).data()[0];
     console.debug(d);
-    d3.select(".click-scrubber-text").text(getFormattedDate(d.data.date));
+    d3.select(".click-scrubber-text").text(FormatUtils.getFormattedDate(d.data.date));
 
     let pageX = event.pageX;
     if ((window.innerWidth - pageX) < 60) {
@@ -283,10 +284,6 @@ function barChartZoomed(event) {
         }
         d3.selectAll(".click-scrubber").attr("transform", "translate(" + tmp + "," + 20 + ")");
     }
-}
-
-function getFormattedDate(date) {
-    return (date.getMonth() > 8 ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '/' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate())) + '/' + date.getFullYear();
 }
 
 export function setScrubberPosition(xPos) {
