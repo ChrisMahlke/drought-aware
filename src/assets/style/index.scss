@@ -9,7 +9,7 @@ html {
 }
 
 body {
-  /*background-color: #cac5b1 !important;*/
+
 }
 
 #splash {
@@ -57,26 +57,6 @@ body {
   background-color: #dddacf !important;
 }
 
-.esri-search__form > input {
-  background-color: #dddacf !important;
-}
-
-.esri-zoom {
-  background-color: transparent !important;
-}
-.esri-zoom .esri-widget--button:first-child {
-  margin-bottom: 4px !important;
-}
-
-.custom-link {
-  color: #762a2a !important;
-  font-weight: bold !important;
-}
-
-.custom-link:hover {
-  color: #953b3b !important;
-}
-
 .js-modal-toggle {
   color: #4e4e4e !important;
 }
@@ -95,6 +75,7 @@ body {
 
 .component-value {
   font-size: 1em;
+  font-weight: bold;
 }
 
 /* Extra small devices (phones, 600px and down) */
@@ -222,30 +203,6 @@ and (orientation: portrait) {
 
 /* Large devices (laptops/desktops, 992px and up) */
 @media only screen and (min-width: 992px) {
-  /*
-    Components (layouts of components on top the map)
-      App header
-      Bookmarks
-      Search
-      Bottom Component to hold the data/charts
-      Legend
-  */
-  #appHdrComponent {
-    line-height: unset;
-    padding: .25em;
-    border-radius: .15em;
-    background-color: #dddacf !important;
-    max-width: 360px;
-  }
-
-  #bookmarkComponent {
-    position: absolute;
-    z-index: 99;
-    top: 15px;
-    left: 55px;
-    background-color: #dddacf !important;
-  }
-
   #bottomComponent {
     z-index: 15;
     position: absolute;
@@ -313,10 +270,8 @@ and (orientation: portrait) {
     text-align: center;
   }
 
-
-
-  .drought-status {
-
+  #drought-status {
+    font-size: 1.2em !important;
   }
 
   .selected-location {
@@ -489,25 +444,6 @@ and (orientation: portrait) {
     margin-right: 1em;
   }
 
-  .chart-legend {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .chart-legend-color-container {
-    height: 5px;
-    width: 25px;
-    float: left;
-    margin-top: .5em;
-  }
-
-  .chart-legend-label-container {
-    float: left;
-    padding-left: .25em;
-    font-size: 0.80em;
-  }
-
   .chart-info-icon-container {
     text-align: center;
     color: #494949;
@@ -538,82 +474,6 @@ and (orientation: portrait) {
 
   .js-modal-toggle:hover {
     cursor: pointer;
-  }
-
-  /* Bookmark - Start */
-  .bookmark-btn {
-    background-color: #dddacf;
-    border: 1px solid #c5bfa7;
-  }
-
-  /* Search - Start */
-  .esri-search {
-    position: absolute !important;
-    z-index: 99 !important;
-    top: 50px !important;
-    left: 55px !important;
-    width: 235px !important;
-  }
-
-  /* Legend - Start */
-  .esri-legend {
-    background: transparent !important;
-    box-shadow: none !important;
-  }
-
-  .esri-legend__layer-caption {
-    display: none !important;
-  }
-
-  .esri-legend__layer-cell--info {
-    display: none !important;
-  }
-
-  .esri-legend__layer-row {
-    padding-left: .5em !important;
-    position: absolute !important;
-  }
-
-  .esri-legend__layer-body > div:nth-child(1) {
-    bottom: 35px;
-    right: 130px;
-  }
-
-  .esri-legend__layer-body > div:nth-child(2) {
-    bottom: 36px;
-    right: 180px;
-  }
-
-  .esri-legend__layer-body > div:nth-child(3) {
-    bottom: 37px;
-    right: 210px;
-  }
-
-  .esri-legend__layer-body > div:nth-child(4) {
-    bottom: 38px;
-    right: 230px;
-  }
-
-  .esri-legend__layer-body > div:nth-child(5) {
-    bottom: 39px;
-    right: 270px;
-  }
-
-  .esri-legend__service-label {
-    display: none !important;
-    padding: .3em !important;
-  }
-
-  .esri-legend__message {
-    display: none !important;
-  }
-
-  #legendLabels {
-    text-align: center;
-    font-size: 0.8em;
-    padding-top: .5em;
-    margin-left: 15%;
-    margin-right: 15%;
   }
 }
 

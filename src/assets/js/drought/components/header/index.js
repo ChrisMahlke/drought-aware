@@ -1,3 +1,5 @@
+import "./index.scss";
+
 export function init(params) {
     addAppHeaderWidget(params.view, params.position);
 }

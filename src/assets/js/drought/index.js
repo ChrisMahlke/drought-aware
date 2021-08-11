@@ -6,7 +6,9 @@ import { loadCss, loadModules } from 'esri-loader';
 import * as AppHeaderComponent from './components/header/index';
 import * as BookmarksComponent from './components/bookmarks/index';
 import * as Chart from './components/charts/index';
+import * as DataUtils from './utils/DataUtils';
 import * as ErrorHandler from './utils/ErrorHandler';
+import * as FormatUtils from './utils/FormatUtils';
 import * as HomeComponent from './components/home/index';
 import * as LayerUtils from './utils/LayerUtils';
 import * as LegendComponent from './components/legend/index';
@@ -310,7 +312,7 @@ window.onSignInHandler = (portal) => {
                 let initXPosition = d3.select("rect[id='" + mostRecentDate + "']").attr("x");
                 // mouse-over scrubber
                 Chart.setScrubberPosition(initXPosition);
-                let formattedDate = getFormattedDate(new Date(parseInt(mostRecentDate)));
+                let formattedDate = FormatUtils.getFormattedDate(new Date(parseInt(mostRecentDate)));
                 d3.select(".click-scrubber-text").text(formattedDate);
 
                 let endDate = new Date(inputDataset[inputDataset.length - 1].date);
@@ -471,10 +473,11 @@ window.onSignInHandler = (portal) => {
                             let initXPosition = d3.select("rect[id='" + dateFromUrl + "']").attr("x");
                             // mouse-over scrubber
                             Chart.setScrubberPosition(initXPosition);
-                            let formattedDate = getFormattedDate(new Date(parseInt(dateFromUrl)));
+                            let formattedDate = FormatUtils.getFormattedDate(new Date(parseInt(dateFromUrl)));
                             d3.select(".click-scrubber-text").text(formattedDate);
 
-                            updateDroughtStatusComponent(response, parseInt(dateFromUrl));
+                            updateDroughtPercentage(response, parseInt(dateFromUrl));
+                            updateCurrentDroughtStatus(response);
                             updateSelectedLocationComponent(response);
                             dataComponentLoadingIndicator.removeAttribute("active");
                         }
@@ -511,14 +514,6 @@ window.onSignInHandler = (portal) => {
                 "selectedDate" : inputDate,
                 "startDate": new Date(endDate.getTime() - (60 * 60 * 24 * 7 * 1000)),
                 "endDate": endDate
-            }
-        }
-
-        function highestValueAndKey(obj) {
-            let [highestItems] = Object.entries(obj).sort(([ ,v1], [ ,v2]) => v2 - v1);
-            return {
-                "key": highestItems[0],
-                "value": highestItems[1]
             }
         }
 
@@ -665,18 +660,45 @@ window.onSignInHandler = (portal) => {
             }
         }
 
-        function updateDroughtStatusComponent(droughtQueryResponse, selectedDate) {
+        function updateDroughtPercentage(droughtQueryResponse, selectedDate) {
             let { features } = droughtQueryResponse;
             let found = features.find(feature => {
                 return selectedDate === feature.attributes.ddate;
             });
             let { attributes } = found;
-            let currentDroughtStatusElement = document.getElementsByClassName("drought-status")[0];
+            let currentDroughtStatusElement = document.getElementsByClassName("drought-percentage")[0];
             currentDroughtStatusElement.innerHTML = attributes["D1_D4"];
         }
 
-        function getFormattedDate(date) {
-            return (date.getMonth() > 8 ? (date.getMonth() + 1) : ('0' + (date.getMonth() + 1))) + '/' + ((date.getDate() > 9) ? date.getDate() : ('0' + date.getDate())) + '/' + date.getFullYear();
+        function updateCurrentDroughtStatus(response) {
+            let { attributes } = response.features[0];
+            let drought = {
+                d0 : attributes["d0"],
+                d1 : attributes["d1"],
+                d2 : attributes["d2"],
+                d3 : attributes["d3"],
+                d4 : attributes["d4"]
+            };
+            let condition = DataUtils.highestValueAndKey(drought);
+            let key = condition["key"];
+            let label = "";
+            let color = "";
+            if (attributes["nothing"] === 100) {
+                label = config.drought_colors.nothing.label;
+                color = config.drought_colors.nothing.color;
+            } else if (key === "d0") {
+                label = config.drought_colors[key].label;
+                color = "#b19657";
+            } else if (key === "d1") {
+                label = config.drought_colors[key].label;
+                color = "#cb9362";
+            } else {
+                label = config.drought_colors[key].label;
+                color = config.drought_colors[key].color;
+            }
+            let currentDroughtStatusElement = document.getElementById("drought-status");
+            currentDroughtStatusElement.innerHTML = label;
+            currentDroughtStatusElement.style.color = color;
         }
     });
 }
