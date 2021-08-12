@@ -3,6 +3,7 @@ import * as d3 from "d3";
 import config from "../../config.json";
 import * as FormatUtils from './../../utils/FormatUtils';
 import * as LayerUtils from './../../utils/LayerUtils';
+import * as Scrim from "./../scrim";
 
 let barChartMargin = null;
 let barChartWidth = null;
@@ -236,7 +237,8 @@ function chartMouseClickHandler(event) {
     d3.select(".click-scrubber-text").text(FormatUtils.getFormattedDate(d.data.date));
 
     let pageX = event.pageX;
-    if ((window.innerWidth - pageX) < 60) {
+    let chartContainerRect  = document.getElementById("historicRecordComponent").getBoundingClientRect();
+    if ((chartContainerRect.width - pageX) < 60) {
         d3.select("#click-scrubber-text-container").attr("transform", "translate(-" + 100 + ",-" + 20 + ")");
         d3.select(".click-scrubber-text").attr("transform", "translate(-" + 50 + ",0)");
     } else {
@@ -266,8 +268,6 @@ function chartMouseClickHandler(event) {
 
     let currentDroughtStatusElement = document.getElementsByClassName("drought-percentage")[0];
     currentDroughtStatusElement.innerHTML = d.data.d1_d4;
-
-
 }
 
 function barChartZoomed(event) {
