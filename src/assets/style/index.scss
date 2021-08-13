@@ -57,6 +57,31 @@ body {
   background-color: #dddacf !important;
 }
 
+.component-value {
+  font-size: 1em;
+  font-weight: bold;
+}
+
+.mask-font-color {
+  color: #00000024 !important;
+}
+
+.mask-font-opacity {
+  opacity: 0.3 !important;
+}
+
+/* */
+.custom-link {
+  color: #212121 !important;
+  font-weight: bold !important;
+}
+
+.custom-link:hover {
+  color: #953b3b !important;
+}
+
+
+/* MODAL */
 .js-modal-toggle {
   color: #4e4e4e !important;
 }
@@ -73,9 +98,14 @@ body {
   color: #a67a53;
 }
 
-.component-value {
-  font-size: 1em;
+.modal-section-hdr {
+  font-size: 1.4em;
+  color: #aa3332;
   font-weight: bold;
+}
+
+.modal-section-content {
+  font-size: .85em;
 }
 
 /* Extra small devices (phones, 600px and down) */
@@ -216,7 +246,7 @@ and (orientation: portrait) {
 
   #dataComponentLoader {
     position: absolute;
-    margin-left: 45%;
+    margin-left: 52%;
   }
 
   #droughtStatusComponent {
@@ -470,6 +500,10 @@ and (orientation: portrait) {
   .admin-sub-label {
     margin: 0 !important;
     background-color: #dddacf !important;
+  }
+
+  .radio-group-input:checked + .radio-group-label {
+    border: 1px solid #848484 !important;
   }
 
   .js-modal-toggle:hover {

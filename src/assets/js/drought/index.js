@@ -20,6 +20,7 @@ import * as ZoomComponent from './components/zoom/index';
 import * as calcite from "calcite-web";
 import * as d3 from "d3";
 import { differenceInWeeks, format } from 'date-fns';
+import * as Scrim from "./components/scrim";
 
 window.onSignInHandler = (portal) => {
     // initialize calcite
@@ -144,7 +145,7 @@ window.onSignInHandler = (portal) => {
 
             watchUtils.whenTrue(mapView, "stationary", viewStationaryHandler);
 
-            let resetAppBtnEle = document.getElementsByClassName("reset-app-btn")[0];
+            /*let resetAppBtnEle = document.getElementsByClassName("reset-app-btn")[0];
             calcite.addEvent(resetAppBtnEle, "click", event => {
                 bottomComponent.style.display = "none";
                 adminSubdivision.style.display = "none";
@@ -153,7 +154,8 @@ window.onSignInHandler = (portal) => {
                         mapView.graphics.remove(graphic);
                     }
                 }
-            });
+                Scrim.showScrim(false);
+            });*/
 
             bottomLeft = document.getElementsByClassName("esri-ui-bottom-left")[0];
             bottomRight = document.getElementsByClassName("esri-ui-bottom-right")[0];
@@ -215,7 +217,7 @@ window.onSignInHandler = (portal) => {
                 view: response,
                 position: config.widgetPositions.legend
             }).then(response => {
-                let visualVariables = response.renderer.visualVariables[0];
+                /*let visualVariables = response.renderer.visualVariables[0];
                 console.debug(visualVariables);
                 console.debug(visualVariables.minDataValue);
                 console.debug(visualVariables.maxDataValue);
@@ -226,7 +228,7 @@ window.onSignInHandler = (portal) => {
                     // These options are needed to round to whole numbers if that's what you want.
                     //minimumFractionDigits: 0, // (this suffices for whole numbers, but will print 2500.10 as $2,500.1)
                     maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
-                });
+                });*/
                 document.getElementById("minValue").innerHTML = "< $50 million"//formatter.format(visualVariables.minDataValue);
                 document.getElementById("maxValue").innerHTML = "> $1 Billion"//formatter.format(visualVariables.maxDataValue);
                 document.getElementById("legendWidget").appendChild(document.getElementsByClassName("esri-legend")[0]);
@@ -320,6 +322,19 @@ window.onSignInHandler = (portal) => {
                     "title": config.drought_layer_name,
                     "view": mapView
                 });
+
+                Scrim.showScrim(false);
+            });
+
+            document.getElementsByClassName("reset-app-btn")[0].addEventListener("click", event => {
+                bottomComponent.style.display = "none";
+                adminSubdivision.style.display = "none";
+                for (const graphic of mapView.graphics){
+                    if (graphic.attributes === "BOUNDARY") {
+                        mapView.graphics.remove(graphic);
+                    }
+                }
+                Scrim.showScrim(false);
             });
         }
 
@@ -589,7 +604,7 @@ window.onSignInHandler = (portal) => {
                 if (config.selected.adminAreaId !== config.COUNTY_ADMIN) {
                     label = `${config.selected.state_name}`;
                 }
-                document.getElementsByClassName("selected-location")[0].innerHTML = label;
+                document.getElementsByClassName("selected-location")[0].innerHTML = label.toUpperCase();
             }
         }
 
@@ -603,21 +618,17 @@ window.onSignInHandler = (portal) => {
                     monthlyOutlookDate.innerHTML = feature.attributes["Target"];
                     if (feature.attributes["FID_improv"] === 1) {
                         monthlyOutlookLabel.innerHTML = "Drought Improves";
-                        monthlyOutlookLabel.style.color = "#87b178";
                     } else if (feature.attributes["FID_persis"] === 1) {
                         monthlyOutlookLabel.innerHTML = "Drought Persists";
-                        monthlyOutlookLabel.style.color = "#6b4628";
                     } else if (feature.attributes["FID_remove"] === 1) {
                         monthlyOutlookLabel.innerHTML = "Drought Removal Likely";
-                        monthlyOutlookLabel.style.color = "#78a0b1";
                     } else if (feature.attributes["FID_dev"] === 1) {
                         monthlyOutlookLabel.innerHTML = "Drought Develops";
-                        monthlyOutlookLabel.style.color = "#6b4628";
                     }
                 }
             } else {
-                monthlyOutlookDate.innerHTML = "No Data";
-                monthlyOutlookLabel.innerHTML = "No Data";
+                monthlyOutlookDate.innerHTML = "No Drought";
+                monthlyOutlookLabel.innerHTML = "No Drought";
             }
         }
 
@@ -634,20 +645,16 @@ window.onSignInHandler = (portal) => {
                 seasonalOutlookDateEle.innerHTML = feature.attributes["Target"];
                 if (feature.attributes["FID_improv"] === 1) {
                     seasonalOutlookLabelEle.innerHTML = "Drought Improves";
-                    seasonalOutlookLabelEle.style.color = "#87b178";
                 } else if (feature.attributes["FID_persis"] === 1) {
                     seasonalOutlookLabelEle.innerHTML = "Drought Persists";
-                    seasonalOutlookLabelEle.style.color = "#6b4628";
                 } else if (feature.attributes["FID_remove"] === 1) {
                     seasonalOutlookLabelEle.innerHTML = "Drought Removal Likely";
-                    seasonalOutlookLabelEle.style.color = "#78a0b1";
                 } else if (feature.attributes["FID_dev"] === 1) {
                     seasonalOutlookLabelEle.innerHTML = "Drought Develops";
-                    seasonalOutlookLabelEle.style.color = "#6b4628";
                 }
             } else {
-                seasonalOutlookDateEle.innerHTML = "No Data";
-                seasonalOutlookLabelEle.innerHTML = "No Data";
+                seasonalOutlookDateEle.innerHTML = "No Drought";
+                seasonalOutlookLabelEle.innerHTML = "No Drought";
             }
         }
 
@@ -658,7 +665,7 @@ window.onSignInHandler = (portal) => {
             });
             let { attributes } = found;
             let currentDroughtStatusElement = document.getElementsByClassName("drought-percentage")[0];
-            currentDroughtStatusElement.innerHTML = attributes["D1_D4"];
+            currentDroughtStatusElement.innerHTML = attributes["D1_D4"].toFixed(0);
         }
 
         function updateCurrentDroughtStatus(response) {

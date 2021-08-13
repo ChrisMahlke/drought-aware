@@ -268,6 +268,8 @@ function chartMouseClickHandler(event) {
 
     let currentDroughtStatusElement = document.getElementsByClassName("drought-percentage")[0];
     currentDroughtStatusElement.innerHTML = d.data.d1_d4;
+
+    Scrim.showScrim(true);
 }
 
 function barChartZoomed(event) {
