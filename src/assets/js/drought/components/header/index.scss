@@ -13,12 +13,12 @@
 
 .app-hdr-title {
   font-size: 2.5em;
-  color: #6f3f14;
+  color: #aa3332;
+  text-shadow: 1px 1px 2px rgba(170, 51, 50, 0.61);
 }
 
 .app-hdr-subtitle {
   font-size: .85em;
-  color: #a67a53;
 }
 
 .app-hdr-source {
@@ -28,13 +28,4 @@
 
 .app-hdr-info-icon-container {
   float: right;
-}
-
-.custom-link {
-  color: #762a2a !important;
-  font-weight: bold !important;
-}
-
-.custom-link:hover {
-  color: #953b3b !important;
 }
