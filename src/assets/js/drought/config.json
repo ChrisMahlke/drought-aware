@@ -17,17 +17,8 @@
 
   "droughtURL": "https://services9.arcgis.com/RHVPKKiFTONKtxq3/ArcGIS/rest/services/US_Drought_Intensity_v1/FeatureServer/",
 
-  "views": [
-    {
-      "container": "mainMapDiv",
-      "map": null,
-      "constraints": {
-        "rotationEnabled": false,
-        "minScale": 60000000,
-        "maxScale": 0
-      }
-    }
-  ],
+  "mapViewMinScale": 30999535,
+  "mapViewMaxScale":  577791,
 
   "widgetPositions": {
     "appHeader": "top-right",

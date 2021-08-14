@@ -31,12 +31,11 @@ window.onSignInHandler = (portal) => {
     loadModules([
         "esri/WebMap",
         "esri/geometry/Point",
-        "esri/layers/FeatureLayer",
         "esri/Graphic",
         "esri/geometry/Extent",
         "esri/views/MapView",
         "esri/core/watchUtils"
-    ]).then(([WebMap, Point, FeatureLayer, Graphic, Extent, MapView, watchUtils]) => {
+    ]).then(([WebMap, Point, Graphic, Extent, MapView, watchUtils]) => {
 
         const isMobile = Mobile.isMobileBrowser();
 
@@ -134,8 +133,9 @@ window.onSignInHandler = (portal) => {
                 map: webMap,
                 constraints: {
                     snapToZoom: true,
-                    minScale: 30999535,
-                    maxScale: 577791
+                    rotationEnabled: false,
+                    minScale: config.mapViewMinScale,
+                    maxScale: config.mapViewMaxScale
                 },
                 ui: {
                     components: []
