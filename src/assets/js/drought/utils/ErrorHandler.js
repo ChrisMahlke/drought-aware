@@ -1,4 +1,5 @@
 export function hydrateErrorAlert(error) {
+    console.debug("ERROR", error);
     document.getElementsByClassName("alert-title")[0].innerHTML = error.message;
     document.getElementsByClassName("alert-link")[0].innerHTML = "contact support";
     document.getElementsByClassName("custom-alert")[0].setAttribute("icon", "exclamation-mark-circle");

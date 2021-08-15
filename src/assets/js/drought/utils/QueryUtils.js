@@ -22,13 +22,14 @@ export async function fetchData(params) {
             query.inSR = 102003;
             query.where = params.q;
             queryTask.execute(query).then(response => {
-                console.debug(params);
+                console.debug("PARAMS", params);
                 console.debug(query);
-                console.debug(response);
+                console.debug(response.features);
                 console.debug("\n\n");
                 resolve(response);
             }, error => {
-                resolve(error);
+                reject(error);
+                console.debug("\n\n");
             });
         });
     });
