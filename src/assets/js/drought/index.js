@@ -466,6 +466,7 @@ window.onSignInHandler = (portal) => {
         }
 
         async function retrieveGeometryResponseHandler(response) {
+            console.debug("RESPONSE", response)
             if (response.features.length > 0) {
                 config.boundaryQuery.geometry = response.features[0].geometry;
                 for (const graphic of mapView.graphics){
@@ -540,14 +541,12 @@ window.onSignInHandler = (portal) => {
         }
 
         function updateSelectedLocationComponent(response) {
-            if (response.features.length > 0) {
-                const selectedFeature = response.features[0];
-                let label = `${selectedFeature.attributes["name"]}, ${config.selected.state_name}`;
-                if (config.selected.adminAreaId !== config.COUNTY_ADMIN) {
-                    label = `${config.selected.state_name}`;
-                }
-                document.getElementsByClassName("selected-location")[0].innerHTML = label.toUpperCase();
+            const selectedFeature = response.features[0];
+            let label = `${selectedFeature.attributes["name"]}, ${config.selected.state_name}`;
+            if (config.selected.adminAreaId !== config.COUNTY_ADMIN) {
+                label = `${config.selected.state_name}`;
             }
+            document.getElementsByClassName("selected-location")[0].innerHTML = label.toUpperCase();
         }
 
         function monthlyDroughtOutlookResponseHandler(response) {
