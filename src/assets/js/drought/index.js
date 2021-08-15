@@ -21,6 +21,7 @@ import * as calcite from "calcite-web";
 import * as d3 from "d3";
 import { differenceInWeeks, format } from 'date-fns';
 import * as Scrim from "./components/scrim";
+import {noResponseHandler} from "./utils/ErrorHandler";
 
 window.onSignInHandler = (portal) => {
     // initialize calcite
@@ -48,7 +49,8 @@ window.onSignInHandler = (portal) => {
         let countyButtonEle = document.getElementById("county");
         let stateButtonEle = document.getElementById("state");
 
-        let selectedDate = null;
+        let selectedDateObj = {};
+        let inputDataset = [];
 
         // The URLSearchParams spec defines an interface and convenience methods for working with the query string of a
         // URL (e.g. everything after "?"). This means no more regex'ing and string splitting URLs!
@@ -90,10 +92,6 @@ window.onSignInHandler = (portal) => {
             q: ""
         };
 
-
-        let selectedDateObj = {};
-        let inputDataset = [];
-
         if (isMobile) {
             config.widgetPositions.appHeader = "manual";
             config.widgetPositions.home = "bottom-right";
@@ -110,7 +108,7 @@ window.onSignInHandler = (portal) => {
         // This query also doubles as a check to determine if the drought feature service is operational.
         // If this query returns an error the entire app is un-usable.
         QueryUtils.fetchData({
-            url: config.droughtURL + "/2?resultRecordCount=1",
+            url: config.droughtURL + "2?resultRecordCount=1",
             returnGeometry: false,
             orderByFields: ["ddate DESC"],
             outFields: ["ddate"],
@@ -217,18 +215,6 @@ window.onSignInHandler = (portal) => {
                 view: response,
                 position: config.widgetPositions.legend
             }).then(response => {
-                /*let visualVariables = response.renderer.visualVariables[0];
-                console.debug(visualVariables);
-                console.debug(visualVariables.minDataValue);
-                console.debug(visualVariables.maxDataValue);
-
-                let formatter = new Intl.NumberFormat('en-US', {
-                    style: 'currency',
-                    currency: 'USD',
-                    // These options are needed to round to whole numbers if that's what you want.
-                    //minimumFractionDigits: 0, // (this suffices for whole numbers, but will print 2500.10 as $2,500.1)
-                    maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
-                });*/
                 document.getElementById("minValue").innerHTML = "< $50 million"//formatter.format(visualVariables.minDataValue);
                 document.getElementById("maxValue").innerHTML = "> $1 Billion"//formatter.format(visualVariables.maxDataValue);
                 document.getElementById("legendWidget").appendChild(document.getElementsByClassName("esri-legend")[0]);
@@ -383,8 +369,7 @@ window.onSignInHandler = (portal) => {
                         returnGeometry: false,
                         outFields: ["*"],
                         q: agrQuery
-                    }).then(updateAgriculturalImpactComponent);
-
+                    }).then(updateAgriculturalImpactComponent, serviceErrorHandler);
 
                     // Monthly outlook
                     QueryUtils.fetchData({
@@ -396,8 +381,7 @@ window.onSignInHandler = (portal) => {
                         geometryType: "esriGeometryPolygon",
                         geometry: selectedFeature.geometry,
                         q: ""
-                    }).then(monthlyDroughtOutlookResponseHandler, monthlyDroughtOutlookErrorHandler);
-
+                    }).then(monthlyDroughtOutlookResponseHandler, serviceErrorHandler);
 
                     // Season outlook
                     QueryUtils.fetchData({
@@ -409,7 +393,7 @@ window.onSignInHandler = (portal) => {
                         geometryType: "esriGeometryPolygon",
                         geometry: selectedFeature.geometry,
                         q: ""
-                    }).then(seasonalDroughtOutlookResponseHandler);
+                    }).then(seasonalDroughtOutlookResponseHandler, serviceErrorHandler);
 
 
                     // Drought
@@ -420,24 +404,28 @@ window.onSignInHandler = (portal) => {
                         droughtQuery = `admin_fips = ${config.selected.county_fips}`;
                     } else {
                         droughtQueryLayerId = "0";
-                        droughtQuery = `admin_fips  = ${config.selected.state_fips}`;
+                        droughtQuery = `admin_fips = ${config.selected.state_fips}`;
                     }
+
+
+
                     QueryUtils.fetchData({
                         url: config.droughtURL + droughtQueryLayerId,
                         returnGeometry: false,
-                        orderByFields: ["ddate DESC"],
+                        orderByFields: ["ddate desc"],
                         outFields: ["*"],
                         q: droughtQuery
                     }).then(response => {
                         if (response.features.length > 0) {
                             let droughtData = response.features;
-                            selectedDate = droughtData[0].attributes.ddate;
-                            let formattedSelectedDate = format(selectedDate, "P");
+                            let formattedSelectedDate = format(selectedDateObj.selectedDate, "P");
                             let consecutiveWeeksQuery = "";
                             if (config.selected.adminAreaId === config.COUNTY_ADMIN) {
-                                consecutiveWeeksQuery = `name = '${droughtData[0].attributes["name"]}' AND state_abbr = '${droughtData[0].attributes["state_abbr"]}' AND D2_D4 = 0 AND ddate <= date '${formattedSelectedDate}'`;
+                                //consecutiveWeeksQuery = `name = '${droughtData[0].attributes["name"]}' AND state_abbr = '${droughtData[0].attributes["state_abbr"]}' AND D2_D4 = 0 AND ddate <= date '${formattedSelectedDate}'`;
+                                consecutiveWeeksQuery = `${droughtQuery} AND state_abbr = '${droughtData[0].attributes["state_abbr"]}' AND D2_D4 = 0 AND ddate <= date '${formattedSelectedDate}'`;
                             } else {
-                                consecutiveWeeksQuery = `state_abbr = '${droughtData[0].attributes["state_abbr"]}' AND D2_D4 = 0 AND ddate <= date '${formattedSelectedDate}'`
+                                //consecutiveWeeksQuery = `state_abbr = '${droughtData[0].attributes["state_abbr"]}' AND D2_D4 = 0 AND ddate <= date '${formattedSelectedDate}'`;
+                                consecutiveWeeksQuery = `${droughtQuery} AND D2_D4 = 0 AND ddate <= date '${formattedSelectedDate}'`
                             }
                             QueryUtils.fetchData({
                                 url: config.droughtURL + droughtQueryLayerId,
@@ -447,9 +435,9 @@ window.onSignInHandler = (portal) => {
                                 q: consecutiveWeeksQuery
                             }).then(response => {
                                 let responseDate = response.features[0].attributes.ddate;
-                                const consecutiveWeeks = differenceInWeeks(new Date(selectedDate), new Date(responseDate)) - 1;
+                                const consecutiveWeeks = differenceInWeeks(new Date(selectedDateObj.selectedDate), new Date(responseDate)) - 1;
                                 let consecutiveWeeksElement = document.getElementById("consecutiveWeeks");
-                                consecutiveWeeksElement.innerHTML = `${consecutiveWeeks.toString()}`;//${weeksLabel}`;
+                                consecutiveWeeksElement.innerHTML = `${consecutiveWeeks.toString()}`;
                             });
 
                             inputDataset = droughtData.map(feature => {
@@ -489,14 +477,7 @@ window.onSignInHandler = (portal) => {
                         }
                     });
                 } else {
-                    document.getElementsByClassName("alert-title")[0].innerHTML = "Select another location please.";
-                    document.getElementsByClassName("alert-message")[0].innerHTML = "Please select a location in the United States or Puerto Rico.";
-                    document.getElementsByClassName("alert-link")[0].innerHTML = "";
-                    document.getElementsByClassName("custom-alert")[0].setAttribute("icon", "exclamation-mark-triangle");
-                    document.getElementsByClassName("custom-alert")[0].setAttribute("color", "yellow");
-                    document.getElementsByClassName("custom-alert")[0].setAttribute("auto-dismiss-duration", "fast");
-                    document.getElementsByClassName("custom-alert")[0].setAttribute("active", "true");
-                    document.getElementsByClassName("custom-alert")[0].setAttribute("aria-hidden", "true");
+                    ErrorHandler.noResponseHandler();
                 }
             });
         }
@@ -632,7 +613,7 @@ window.onSignInHandler = (portal) => {
             }
         }
 
-        function monthlyDroughtOutlookErrorHandler(error) {
+        function serviceErrorHandler(error) {
             console.debug("error", error);
         }
 
