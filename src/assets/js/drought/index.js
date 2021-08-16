@@ -285,31 +285,33 @@ window.onSignInHandler = (portal) => {
                 });
             });
 
-            document.getElementsByClassName("reset-chart-btn")[0].addEventListener("click", (event) => {
-                let mostRecentDate = new Date(inputDataset[inputDataset.length - 1].date).getTime();
-                Chart.setSelectedEvent(d3.select("rect[id='" + mostRecentDate + "']"));
-                let initXPosition = d3.select("rect[id='" + mostRecentDate + "']").attr("x");
-                // mouse-over scrubber
-                Chart.setScrubberPosition(initXPosition);
-                let formattedDate = FormatUtils.getFormattedDate(new Date(parseInt(mostRecentDate)));
-                d3.select(".click-scrubber-text").text(formattedDate);
+            document.querySelectorAll(".reset-chart-btn").forEach(item => {
+                item.addEventListener('click', event => {
+                    let mostRecentDate = new Date(inputDataset[inputDataset.length - 1].date).getTime();
+                    Chart.setSelectedEvent(d3.select("rect[id='" + mostRecentDate + "']"));
+                    let initXPosition = d3.select("rect[id='" + mostRecentDate + "']").attr("x");
+                    // mouse-over scrubber
+                    Chart.setScrubberPosition(initXPosition);
+                    let formattedDate = FormatUtils.getFormattedDate(new Date(parseInt(mostRecentDate)));
+                    d3.select(".click-scrubber-text").text(formattedDate);
 
-                let endDate = new Date(inputDataset[inputDataset.length - 1].date);
-                let startDate = new Date(endDate.getTime() - (60 * 60 * 24 * 7 * 1000));
-                let urlSearchParams = new URLSearchParams(location.search);
-                urlSearchParams.set("date", mostRecentDate.toString());
-                window.history.replaceState({}, '', `${location.pathname}?${urlSearchParams}`);
+                    let endDate = new Date(inputDataset[inputDataset.length - 1].date);
+                    let startDate = new Date(endDate.getTime() - (60 * 60 * 24 * 7 * 1000));
+                    let urlSearchParams = new URLSearchParams(location.search);
+                    urlSearchParams.set("date", mostRecentDate.toString());
+                    window.history.replaceState({}, '', `${location.pathname}?${urlSearchParams}`);
 
-                LayerUtils.removeLayers(mapView);
-                LayerUtils.addLayer({
-                    "url": config.droughtURL,
-                    "start": startDate,
-                    "end": endDate,
-                    "title": config.drought_layer_name,
-                    "view": mapView
+                    LayerUtils.removeLayers(mapView);
+                    LayerUtils.addLayer({
+                        "url": config.droughtURL,
+                        "start": startDate,
+                        "end": endDate,
+                        "title": config.drought_layer_name,
+                        "view": mapView
+                    });
+
+                    Scrim.showScrim(false);
                 });
-
-                Scrim.showScrim(false);
             });
 
             document.getElementsByClassName("reset-app-btn")[0].addEventListener("click", event => {

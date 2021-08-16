@@ -9,6 +9,7 @@ export function showScrim(show) {
     let agrComponentEle = document.getElementById("agrComponent");
     let outlookValues = document.getElementsByClassName("outlook-value");
     let legendWidgetEle = document.getElementById("legendWidget");
+    let overlayMessageContainer = document.getElementsByClassName("overlay-message")[0];
 
     if (show) {
         calcite.addClass(droughtStatusComponentEle, maskFontColorCSS_key);
@@ -18,6 +19,7 @@ export function showScrim(show) {
             calcite.addClass(outlookValues[i], maskFontColorCSS_key);
         }
         calcite.addClass(legendWidgetEle, maskElementOpacityCSS_key);
+        calcite.removeClass(overlayMessageContainer, "hide");
     } else {
         calcite.removeClass(droughtStatusComponentEle, maskFontColorCSS_key);
         calcite.removeClass(agrComponentEle, maskFontColorCSS_key);
@@ -26,5 +28,6 @@ export function showScrim(show) {
             calcite.removeClass(outlookValues[i], maskFontColorCSS_key);
         }
         calcite.removeClass(legendWidgetEle, maskElementOpacityCSS_key);
+        calcite.addClass(overlayMessageContainer, "hide");
     }
 }

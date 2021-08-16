@@ -102,7 +102,9 @@
                     --calcite-ui-brand-press: rgba(234, 167, 113, 1);"
             ></calcite-loader>
 
-            <div class="overlay js-animation animate-fade-in"></div>
+            <div class="overlay-message js-animation animate-fade-in hide">
+                Go to <span class="overlay-message-reset-btn reset-chart-btn">Current Week</span> to enable drought statistics
+            </div>
 
             <div id="historicRecordComponent">
                 <div class="chart-flex-container">
@@ -284,7 +286,7 @@
                 </a>
 
             <div class="modal-section-hdr">About this App</div>
-            <div class="modal-section-content">The Drought Aware app is intended to provide the latest information about current, future, and historical drought conditions in the United States. The data shown here from <a href="https://www.arcgis.com/home/group.html?id=b67c85e0a4f2486dbdcbab0785cc42e7#overview" target="_blank">ArcGIS Living Atlas</a> are authoritative U.S. government sources, including:</div>
+            <div class="modal-section-content">The Drought Aware app is intended to provide the latest information about current, future, and historical drought conditions in the United States. The data shown here from <a href="https://www.arcgis.com/home/group.html?id=b67c85e0a4f2486dbdcbab0785cc42e7#overview" target="_blank" class="custom-link">ArcGIS Living Atlas</a> are authoritative U.S. government sources, including:</div>
 
             <ul class="modal-section-content">
                 <li>NOAA NIDIS <a href="https://www.drought.gov/" target="_blank" class="custom-link">US Drought Monitor</a> and NOAA Climate Prediction Center <a
