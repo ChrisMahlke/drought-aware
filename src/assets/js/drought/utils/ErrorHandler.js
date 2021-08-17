@@ -21,8 +21,8 @@ export function hydrateWebMapErrorAlert(error) {
 }
 
 export function noResponseHandler() {
-    document.getElementsByClassName("alert-title")[0].innerHTML = "Select another location please.";
-    document.getElementsByClassName("alert-message")[0].innerHTML = "Please select a location in the United States or Puerto Rico.";
+    document.getElementsByClassName("alert-title")[0].innerHTML = "";
+    document.getElementsByClassName("alert-message")[0].innerHTML = "Please select a location within the continental United States, Alaska, Hawaii, or Puerto Rico.";
     document.getElementsByClassName("alert-link")[0].innerHTML = "";
     document.getElementsByClassName("custom-alert")[0].setAttribute("icon", "exclamation-mark-triangle");
     document.getElementsByClassName("custom-alert")[0].setAttribute("color", "yellow");
