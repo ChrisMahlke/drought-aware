@@ -113,7 +113,7 @@
                     </div>
                     <div class="chart-info-icon-container">
                         <div class="selected-location"></div>
-                        <div class="drought-percentage-container"><span class="drought-percentage"></span>% of the area with drought conditions.</div>
+                        <div class="drought-percentage-container"><span class="drought-percentage"></span>% of the area with drought conditions</div>
                     </div>
                     <div class="btn btn-small btn-clear reset-chart-btn">Current Week</div>
                 </div>
@@ -146,8 +146,6 @@
                     </div>
 
                     <div id="areaChartScrubberContent" style="display: none">
-                        <div id="areaChartScrubberContentDate"></div>
-
                         <div class="tooltip-flex-container">
                             <div class="legend-tooltip-graphic abnormally-dry"></div>
                             <div class="legend-tooltip-label">Abnormally Dry</div>
@@ -169,6 +167,7 @@
                             <div class="legend-tooltip-label">Exceptional</div>
                             <div id="areaChartScrubberContent_d4" class="legend-tooltip-value"></div>
                         </div>
+                        <div id="areaChartScrubberContentDate"></div>
                     </div>
                 </div>
             </div>
@@ -181,13 +180,13 @@
                     <div id="drought-status" class="component-value"></div>
 
                     <div>
-                        <span class="component-label">Population Affected </span>
+                        <span class="component-label">Population: </span>
                         <span id="population" class="component-value"></span>
                     </div>
                     <div style="line-height: 1.3;">
                         <span class="component-label">For the past </span>
                         <span id="consecutiveWeeks" class="component-value"></span>
-                        <span class="component-label">weeks this area has experienced Severe Drought conditions.</span>
+                        <span class="component-label">weeks this area has experienced Severe Drought conditions</span>
                     </div>
                 </div>
 
@@ -220,43 +219,43 @@
 
                 <div style="padding: .3em 0; line-height: 1.4;">
                     <div>
-                        <span class="component-label">Agricultural Jobs at Risk </span>
-                        <span id="jobs" class="component-value"></span>
+                        <span class="component-label">Agricultural Jobs: </span>
+                        <span id="jobs" class=""></span>
                     </div>
 
                     <div>
-                        <span class="component-label">Total Sales </span>
-                        <span id="totalSales" class="component-value"></span>
+                        <span class="component-label">Total Sales: </span>
+                        <span id="totalSales" class=""></span>
                     </div>
                 </div>
 
                 <div class="crops-container">
                     <div class="agr-flex-container">
                         <div class="crops-flex-child">
-                            <span class="component-label">Soy </span>
-                            <span id="soySales" class="component-value"></span>
+                            <span class="component-label">Soy: </span>
+                            <span id="soySales" class=""></span>
                         </div>
                         <div class="crops-flex-child">
-                            <span class="component-label">Hay </span>
-                            <span id="haySales" class="component-value"></span>
-                        </div>
-                    </div>
-
-                    <div class="agr-flex-container">
-                        <div class="crops-flex-child">
-                            <span class="component-label">Corn </span>
-                            <span id="cornSales" class="component-value"></span>
-                        </div>
-                        <div class="crops-flex-child">
-                            <span class="component-label">Livestock </span>
-                            <span id="livestockSales" class="component-value"></span>
+                            <span class="component-label">Hay: </span>
+                            <span id="haySales" class=""></span>
                         </div>
                     </div>
 
                     <div class="agr-flex-container">
                         <div class="crops-flex-child">
-                            <span class="component-label">Winter Wheat </span>
-                            <span id="wheatSales" class="component-value"></span>
+                            <span class="component-label">Corn: </span>
+                            <span id="cornSales" class=""></span>
+                        </div>
+                        <div class="crops-flex-child">
+                            <span class="component-label">Livestock: </span>
+                            <span id="livestockSales" class=""></span>
+                        </div>
+                    </div>
+
+                    <div class="agr-flex-container">
+                        <div class="crops-flex-child">
+                            <span class="component-label">Winter Wheat: </span>
+                            <span id="wheatSales" class=""></span>
                         </div>
                     </div>
                 </div>
@@ -266,10 +265,10 @@
                 <div id="legendLabels">
                     <div class="agr-flex-container">
                         <div class="crops-flex-child">
-                            <span id="minValue" class="component-value"></span>
+                            <span id="minValue" class=""></span>
                         </div>
                         <div class="crops-flex-child">
-                            <span id="maxValue" class="component-value"></span>
+                            <span id="maxValue" class=""></span>
                         </div>
                     </div>
                 </div>
@@ -318,11 +317,11 @@
                     agriculture, etc) are fixed in time.
             </div>
 
-            <div class="modal-section-content leader-half">This app was designed by Esri’s <a href="https://www.esri.com/arcgis-blog/author/dpisut-2/" target="_blank" rel="noopener">Dan Pisut</a>, <a
-                        href="https://www.esri.com/arcgis-blog/author/emeriam/" target="_blank" rel="noopener">Emily Meriam</a>, and <a href="https://github.com/ChrisMahlke" target="_blank" rel="noopener">Chris
+            <div class="modal-section-content leader-half">This app was designed by Esri’s <a href="https://www.esri.com/arcgis-blog/author/dpisut-2/" target="_blank" class="user-profile-link" rel="noopener">Dan Pisut</a>, <a
+                        href="https://www.esri.com/arcgis-blog/author/emeriam/" target="_blank" class="user-profile-link" rel="noopener">Emily Meriam</a>, and <a href="https://github.com/ChrisMahlke" target="_blank" class="user-profile-link" rel="noopener">Chris
                     Mahlke</a>. The source code for the app can be found on <a
                         href="https://github.com/Esri/drought-tracker"
-                        target="_blank" rel="noopener">GitHub</a>. For questions, please contact environment@esri.com.
+                        target="_blank" class="user-profile-link" rel="noopener">GitHub</a>. For questions, please contact environment@esri.com.
             </div>
 
             <div class="text-center leader-half">

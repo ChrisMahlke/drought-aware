@@ -528,7 +528,7 @@ window.onSignInHandler = (portal) => {
 
             function updateAgricultureItem(node, data) {
                 if (Number(data) > -1) {
-                    node.innerHTML = `$${Number(data).toLocaleString()}`;
+                    node.innerHTML = `<span class="dollar-sign">$</span>${Number(data).toLocaleString()}`;
                 } else {
                     node.innerHTML = `No Data`;
                 }
