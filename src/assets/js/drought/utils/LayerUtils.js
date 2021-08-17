@@ -31,3 +31,12 @@ export async function removeLayers(mapView) {
     });
     mapView.map.removeMany(layersToRemove.items);
 }
+
+export function toggleLayer(mapView, params) {
+    let show = (params.mostRecentDate.getTime() === params.selectedDate.getTime());
+    mapView.map.layers.forEach(lyr => {
+        if (lyr.title === "TotalAgSales Centroids") {
+            lyr.opacity = (show ? 0.23 : 0.0);
+        }
+    });
+}

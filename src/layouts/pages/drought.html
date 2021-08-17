@@ -62,8 +62,8 @@
                 <div class="app-hdr-subtitle">Statistics and impacts of drought in the U.S.A.</div>
                 <div class="app-hdr-instructions">Click on the map or search for a location for more information.</div>
                 <div class="app-hdr-source">Source:
-                    <a href="https://www.census.gov/" target="_blank" class="custom-link">Census</a>,
                     <a href="https://www.noaa.gov/" target="_blank" class="custom-link">NOAA</a>,
+                    <a href="https://www.census.gov/" target="_blank" class="custom-link">US Census</a>,
                     <a href="https://www.nass.usda.gov/" target="_blank" class="custom-link">USDA</a>
                 </div>
             </div>
@@ -144,27 +144,30 @@
                             </li>
                         </ul>
                     </div>
+
                     <div id="areaChartScrubberContent" style="display: none">
                         <div id="areaChartScrubberContentDate"></div>
-                        <div>
-                            <div class="scrubberHoverCatViz abnormally-dry"></div>
-                            <div id="areaChartScrubberContent_d0" style="margin-left: 3em"></div>
-                        </div>
-                        <div>
-                            <div class="scrubberHoverCatViz moderate-drought"></div>
-                            <div id="areaChartScrubberContent_d1" style="margin-left: 3em"></div>
-                        </div>
-                        <div>
-                            <div class="scrubberHoverCatViz severe-drought"></div>
-                            <div id="areaChartScrubberContent_d2" style="margin-left: 3em"></div>
-                        </div>
-                        <div>
-                            <div class="scrubberHoverCatViz extreme-drought"></div>
-                            <div id="areaChartScrubberContent_d3" style="margin-left: 3em"></div>
-                        </div>
-                        <div>
-                            <div class="scrubberHoverCatViz exceptional-drought"></div>
-                            <div id="areaChartScrubberContent_d4" style="margin-left: 3em"></div>
+
+                        <div class="tooltip-flex-container">
+                            <div class="legend-tooltip-graphic abnormally-dry"></div>
+                            <div class="legend-tooltip-label">Abnormally Dry</div>
+                            <div id="areaChartScrubberContent_d0" class="legend-tooltip-value"></div>
+
+                            <div class="legend-tooltip-graphic moderate-drought"></div>
+                            <div class="legend-tooltip-label">Moderate</div>
+                            <div id="areaChartScrubberContent_d1" class="legend-tooltip-value"></div>
+
+                            <div class="legend-tooltip-graphic severe-drought"></div>
+                            <div class="legend-tooltip-label">Severe</div>
+                            <div id="areaChartScrubberContent_d2" class="legend-tooltip-value"></div>
+
+                            <div class="legend-tooltip-graphic extreme-drought"></div>
+                            <div class="legend-tooltip-label">Extreme</div>
+                            <div id="areaChartScrubberContent_d3" class="legend-tooltip-value"></div>
+
+                            <div class="legend-tooltip-graphic exceptional-drought"></div>
+                            <div class="legend-tooltip-label">Exceptional</div>
+                            <div id="areaChartScrubberContent_d4" class="legend-tooltip-value"></div>
                         </div>
                     </div>
                 </div>
@@ -315,10 +318,10 @@
                     agriculture, etc) are fixed in time.
             </div>
 
-            <div class="modal-section-content leader-half">This app was designed by Esri’s <a href="https://www.esri.com/arcgis-blog/author/dpisut-2/" target="_blank" class="custom-link">Dan Pisut</a>, <a
-                        href="https://www.esri.com/arcgis-blog/author/emeriam/" target="_blank" class="custom-link">Emily Meriam</a>, and <a href="https://github.com/ChrisMahlke" target="_blank" class="custom-link">Chris
+            <div class="modal-section-content leader-half">This app was designed by Esri’s <a href="https://www.esri.com/arcgis-blog/author/dpisut-2/" target="_blank">Dan Pisut</a>, <a
+                        href="https://www.esri.com/arcgis-blog/author/emeriam/" target="_blank">Emily Meriam</a>, and <a href="https://github.com/ChrisMahlke" target="_blank">Chris
                     Mahlke</a>. The source code for the app can be found on <a
-                        href="https://github.com/Esri/drought-tracker" class="custom-link"
+                        href="https://github.com/Esri/drought-tracker"
                         target="_blank">GitHub</a>. For questions, please contact environment@esri.com.
             </div>
 

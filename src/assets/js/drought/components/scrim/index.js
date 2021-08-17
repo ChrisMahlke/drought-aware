@@ -1,7 +1,7 @@
 import "./index.scss";
 import * as calcite from "calcite-web";
 
-export function showScrim(show) {
+export function showScrim(params) {
     let maskFontColorCSS_key = "mask-font-color";
     let maskElementOpacityCSS_key = "mask-font-opacity";
     let droughtStatusComponentEle = document.getElementById("droughtStatusComponent");
@@ -11,7 +11,8 @@ export function showScrim(show) {
     let legendWidgetEle = document.getElementById("legendWidget");
     let overlayMessageContainer = document.getElementsByClassName("overlay-message")[0];
 
-    if (show) {
+    let show = (params.mostRecentDate.getTime() === params.selectedDate.getTime());
+    if (!show) {
         calcite.addClass(droughtStatusComponentEle, maskFontColorCSS_key);
         calcite.addClass(agrComponentEle, maskFontColorCSS_key);
         calcite.addClass(droughtStatusEle, maskFontColorCSS_key);

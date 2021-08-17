@@ -32,13 +32,14 @@ const keyColors = [
 const keys = Object.keys(config.drought_colors);
 let chartNode = document.getElementById("stackedBarchart");
 let chartScrubbingTooltip = document.getElementById("areaChartScrubberContent");
+let inputDataset = [];
 
 /**
  *
  * @param params
  */
 export function createChart(params) {
-    let inputDataset = params.data;
+    inputDataset = params.data;
     mapView = params.view;
 
     // TODO
@@ -257,7 +258,14 @@ function chartMouseClickHandler(event) {
     urlSearchParams.set("date", new Date(d.data.date).getTime().toString());
     window.history.replaceState({}, '', `${location.pathname}?${urlSearchParams}`);
 
-    LayerUtils.removeLayers(mapView);
+    // update ag layer
+    LayerUtils.toggleLayer(mapView, {
+        "mostRecentDate": new Date(inputDataset[inputDataset.length - 1].date),
+        "selectedDate": endDate
+    });
+
+    // update drought layer
+    LayerUtils.removeLayers(mapView, true);
     LayerUtils.addLayer({
         "url": config.droughtURL,
         "start": startDate,
@@ -267,9 +275,12 @@ function chartMouseClickHandler(event) {
     });
 
     let currentDroughtStatusElement = document.getElementsByClassName("drought-percentage")[0];
-    currentDroughtStatusElement.innerHTML = d.data.d1_d4;
+    currentDroughtStatusElement.innerHTML = d.data.d1_d4.toFixed(0);
 
-    Scrim.showScrim(true);
+    Scrim.showScrim({
+        "mostRecentDate": new Date(inputDataset[inputDataset.length - 1].date),
+        "selectedDate": endDate
+    });
 }
 
 function barChartZoomed(event) {
