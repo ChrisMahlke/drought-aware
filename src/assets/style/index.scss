@@ -425,7 +425,7 @@ and (orientation: portrait) {
   #areaChartScrubberContent {
     position: relative;
     left: 50px;
-    width: 160px;
+    width: 140px;
     height: 115px;
     font-size: .85em;
     line-height: 1.4;
@@ -445,7 +445,7 @@ and (orientation: portrait) {
 
   .tooltip-flex-container {
     display: grid;
-    grid-template-columns: 10px 110px 40px;
+    grid-template-columns: 10px 100px 30px;
   }
 
   .legend-tooltip-graphic {
@@ -461,6 +461,7 @@ and (orientation: portrait) {
 
   .legend-tooltip-value {
     font-size: .95em;
+    text-align: right;
   }
 
   .abnormally-dry {
