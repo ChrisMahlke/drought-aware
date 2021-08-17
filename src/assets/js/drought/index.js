@@ -98,8 +98,6 @@ window.onSignInHandler = (portal) => {
             config.widgetPositions.zoom = "bottom-right";
         }
 
-        // WebMap
-        let webMap = null;
         // MapView
         let mapView = null;
 
@@ -119,7 +117,7 @@ window.onSignInHandler = (portal) => {
             const { features } = response;
             selectedDateObj = selectedDateHandler(parseInt(params.get("date")) || features[0].attributes.ddate);
 
-            webMap = new WebMap({
+            let webMap = new WebMap({
                 portalItem: {
                     id: config.webMapId
                 }
@@ -142,18 +140,6 @@ window.onSignInHandler = (portal) => {
             mapView.when(viewLoadedSuccessHandler, ErrorHandler.hydrateMapViewErrorAlert);
 
             watchUtils.whenTrue(mapView, "stationary", viewStationaryHandler);
-
-            /*let resetAppBtnEle = document.getElementsByClassName("reset-app-btn")[0];
-            calcite.addEvent(resetAppBtnEle, "click", event => {
-                bottomComponent.style.display = "none";
-                adminSubdivision.style.display = "none";
-                for (const graphic of mapView.graphics){
-                    if (graphic.attributes === "BOUNDARY") {
-                        mapView.graphics.remove(graphic);
-                    }
-                }
-                Scrim.showScrim(false);
-            });*/
 
             bottomLeft = document.getElementsByClassName("esri-ui-bottom-left")[0];
             bottomRight = document.getElementsByClassName("esri-ui-bottom-right")[0];
@@ -220,22 +206,21 @@ window.onSignInHandler = (portal) => {
                 document.getElementById("legendWidget").appendChild(document.getElementsByClassName("esri-legend")[0]);
             });
 
-            mapView.ui.add("administrativeSubdivision", "bottom-left");
+            response.ui.add("administrativeSubdivision", "bottom-left");
 
             response.on("click", mapClickHandler);
 
-            //
             let params = new URLSearchParams(location.search);
             let urlExtent = new Extent({
-                "xmin": params.get("xmin") || webMap.initialViewProperties.viewpoint.targetGeometry.xmin,
-                "ymin": params.get("ymin") || webMap.initialViewProperties.viewpoint.targetGeometry.ymin,
-                "xmax": params.get("xmax") || webMap.initialViewProperties.viewpoint.targetGeometry.xmax,
-                "ymax": params.get("ymax") || webMap.initialViewProperties.viewpoint.targetGeometry.ymax,
+                "xmin": params.get("xmin") || response.map.initialViewProperties.viewpoint.targetGeometry.xmin,
+                "ymin": params.get("ymin") || response.map.initialViewProperties.viewpoint.targetGeometry.ymin,
+                "xmax": params.get("xmax") || response.map.initialViewProperties.viewpoint.targetGeometry.xmax,
+                "ymax": params.get("ymax") || response.map.initialViewProperties.viewpoint.targetGeometry.ymax,
                 "spatialReference": {
                     "wkid": 3857
                 }
             });
-            mapView.goTo(urlExtent)
+            response.goTo(urlExtent)
                 .catch(function(error) {
                     if (error.name !== "AbortError") {
                         console.error(error);
@@ -247,7 +232,7 @@ window.onSignInHandler = (portal) => {
                 "start": selectedDateObj.startDate,
                 "end": selectedDateObj.endDate,
                 "title": config.drought_layer_name,
-                "view": mapView
+                "view": response
             });
 
             if (!isNaN(selectedX) && !isNaN(selectedY)) {
@@ -301,6 +286,12 @@ window.onSignInHandler = (portal) => {
                     urlSearchParams.set("date", mostRecentDate.toString());
                     window.history.replaceState({}, '', `${location.pathname}?${urlSearchParams}`);
 
+                    // update ag layer
+                    LayerUtils.toggleLayer(mapView, {
+                        "mostRecentDate": new Date(inputDataset[inputDataset.length - 1].date),
+                        "selectedDate": endDate
+                    });
+
                     LayerUtils.removeLayers(mapView);
                     LayerUtils.addLayer({
                         "url": config.droughtURL,
@@ -310,7 +301,10 @@ window.onSignInHandler = (portal) => {
                         "view": mapView
                     });
 
-                    Scrim.showScrim(false);
+                    Scrim.showScrim({
+                        "mostRecentDate": new Date(inputDataset[inputDataset.length - 1].date),
+                        "selectedDate": endDate
+                    });
                 });
             });
 
@@ -322,7 +316,10 @@ window.onSignInHandler = (portal) => {
                         mapView.graphics.remove(graphic);
                     }
                 }
-                Scrim.showScrim(false);
+                Scrim.showScrim({
+                    "mostRecentDate": new Date(inputDataset[inputDataset.length - 1].date),
+                    "selectedDate": new Date(inputDataset[inputDataset.length - 1].date)
+                });
             });
         }
 
@@ -551,9 +548,16 @@ window.onSignInHandler = (portal) => {
             document.getElementsByClassName("selected-location")[0].innerHTML = label.toUpperCase();
         }
 
+        /**
+         * Update the monthly drought label
+         * component: DROUGHT OUTLOOK
+         *
+         * @param response
+         */
         function monthlyDroughtOutlookResponseHandler(response) {
             let monthlyOutlookDate = document.getElementById("monthlyOutlookDate");
             let monthlyOutlookLabel = document.getElementById("monthlyOutlookLabel");
+
             if (response.features.length > 0) {
                 const features = response.features;
                 if (features.length > 0) {
@@ -575,9 +579,16 @@ window.onSignInHandler = (portal) => {
             }
         }
 
+        /**
+         * Update the seasonal drought label
+         * component: DROUGHT OUTLOOK
+         *
+         * @param response
+         */
         function seasonalDroughtOutlookResponseHandler(response) {
             let seasonalOutlookDateEle = document.getElementById("seasonalOutlookDate");
             let seasonalOutlookLabelEle = document.getElementById("seasonalOutlookLabel");
+
             let features = response.features;
             if (features.length > 0) {
                 let feature = features[0];
@@ -597,6 +608,13 @@ window.onSignInHandler = (portal) => {
             }
         }
 
+        /**
+         * Update the drought percentage of the selected area.
+         * component: HISTORIC DATA
+         *
+         * @param droughtQueryResponse
+         * @param selectedDate
+         */
         function updateDroughtPercentage(droughtQueryResponse, selectedDate) {
             let { features } = droughtQueryResponse;
             let found = features.find(feature => {
@@ -607,7 +625,14 @@ window.onSignInHandler = (portal) => {
             currentDroughtStatusElement.innerHTML = attributes["D1_D4"].toFixed(0);
         }
 
+        /**
+         * Update the drought status label.
+         * component: LATEST DROUGHT CONDITIONS
+         *
+         * @param response
+         */
         function updateCurrentDroughtStatus(response) {
+            console.debug("updateCurrentDroughtStatus", response);
             let { attributes } = response.features[0];
             let drought = {
                 d0 : attributes["d0"],
@@ -618,8 +643,8 @@ window.onSignInHandler = (portal) => {
             };
             let condition = DataUtils.highestValueAndKey(drought);
             let key = condition["key"];
-            let label = "";
-            let color = "";
+            let label = config.drought_colors[key].label;
+            let color = config.drought_colors[key].color;
             if (attributes["nothing"] === 100) {
                 label = config.drought_colors.nothing.label;
                 color = config.drought_colors.nothing.color;
@@ -629,9 +654,6 @@ window.onSignInHandler = (portal) => {
             } else if (key === "d1") {
                 label = config.drought_colors[key].label;
                 color = "#cb9362";
-            } else {
-                label = config.drought_colors[key].label;
-                color = config.drought_colors[key].color;
             }
             let currentDroughtStatusElement = document.getElementById("drought-status");
             currentDroughtStatusElement.innerHTML = label;

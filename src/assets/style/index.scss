@@ -411,21 +411,42 @@ and (orientation: portrait) {
   #areaChartScrubberContent {
     position: relative;
     left: 50px;
-    width: 150px;
+    width: 160px;
     height: 115px;
     font-size: .85em;
     line-height: 1.4;
     background-color: #aaa79a;
     color: #fff;
-    padding: 1em;
+    padding: 0.5em;
     border-radius: .3em;
+    -webkit-box-shadow: 10px 10px 16px -6px rgba(170, 167, 154, .79);
+    box-shadow: 10px 10px 16px -6px rgba(170, 167, 154, .79);
   }
 
-  .scrubberHoverCatViz {
-    float: left;
-    width: 20px;
+  #areaChartScrubberContentDate {
+    text-align: center;
+    padding-bottom: .25em;
+    font-size: 1.1em;
+  }
+
+  .tooltip-flex-container {
+    display: grid;
+    grid-template-columns: 10px 110px 40px;
+  }
+
+  .legend-tooltip-graphic {
     height: 10px;
+    width: 10px;
     margin-top: .2em;
+  }
+
+  .legend-tooltip-label {
+    font-size: .85em;
+    padding-left: .5em;
+  }
+
+  .legend-tooltip-value {
+    font-size: .95em;
   }
 
   .abnormally-dry {
