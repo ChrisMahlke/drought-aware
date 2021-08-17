@@ -146,7 +146,7 @@ window.onSignInHandler = (portal) => {
         }
 
         function webMapLoadedSuccessHandler(response) {
-            console.debug("WebMap Success", response)
+            //console.debug("WebMap Success", response)
         }
 
         function viewLoadedSuccessHandler(response) {
@@ -465,7 +465,7 @@ window.onSignInHandler = (portal) => {
         }
 
         async function retrieveGeometryResponseHandler(response) {
-            console.debug("RESPONSE", response)
+            //console.debug("RESPONSE", response)
             if (response.features.length > 0) {
                 config.boundaryQuery.geometry = response.features[0].geometry;
                 for (const graphic of mapView.graphics){
@@ -632,7 +632,7 @@ window.onSignInHandler = (portal) => {
          * @param response
          */
         function updateCurrentDroughtStatus(response) {
-            console.debug("updateCurrentDroughtStatus", response);
+            //console.debug("updateCurrentDroughtStatus", response);
             let { attributes } = response.features[0];
             let drought = {
                 d0 : attributes["d0"],
