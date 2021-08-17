@@ -226,7 +226,7 @@ function chartMouseMoveHandler(event) {
 
     scrubber.attr("transform", "translate(" + (currentXPosition - 2) + "," + 0 + ")");
     chartScrubbingTooltip.style.position = "absolute";
-    chartScrubbingTooltip.style.left = (pageX - 80) + "px";
+    chartScrubbingTooltip.style.left = (pageX - 75) + "px";
     chartScrubbingTooltip.style.top = "-80px";
 }
 
