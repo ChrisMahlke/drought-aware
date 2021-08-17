@@ -197,7 +197,6 @@ export function createChart(params) {
  */
 function chartMouseOverHandler(event) {
     scrubber.style("display", "block");
-    //d3.select("#areaChartScrubberContent").style("display", "block");
     chartScrubbingTooltip.style.display = "block";
 }
 
@@ -207,7 +206,6 @@ function chartMouseOverHandler(event) {
  */
 function chartMouseOutHandler(event) {
     scrubber.style("display", "none");
-    //d3.select("#areaChartScrubberContent").style("display", "none");
     chartScrubbingTooltip.style.display = "none";
 }
 
@@ -215,8 +213,8 @@ function chartMouseMoveHandler(event) {
     let d = d3.select(this).data()[0]
     let currentXPosition = d3.pointer(event)[0];
     let pageX = event.pageX;
-    if ((window.innerWidth - pageX) < 150) {
-        pageX = pageX - 150;
+    if (currentXPosition < 75) {
+        pageX = 120;
     }
     let formattedDate = FormatUtils.getFormattedDate(d.data.date);
     d3.select("#areaChartScrubberContentDate").html(formattedDate);
@@ -228,8 +226,8 @@ function chartMouseMoveHandler(event) {
 
     scrubber.attr("transform", "translate(" + (currentXPosition - 2) + "," + 0 + ")");
     chartScrubbingTooltip.style.position = "absolute";
-    chartScrubbingTooltip.style.left = (pageX - 2) + "px";
-    chartScrubbingTooltip.style.top = "-90px";
+    chartScrubbingTooltip.style.left = (pageX - 80) + "px";
+    chartScrubbingTooltip.style.top = "-80px";
 }
 
 function chartMouseClickHandler(event) {

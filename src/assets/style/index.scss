@@ -80,6 +80,14 @@ body {
   color: #953b3b !important;
 }
 
+.user-profile-link {
+  color: #212121 !important;
+}
+
+.user-profile-link:hover {
+  color: #953b3b !important;
+}
+
 
 /* MODAL */
 .js-modal-toggle {
@@ -106,6 +114,12 @@ body {
 
 .modal-section-content {
   font-size: .85em;
+}
+
+.dollar-sign {
+  font-size: .8em;
+  color: #606060;
+  vertical-align: text-top;
 }
 
 /* Extra small devices (phones, 600px and down) */
@@ -425,7 +439,7 @@ and (orientation: portrait) {
 
   #areaChartScrubberContentDate {
     text-align: center;
-    padding-bottom: .25em;
+    padding-top: .25em;
     font-size: 1.1em;
   }
 
