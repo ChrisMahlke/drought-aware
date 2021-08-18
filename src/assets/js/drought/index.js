@@ -3,6 +3,7 @@ import config from './config.json';
 
 import { loadCss, loadModules } from 'esri-loader';
 
+import * as AgricultureComponent from './components/agriculture';
 import * as AppHeaderComponent from './components/header/index';
 import * as BookmarksComponent from './components/bookmarks/index';
 import * as Chart from './components/charts/index';
@@ -13,6 +14,7 @@ import * as HomeComponent from './components/home/index';
 import * as LayerUtils from './utils/LayerUtils';
 import * as LegendComponent from './components/legend/index';
 import * as Mobile from './utils/Mobile';
+import * as Outlook from './components/Outlook';
 import * as QueryUtils from './utils/QueryUtils';
 import * as SearchComponent from './components/search/index';
 import * as ZoomComponent from './components/zoom/index';
@@ -377,13 +379,13 @@ window.onSignInHandler = (portal) => {
                     config.qParams.agriculture.q = agrQuery;
 
                     // Agricultural Impact
-                    QueryUtils.fetchData(config.qParams.agriculture).then(updateAgriculturalImpactComponent, ErrorHandler.hydrateErrorAlert);
+                    QueryUtils.fetchData(config.qParams.agriculture).then(AgricultureComponent.updateAgriculturalImpactComponent, ErrorHandler.hydrateErrorAlert);
 
                     // Monthly outlook
-                    QueryUtils.fetchData(config.qParams.outlook.month).then(monthlyDroughtOutlookResponseHandler, ErrorHandler.hydrateErrorAlert);
+                    QueryUtils.fetchData(config.qParams.outlook.month).then(Outlook.monthlyDroughtOutlookResponseHandler, ErrorHandler.hydrateErrorAlert);
 
                     // Season outlook
-                    QueryUtils.fetchData(config.qParams.outlook.seasonal).then(seasonalDroughtOutlookResponseHandler, ErrorHandler.hydrateErrorAlert);
+                    QueryUtils.fetchData(config.qParams.outlook.seasonal).then(Outlook.seasonalDroughtOutlookResponseHandler, ErrorHandler.hydrateErrorAlert);
 
                     // Severe Drought conditions for n number of weeks
                     QueryUtils.fetchData(config.qParams.severeDroughtConditions).then(severeDroughtConditionsSuccessHandler, ErrorHandler.hydrateErrorAlert);
@@ -486,59 +488,6 @@ window.onSignInHandler = (portal) => {
             return await response;
         }
 
-        function updateAgriculturalImpactComponent(response) {
-            if (response.features.length > 0) {
-                const selectedFeature = response.features[0];
-                let labor = "CountyLabor";
-                let total_sales = "County_Total_Sales";
-                let corn = "County_Corn_Value";
-                let soy = "County_Soy_Value";
-                let hay = "County_Hay_Value";
-                let winter = "County_WinterWheat_Value";
-                let livestock = "County_Livestock_Value";
-                let population = "CountyPop2020";
-                if (config.selected.adminAreaId !== config.COUNTY_ADMIN) {
-                    labor = "StateLabor";
-                    total_sales = "State_Total_Sales";
-                    corn = "State_Corn_Value";
-                    soy = "State_Soy_Value";
-                    hay = "State_Hay_Value";
-                    winter = "State_WinterWheat_Value";
-                    livestock = "State_Livestock_Value";
-                    population = "StatePop2020";
-                }
-
-                updateLaborStatistics(document.getElementById("jobs"), selectedFeature.attributes[labor]);
-                updateAgricultureItem(document.getElementById("totalSales"), selectedFeature.attributes[total_sales]);
-                updateAgricultureItem(document.getElementById("cornSales"), selectedFeature.attributes[corn]);
-                updateAgricultureItem(document.getElementById("soySales"), selectedFeature.attributes[soy]);
-                updateAgricultureItem(document.getElementById("haySales"), selectedFeature.attributes[hay]);
-                updateAgricultureItem(document.getElementById("wheatSales"), selectedFeature.attributes[winter]);
-                updateAgricultureItem(document.getElementById("livestockSales"), selectedFeature.attributes[livestock]);
-                updateDemographicStatistics(document.getElementById("population"), selectedFeature.attributes[population]);
-            }
-
-            function updateLaborStatistics(node, data) {
-                if (Number(data) > -1) {
-                    node.innerHTML = `${Number(data).toLocaleString()}`;
-                } else {
-                    node.innerHTML = `No Data`;
-                }
-            }
-
-            function updateAgricultureItem(node, data) {
-                if (Number(data) > -1) {
-                    node.innerHTML = `<span class="dollar-sign">$</span>${Number(data).toLocaleString()}`;
-                } else {
-                    node.innerHTML = `No Data`;
-                }
-            }
-
-            function updateDemographicStatistics(node, data) {
-                node.innerHTML = `${Number(data).toLocaleString()}`;
-            }
-        }
-
         function updateSelectedLocationComponent(response) {
             const selectedFeature = response.features[0];
             let label = `${selectedFeature.attributes["name"]}, ${config.selected.state_name}`;
@@ -546,66 +495,6 @@ window.onSignInHandler = (portal) => {
                 label = `${config.selected.state_name}`;
             }
             document.getElementsByClassName("selected-location")[0].innerHTML = label.toUpperCase();
-        }
-
-        /**
-         * Update the monthly drought label
-         * component: DROUGHT OUTLOOK
-         *
-         * @param response
-         */
-        function monthlyDroughtOutlookResponseHandler(response) {
-            let monthlyOutlookDate = document.getElementById("monthlyOutlookDate");
-            let monthlyOutlookLabel = document.getElementById("monthlyOutlookLabel");
-
-            if (response.features.length > 0) {
-                const features = response.features;
-                if (features.length > 0) {
-                    let feature = features[0];
-                    monthlyOutlookDate.innerHTML = feature.attributes["Target"];
-                    if (feature.attributes["FID_improv"] === 1) {
-                        monthlyOutlookLabel.innerHTML = "Drought Improves";
-                    } else if (feature.attributes["FID_persis"] === 1) {
-                        monthlyOutlookLabel.innerHTML = "Drought Persists";
-                    } else if (feature.attributes["FID_remove"] === 1) {
-                        monthlyOutlookLabel.innerHTML = "Drought Removal Likely";
-                    } else if (feature.attributes["FID_dev"] === 1) {
-                        monthlyOutlookLabel.innerHTML = "Drought Develops";
-                    }
-                }
-            } else {
-                monthlyOutlookDate.innerHTML = "No Drought";
-                monthlyOutlookLabel.innerHTML = "No Drought";
-            }
-        }
-
-        /**
-         * Update the seasonal drought label
-         * component: DROUGHT OUTLOOK
-         *
-         * @param response
-         */
-        function seasonalDroughtOutlookResponseHandler(response) {
-            let seasonalOutlookDateEle = document.getElementById("seasonalOutlookDate");
-            let seasonalOutlookLabelEle = document.getElementById("seasonalOutlookLabel");
-
-            let features = response.features;
-            if (features.length > 0) {
-                let feature = features[0];
-                seasonalOutlookDateEle.innerHTML = feature.attributes["Target"];
-                if (feature.attributes["FID_improv"] === 1) {
-                    seasonalOutlookLabelEle.innerHTML = "Drought Improves";
-                } else if (feature.attributes["FID_persis"] === 1) {
-                    seasonalOutlookLabelEle.innerHTML = "Drought Persists";
-                } else if (feature.attributes["FID_remove"] === 1) {
-                    seasonalOutlookLabelEle.innerHTML = "Drought Removal Likely";
-                } else if (feature.attributes["FID_dev"] === 1) {
-                    seasonalOutlookLabelEle.innerHTML = "Drought Develops";
-                }
-            } else {
-                seasonalOutlookDateEle.innerHTML = "No Drought";
-                seasonalOutlookLabelEle.innerHTML = "No Drought";
-            }
         }
 
         /**
@@ -632,7 +521,6 @@ window.onSignInHandler = (portal) => {
          * @param response
          */
         function updateCurrentDroughtStatus(response) {
-            //console.debug("updateCurrentDroughtStatus", response);
             let { attributes } = response.features[0];
             let drought = {
                 d0 : attributes["d0"],

@@ -116,12 +116,6 @@ body {
   font-size: .85em;
 }
 
-.dollar-sign {
-  font-size: .8em;
-  color: #606060;
-  vertical-align: text-top;
-}
-
 /* Extra small devices (phones, 600px and down) */
 @media only screen and (max-width: 600px) {
 
@@ -270,13 +264,6 @@ and (orientation: portrait) {
     margin-right: .25em;
   }
 
-  #agrComponent {
-    padding: .25em 1em;
-    float: right;
-    width: 380px;
-    background-color: #dddacf !important;
-  }
-
   .reset-app-btn {
     position: absolute; top: 0; right: 0;
   }
@@ -332,87 +319,9 @@ and (orientation: portrait) {
     height: 50%;
   }
 
-  .outlook-container {
-    background-color: #dddacf;
-    padding: .25em 1em;
-    height: 50%;
-    margin-top: .25em;
-  }
-
   .section-hdr {
     font-size: 0.95em;
   }
-
-  .monthly-outlook-container {
-    padding-left: 1em;
-  }
-
-  .monthly-outlook-value {
-    font-size: 0.80em;
-  }
-
-  .seasonal-outlook-container {
-    padding-left: 1em;
-    padding-top: 1em;
-  }
-
-  .seasonal-outlook-value {
-    font-size: 0.80em;
-  }
-
-  .agr-flex-container {
-    display: flex;
-  }
-
-  .total-sales {
-    text-align: center;
-  }
-
-  .agr-flex-child {
-    flex: 1;
-  }
-
-  .agr-flex-child:first-child {
-    margin-right: 20px;
-    max-width: 120px;
-  }
-
-
-  .crops-container {
-
-  }
-
-  .crops-flex-child {
-    flex: 1;
-  }
-
-  .crops-flex-child:first-child {
-
-  }
-
-  .outlook-flex-container {
-    display: flex;
-  }
-
-  .outlook-flex-child {
-    flex: 1;
-  }
-
-  .outlook-flex-child:first-child {
-
-  }
-
-  .outlook-label {
-    font-size: .8em;
-    flex: 0 0 auto;
-    width: 100px;
-  }
-
-  .outlook-value {
-    font-size: 1.2em;
-    text-align: left;
-  }
-
 
   #stackedBarchart {
     width: 100%;

@@ -172,7 +172,7 @@ export function createChart(params) {
         .attr("height", 20)
         .attr("transform", "translate(-50, -20)")
         .attr("id", "click-scrubber-text-container")
-        .style("fill", "#aaa79a");
+        .style("fill", "#363636");
 
     clickScrubber.append("text")
         .attr("class", "click-scrubber-text")

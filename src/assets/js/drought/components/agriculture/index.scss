@@ -1,0 +1,20 @@
+#agrComponent {
+  padding: .25em 1em;
+  float: right;
+  width: 380px;
+  background-color: #dddacf !important;
+}
+
+.agr-flex-container {
+  display: flex;
+}
+
+.crops-flex-child {
+  flex: 1;
+}
+
+.dollar-sign {
+  font-size: .8em;
+  color: #606060;
+  vertical-align: text-top;
+}
