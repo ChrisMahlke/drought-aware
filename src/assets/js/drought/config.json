@@ -9,6 +9,8 @@
   "state_boundary": "https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/USA_States_Generalized/FeatureServer/0",
   "state_boundary_outfields": ["STATE_FIPS", "STATE_NAME", "STATE_ABBR"],
 
+  "world_country": "https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/World_Countries/FeatureServer/0",
+
   "droughtURL": "https://services9.arcgis.com/RHVPKKiFTONKtxq3/ArcGIS/rest/services/US_Drought_Intensity_v1/FeatureServer/",
 
   "mapViewMinScale": 30999535,

@@ -1,0 +1,27 @@
+.outlook-container {
+  background-color: #dddacf;
+  padding: .25em 1em;
+  height: 50%;
+  margin-top: .25em;
+}
+
+.outlook-flex-container {
+  display: flex;
+  margin-top: .35em;
+}
+
+.outlook-flex-child {
+  flex: 1;
+}
+
+.outlook-label {
+  font-size: .8em;
+  flex: 0 0 auto;
+  width: 100px;
+  line-height: 1.3;
+}
+
+.outlook-value {
+  font-size: 1.2em;
+  text-align: left;
+}
