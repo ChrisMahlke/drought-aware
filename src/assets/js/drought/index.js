@@ -361,7 +361,7 @@ window.onSignInHandler = (portal) => {
 
                     let selectedFIPS = "";
                     if (config.selected.adminAreaId === config.COUNTY_ADMIN) {
-                        selectedFIPS = selectedFeature.attributes["FIPS"];
+                        selectedFIPS = selectedFeature.attributes["CountyFIPS"];
                         agrQuery = `CountyFIPS = '${selectedFIPS}'`;
                         config.qParams.severeDroughtConditions.url = config.droughtURL + "1";
                         config.qParams.historicDroughtConditions.url = config.droughtURL + "1";
@@ -467,7 +467,6 @@ window.onSignInHandler = (portal) => {
         }
 
         async function retrieveGeometryResponseHandler(response) {
-            //console.debug("RESPONSE", response)
             if (response.features.length > 0) {
                 config.boundaryQuery.geometry = response.features[0].geometry;
                 for (const graphic of mapView.graphics){
