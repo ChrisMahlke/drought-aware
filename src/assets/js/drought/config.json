@@ -3,10 +3,10 @@
 
   "drought_layer_name": "USA Drought Intensity 2000 - Present - US_Drought",
 
-  "county_boundary": "https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/USA_Counties_Generalized/FeatureServer/0",
-  "county_boundary_outfields": ["FIPS", "NAME", "STATE_NAME"],
+  "county_boundary": "https://services.arcgis.com/jIL9msH9OI208GCb/ArcGIS/rest/services/USA_Counties_and_States_with_PR/FeatureServer/0",
+  "county_boundary_outfields": ["CountyFIPS", "CountyName", "STATE_NAME"],
 
-  "state_boundary": "https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/USA_States_Generalized/FeatureServer/0",
+  "state_boundary": "https://services.arcgis.com/jIL9msH9OI208GCb/ArcGIS/rest/services/USA_Counties_and_States_with_PR/FeatureServer/1",
   "state_boundary_outfields": ["STATE_FIPS", "STATE_NAME", "STATE_ABBR"],
 
   "world_country": "https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/World_Countries/FeatureServer/0",
@@ -25,7 +25,7 @@
 
   "selectedGeographicSymbology": {
     "type": "simple-line",
-    "color": [153, 255, 255],
+    "color": [57, 55, 55],
     "width": 1
   },
 
