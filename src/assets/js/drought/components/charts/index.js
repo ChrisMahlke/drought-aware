@@ -43,14 +43,9 @@ export function createChart(params) {
     mapView = params.view;
 
     // TODO
-    barChartHeight = 135;
+    barChartHeight = config.chart.height;
     barChartWidth = chartNode.offsetWidth;
-    barChartMargin = {
-        top: 25,
-        right: 0,
-        bottom: 30,
-        left: 35
-    };
+    barChartMargin = config.chart.margin;
 
     // TODO
     // Clear previous svg
@@ -85,7 +80,7 @@ export function createChart(params) {
     ];
 
     const barChartZooming = d3.zoom()
-        .scaleExtent([1, 64])
+        .scaleExtent([1, 32])
         .translateExtent(barChartExtent)
         .extent(barChartExtent)
         .on("zoom", barChartZoomed);
@@ -206,7 +201,7 @@ function chartMouseOverHandler(event) {
  */
 function chartMouseOutHandler(event) {
     scrubber.style("display", "none");
-    chartScrubbingTooltip.style.display = "none";
+    //chartScrubbingTooltip.style.display = "none";
 }
 
 function chartMouseMoveHandler(event) {
@@ -285,7 +280,7 @@ function barChartZoomed(event) {
     barChartX.range([barChartMargin.left, barChartWidth - barChartMargin.right].map(d =>
         event.transform.applyX(d)
     ));
-    barChartSvg.selectAll(".bars rect").attr("x", d => barChartX(d.data.date)).attr("width", barChartX.bandwidth());
+    barChartSvg.selectAll(".bars rect").attr("x", d => barChartX(d.data.date)).attr("width", Math.round(barChartX.bandwidth()));
     gx_bar.call(barChartXAxis, barChartX);
 
     if (selectedEvent !== null) {
