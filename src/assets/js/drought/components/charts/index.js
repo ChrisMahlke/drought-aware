@@ -201,7 +201,7 @@ function chartMouseOverHandler(event) {
  */
 function chartMouseOutHandler(event) {
     scrubber.style("display", "none");
-    //chartScrubbingTooltip.style.display = "none";
+    chartScrubbingTooltip.style.display = "none";
 }
 
 function chartMouseMoveHandler(event) {
