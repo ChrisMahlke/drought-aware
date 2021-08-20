@@ -8,6 +8,7 @@ export function showScrim(params) {
     let droughtStatusEle = document.getElementById("drought-status");
     let agrComponentEle = document.getElementById("agrComponent");
     let outlookValues = document.getElementsByClassName("outlook-value");
+    let dollarSigns = document.getElementsByClassName("dollar-sign");
     let legendWidgetEle = document.getElementById("legendWidget");
     let overlayMessageContainer = document.getElementsByClassName("overlay-message")[0];
 
@@ -21,6 +22,9 @@ export function showScrim(params) {
         }
         calcite.addClass(legendWidgetEle, maskElementOpacityCSS_key);
         calcite.removeClass(overlayMessageContainer, "hide");
+        for (let i = 0, max = dollarSigns.length; i < max; i++) {
+            calcite.addClass(dollarSigns[i], maskFontColorCSS_key);
+        }
     } else {
         calcite.removeClass(droughtStatusComponentEle, maskFontColorCSS_key);
         calcite.removeClass(agrComponentEle, maskFontColorCSS_key);
@@ -30,5 +34,8 @@ export function showScrim(params) {
         }
         calcite.removeClass(legendWidgetEle, maskElementOpacityCSS_key);
         calcite.addClass(overlayMessageContainer, "hide");
+        for (let i = 0, max = dollarSigns.length; i < max; i++) {
+            calcite.removeClass(dollarSigns[i], maskFontColorCSS_key);
+        }
     }
 }
