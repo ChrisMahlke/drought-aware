@@ -43,13 +43,13 @@
 
   "chart": {
     "margin": {
-      "top": 5,
+      "top": 25,
       "right": 0,
-      "bottom": 10,
-      "left": 25
+      "bottom": 30,
+      "left": 35
     },
     "width": 700,
-    "height": 80,
+    "height": 135,
     "keys": ["d0", "d1", "d2", "d3", "d4", "nothing"]
   },
 
