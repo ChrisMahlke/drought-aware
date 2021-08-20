@@ -1,16 +1,13 @@
 {
   "webMapId": "ab5bf0057f11443ca86d78e7d1998da5",
 
-  "drought_layer_name": "USA Drought Intensity 2000 - Present - US_Drought",
-
-  "county_boundary": "https://services.arcgis.com/jIL9msH9OI208GCb/ArcGIS/rest/services/USA_Counties_and_States_with_PR/FeatureServer/0",
+  "county_boundary": "https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/USA_Counties_and_States_with_PR/FeatureServer/0",
   "county_boundary_outfields": ["CountyFIPS", "CountyName", "STATE_NAME"],
 
-  "state_boundary": "https://services.arcgis.com/jIL9msH9OI208GCb/ArcGIS/rest/services/USA_Counties_and_States_with_PR/FeatureServer/1",
-  "state_boundary_outfields": ["STATE_FIPS", "STATE_NAME", "STATE_ABBR"],
+  "state_boundary": "https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/USA_Counties_and_States_with_PR/FeatureServer/1",
+  "state_boundary_outfields": ["STATE_FIPS", "STATE_NAME"],
 
-  "world_country": "https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/World_Countries/FeatureServer/0",
-
+  "drought_layer_name": "USA Drought Intensity 2000 - Present - US_Drought",
   "droughtURL": "https://services9.arcgis.com/RHVPKKiFTONKtxq3/ArcGIS/rest/services/US_Drought_Intensity_v1/FeatureServer/",
 
   "mapViewMinScale": 30999535,

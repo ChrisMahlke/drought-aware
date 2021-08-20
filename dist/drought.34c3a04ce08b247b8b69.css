@@ -16,7 +16,7 @@ html{overflow-y:auto;min-height:100%;font-size:100%;-webkit-text-size-adjust:100
 
 .chart-legend{display:flex;align-items:center;justify-content:center}.chart-legend-color-container{height:10px;width:10px;float:left;margin-top:.25em}.chart-legend-label-container{float:left;padding-left:.25em;font-size:0.80em}
 
-.overlay-message{position:absolute;width:180px;height:50px;text-align:center;background-color:#dddacf;z-index:100;border:1px solid gray;padding:1em;right:20%;bottom:25%;font-size:0.875rem}.overlay-message-reset-btn{font-weight:bold}.overlay-message-reset-btn:hover{cursor:pointer}
+.overlay-message{position:absolute;width:180px;height:50px;text-align:center;background-color:#dddacf;z-index:100;border:1px solid #717171;padding:1em;right:300px;bottom:25%;font-size:0.875rem}.overlay-message-reset-btn{font-weight:bold}.overlay-message-reset-btn:hover{cursor:pointer}
 
 .esri-legend{background:transparent !important;box-shadow:none !important}.esri-legend__layer-caption{display:none !important}.esri-legend__layer-cell--info{display:none !important}.esri-legend__layer-row{padding-left:.5em !important;position:absolute !important}.esri-legend__layer-body>div:nth-child(1){bottom:35px;right:130px}.esri-legend__layer-body>div:nth-child(2){bottom:36px;right:170px}.esri-legend__layer-body>div:nth-child(3){bottom:38px;right:210px}.esri-legend__layer-body>div:nth-child(4){bottom:39px;right:240px}.esri-legend__layer-body>div:nth-child(5){bottom:40px;right:270px}.esri-legend__service-label{display:none !important;padding:.3em !important}.esri-legend__message{display:none !important}#legendLabels{text-align:center;font-size:0.8em;padding-top:.5em;margin-left:15%;margin-right:15%}
 
