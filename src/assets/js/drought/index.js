@@ -109,8 +109,8 @@ window.onSignInHandler = (portal) => {
         document.getElementById("shieldPage").click();
         document.getElementsByClassName("shield-page-btn")[0].addEventListener("click", event => {
 
-            const u = document.getElementsByClassName("username-field")[0].value.trim();
-            const p = document.getElementsByClassName("password-field")[0].value.trim();
+            const u = "living-atlas-drought";// document.getElementsByClassName("username-field")[0].value.trim();
+            const p = "climate"; //document.getElementsByClassName("password-field")[0].value.trim();
 
             QueryUtils.fetchData({
                 url: "https://services.arcgis.com/jIL9msH9OI208GCb/ArcGIS/rest/services/russian_national_parks/FeatureServer/0",
@@ -398,17 +398,23 @@ window.onSignInHandler = (portal) => {
                                 config.qParams.outlook.seasonal.geometry = selectedFeature.geometry;
                                 config.qParams.agriculture.q = agrQuery;
 
+                                document.getElementById("resultsModal").click();
+
                                 // Agricultural Impact
-                                QueryUtils.fetchData(config.qParams.agriculture).then(AgricultureComponent.updateAgriculturalImpactComponent, ErrorHandler.hydrateErrorAlert);
+                                QueryUtils.fetchData(config.qParams.agriculture)
+                                    .then(AgricultureComponent.updateAgriculturalImpactComponent, ErrorHandler.hydrateErrorAlert);
 
                                 // Monthly outlook
-                                QueryUtils.fetchData(config.qParams.outlook.month).then(Outlook.monthlyDroughtOutlookResponseHandler, ErrorHandler.hydrateErrorAlert);
+                                QueryUtils.fetchData(config.qParams.outlook.month)
+                                    .then(Outlook.monthlyDroughtOutlookResponseHandler, ErrorHandler.hydrateErrorAlert);
 
                                 // Season outlook
-                                QueryUtils.fetchData(config.qParams.outlook.seasonal).then(Outlook.seasonalDroughtOutlookResponseHandler, ErrorHandler.hydrateErrorAlert);
+                                QueryUtils.fetchData(config.qParams.outlook.seasonal)
+                                    .then(Outlook.seasonalDroughtOutlookResponseHandler, ErrorHandler.hydrateErrorAlert);
 
                                 // Severe Drought conditions for n number of weeks
-                                QueryUtils.fetchData(config.qParams.severeDroughtConditions).then(severeDroughtConditionsSuccessHandler, ErrorHandler.hydrateErrorAlert);
+                                QueryUtils.fetchData(config.qParams.severeDroughtConditions)
+                                    .then(severeDroughtConditionsSuccessHandler, ErrorHandler.hydrateErrorAlert);
 
                                 // Historic Data
                                 QueryUtils.fetchData(config.qParams.historicDroughtConditions)
@@ -515,7 +521,12 @@ window.onSignInHandler = (portal) => {
                         if (config.selected.adminAreaId !== config.COUNTY_ADMIN) {
                             label = `${config.selected.state_name}`;
                         }
-                        document.getElementsByClassName("selected-location")[0].innerHTML = label.toUpperCase();
+
+                        let nodes = document.getElementsByClassName("selected-location");
+                        for (let node of nodes) {
+                            node.innerHTML = label.toUpperCase();
+                        }
+
                         return await response;
                     }
 
@@ -536,8 +547,11 @@ window.onSignInHandler = (portal) => {
                             return selectedDate === feature.attributes.ddate;
                         });
                         let { attributes } = found;
-                        let currentDroughtStatusElement = document.getElementsByClassName("drought-percentage")[0];
-                        currentDroughtStatusElement.innerHTML = attributes["D1_D4"].toFixed(0);
+
+                        let nodes = document.getElementsByClassName("drought-percentage");
+                        for (let node of nodes) {
+                            node.innerHTML = attributes["D1_D4"].toFixed(0);
+                        }
                     }
 
                     /**

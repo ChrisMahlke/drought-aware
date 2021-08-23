@@ -27,33 +27,34 @@ export function updateAgriculturalImpactComponent(response) {
             population = "StatePop2020";
         }
 
-        updateLaborStatistics(document.getElementById("jobs"), selectedFeature.attributes[labor]);
-        updateAgricultureItem(document.getElementById("totalSales"), selectedFeature.attributes[total_sales]);
-        updateAgricultureItem(document.getElementById("cornSales"), selectedFeature.attributes[corn]);
-        updateAgricultureItem(document.getElementById("soySales"), selectedFeature.attributes[soy]);
-        updateAgricultureItem(document.getElementById("haySales"), selectedFeature.attributes[hay]);
-        updateAgricultureItem(document.getElementById("wheatSales"), selectedFeature.attributes[winter]);
-        updateAgricultureItem(document.getElementById("livestockSales"), selectedFeature.attributes[livestock]);
-        updateDemographicStatistics(document.getElementById("population"), selectedFeature.attributes[population]);
+        updateLaborStatistics(document.getElementsByClassName("jobs"), selectedFeature.attributes[labor]);
+        updateAgricultureItem(document.getElementsByClassName("totalSales"), selectedFeature.attributes[total_sales]);
+        updateAgricultureItem(document.getElementsByClassName("cornSales"), selectedFeature.attributes[corn]);
+        updateAgricultureItem(document.getElementsByClassName("soySales"), selectedFeature.attributes[soy]);
+        updateAgricultureItem(document.getElementsByClassName("haySales"), selectedFeature.attributes[hay]);
+        updateAgricultureItem(document.getElementsByClassName("wheatSales"), selectedFeature.attributes[winter]);
+        updateAgricultureItem(document.getElementsByClassName("livestockSales"), selectedFeature.attributes[livestock]);
+        updateDemographicStatistics(document.getElementsByClassName("population"), selectedFeature.attributes[population]);
     }
 }
 
-function updateLaborStatistics(node, data) {
-    if (Number(data) > -1) {
-        node.innerHTML = `${Number(data).toLocaleString()}`;
-    } else {
-        node.innerHTML = `No Data`;
+function updateLaborStatistics(nodes, data) {
+    const value = (Number(data) > -1) ? `${Number(data).toLocaleString()}` : `No Data`;
+    for (let node of nodes) {
+        node.innerHTML = value;
     }
 }
 
-function updateAgricultureItem(node, data) {
-    if (Number(data) > -1) {
-        node.innerHTML = `<span class="dollar-sign">$</span>${Number(data).toLocaleString()}`;
-    } else {
-        node.innerHTML = `No Data`;
+function updateAgricultureItem(nodes, data) {
+    const value = (Number(data) > -1) ? `<span class="dollar-sign">$</span>${Number(data).toLocaleString()}` : `No Data`;
+    for (let node of nodes) {
+        node.innerHTML = value;
     }
 }
 
-function updateDemographicStatistics(node, data) {
-    node.innerHTML = `${Number(data).toLocaleString()}`;
+function updateDemographicStatistics(nodes, data) {
+    const value = (Number(data) > -1) ? `${Number(data).toLocaleString()}` : `No Data`;
+    for (let node of nodes) {
+        node.innerHTML = value;
+    }
 }

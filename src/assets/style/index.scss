@@ -128,31 +128,13 @@ and (min-device-width: 375px)
 and (min-device-height: 812px)
 and (-webkit-device-pixel-ratio: 3)
 and (orientation: portrait) {
-  #appHdrComponent {
-    line-height: unset;
-    padding: .25em;
-    background-color: #dddacf !important;
-    width: 100%;
-  }
-
-  #bookmarkComponent {
-    display: none;
-  }
 
   #administrativeSubdivision > fieldset {
     display: none;
   }
 
   #bottomComponent {
-    z-index: 15;
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 215px;
-    background-color: transparent;
-    display: block !important;
-    overflow: scroll !important;
+    display: none;
   }
 
   #dataComponentLoader {
@@ -160,39 +142,16 @@ and (orientation: portrait) {
     margin-left: 50%;
   }
 
+  #historicRecordComponent {
+    display: none;
+  }
+
   #droughtStatusComponent {
-    width: 100%;
+    display: none;
   }
 
   #agrComponent {
-    padding: .25em 1em;
-    width: 100%;
-    background-color: #dddacf !important;
-    margin-top: .25em;
-  }
-
-  #historicRecordComponent {
-    padding: .25em 1em;
-    background-color: #dddacf !important;
-    width: 100%;
-    margin-top: .25em;
-  }
-
-
-  .esri-search {
-    display: none !important;
-  }
-
-  .esri-zoom {
-    display: none !important;
-  }
-
-  .esri-home {
-    display: none !important;
-  }
-
-  .esri-legend {
-    display: none !important;
+    display: none;
   }
 }
 
@@ -202,36 +161,7 @@ and (min-device-width: 414px)
 and (min-device-height: 896px)
 and (-webkit-device-pixel-ratio: 2)
 and (orientation: portrait) {
-  #appHdrComponent {
-    line-height: unset;
-    padding: .25em;
-    background-color: #dddacf !important;
-    width: 100%;
-  }
 
-  #bookmarkComponent {
-    display: none;
-  }
-
-  #administrativeSubdivision > fieldset {
-    display: none;
-  }
-
-  .esri-search {
-    display: none !important;
-  }
-
-  .esri-zoom {
-    display: none !important;
-  }
-
-  .esri-home {
-    display: none !important;
-  }
-
-  .esri-legend {
-    display: none !important;
-  }
 }
 
 /* Medium devices (landscape tablets, 768px and up) */
