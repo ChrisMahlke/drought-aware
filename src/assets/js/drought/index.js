@@ -24,6 +24,7 @@ import * as d3 from "d3";
 import { differenceInWeeks, format } from 'date-fns';
 import * as Scrim from "./components/scrim";
 import {hydrateErrorAlert, noResponseHandler} from "./utils/ErrorHandler";
+import {initMobileMapView} from "./utils/Mobile";
 
 window.onSignInHandler = (portal) => {
 
@@ -399,24 +400,6 @@ window.onSignInHandler = (portal) => {
                                 config.qParams.outlook.seasonal.geometry = selectedFeature.geometry;
                                 config.qParams.agriculture.q = agrQuery;
 
-
-
-                                let selectedBoundaryMapView = new MapView({
-                                    container: "selectedBoundaryMap",
-                                    map: webMap,
-                                    constraints: {
-                                        snapToZoom: true,
-                                        rotationEnabled: false,
-                                        minScale: config.mapViewMinScale,
-                                        maxScale: config.mapViewMaxScale
-                                    },
-                                    ui: {
-                                        components: []
-                                    }
-                                });
-                                selectedBoundaryMapView.extent = selectedFeature.geometry.extent;
-                                document.getElementById("resultsModal").click();
-
                                 // Agricultural Impact
                                 QueryUtils.fetchData(config.qParams.agriculture)
                                     .then(AgricultureComponent.updateAgriculturalImpactComponent, ErrorHandler.hydrateErrorAlert);
@@ -437,6 +420,9 @@ window.onSignInHandler = (portal) => {
                                 QueryUtils.fetchData(config.qParams.historicDroughtConditions)
                                     .then(historicDataQuerySuccessHandler, ErrorHandler.hydrateErrorAlert)
                                     .then(updateSelectedLocationComponent, updateSelectedLocationErrorHandler);
+
+                                Mobile.initMobileMapView(webMap, selectedFeature);
+
                             } else {
                                 ErrorHandler.noResponseHandler();
                             }
