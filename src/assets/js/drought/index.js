@@ -583,9 +583,14 @@ window.onSignInHandler = (portal) => {
                             label = config.drought_colors[key].label;
                             color = "#cb9362";
                         }
-                        let currentDroughtStatusElement = document.getElementById("drought-status");
-                        currentDroughtStatusElement.innerHTML = label;
-                        currentDroughtStatusElement.style.color = color;
+
+
+
+                        let nodes = document.getElementsByClassName("drought-status");
+                        for (let node of nodes) {
+                            node.innerHTML = label;
+                            node.style.color = color;
+                        }
                     }
 
                 } else {

@@ -9,8 +9,15 @@ import config from "../../config.json";
  */
 export function monthlyDroughtOutlookResponseHandler(response) {
     const outlook = processOutlookResponse(response);
-    document.getElementById("monthlyOutlookDate").innerHTML = outlook.date;
-    document.getElementById("monthlyOutlookLabel").innerHTML = outlook.label;
+
+    update(document.getElementsByClassName("monthlyOutlookDate"), outlook.date);
+    update(document.getElementsByClassName("monthlyOutlookLabel"), outlook.label);
+}
+
+function update(nodes, data) {
+    for (let node of nodes) {
+        node.innerHTML = data;
+    }
 }
 
 /**
@@ -21,8 +28,8 @@ export function monthlyDroughtOutlookResponseHandler(response) {
  */
 export function seasonalDroughtOutlookResponseHandler(response) {
     const outlook = processOutlookResponse(response);
-    document.getElementById("seasonalOutlookDate").innerHTML = outlook.date;
-    document.getElementById("seasonalOutlookLabel").innerHTML = outlook.label;
+    update(document.getElementsByClassName("seasonalOutlookDate"), outlook.date);
+    update(document.getElementsByClassName("seasonalOutlookLabel"), outlook.label);
 }
 
 /**

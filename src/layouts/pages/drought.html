@@ -177,7 +177,7 @@
                 <div class="trend-container">
                     <div class="component-hdr">LATEST DROUGHT CONDITIONS</div>
 
-                    <div id="drought-status" class="component-value"></div>
+                    <div class="component-value drought-status"></div>
 
                     <div>
                         <span class="component-label">Population: </span>
@@ -196,17 +196,17 @@
                     <div class="outlook-flex-container">
                         <div class="outlook-flex-child outlook-label">
                             <div class="component-label">MONTHLY</div>
-                            <div id="monthlyOutlookDate"></div>
+                            <div class="monthlyOutlookDate"></div>
                         </div>
-                        <div id="monthlyOutlookLabel" class="outlook-flex-child outlook-value component-value"></div>
+                        <div class="monthlyOutlookLabel outlook-flex-child outlook-value component-value"></div>
                     </div>
 
                     <div class="outlook-flex-container">
                         <div class="outlook-flex-child outlook-label">
                             <div class="component-label">NEXT 3 MONTHS</div>
-                            <div id="seasonalOutlookDate"></div>
+                            <div class="seasonalOutlookDate"></div>
                         </div>
-                        <div id="seasonalOutlookLabel" class="outlook-flex-child outlook-value component-value"></div>
+                        <div class="seasonalOutlookLabel outlook-flex-child outlook-value component-value"></div>
                     </div>
                 </div>
             </div>
@@ -334,31 +334,42 @@
         <div class="modal-content column-6" role="dialog" aria-labelledby="modal" style="background-color: #cac5b1">
 
             <div class="column-6">
-                <div class="font-size--1 text-center selected-location"></div>
-                <div class="font-size--3 text-center">Population: <span class="population"></span></div>
+                <div class="column-2">
+                    <img class="thumbnail-img js-thumbnail" src="https://www.arcgis.com/sharing/rest/content/items/ce92e9a37f27439082476c369e2f4254/info/thumbnail/thumbnail1597708207022.png">
+                </div>
+                <div class="column-4">
+                    <div class="font-size--1 selected-location"></div>
+                    <div class="font-size--3 ">Population: <span class="population"></span></div>
+                </div>
             </div>
 
             <div class="column-6 leader-half">
-                <div class="column-6 font-size-1 text-center avenir-demi">Latest Drought Conditions</div>
-                <div class="column-6 font-size-1 text-center">Extreme Drought</div>
+                <div class="column-6 font-size-1 avenir-demi">Latest Drought Conditions</div>
+                <div class="column-6 font-size-1 drought-status"></div>
                 <div class="column-6 font-size--2 drought-percentage-container"><span class="drought-percentage"></span>% of the area with drought conditions</div>
                 <div>For the past 51 weeks this area has experienced Severe Drought conditions</div>
             </div>
 
             <div class="column-6 leader-half">
-                <div class="column-6 font-size-1 text-center avenir-demi">Drought Outlook</div>
+                <div class="column-6 font-size-1 avenir-demi">Drought Outlook</div>
                 <div class="column-6">
-                    <div class="column-2 font-size--2 text-right">Monthly</div>
-                    <div class="column-4 font-size--1">Drought Persists</div>
+                    <div class="column-2 font-size--2 trailer-quarter">
+                        <div>Monthly</div>
+                        <div class="monthlyOutlookDate"></div>
+                    </div>
+                    <div class="column-4 font-size--1 monthlyOutlookLabel"></div>
                 </div>
                 <div class="column-6">
-                    <div class="column-2 font-size--2 text-right">Next 3 Months</div>
-                    <div class="column-4 font-size--1">Drought Persists</div>
+                    <div class="column-2 font-size--2">
+                        <div>Next 3 Months</div>
+                        <div class="seasonalOutlookDate"></div>
+                    </div>
+                    <div class="column-4 font-size--1 seasonalOutlookLabel"></div>
                 </div>
             </div>
 
-            <div class="leader-half column-6">
-                <div class="column-6 font-size-1 text-center avenir-demi">Agricultural Impacts</div>
+            <div class="leader-half trailer-1 column-6">
+                <div class="column-6 font-size-1 avenir-demi">Agricultural Impacts</div>
                 <div class="column-6">
                     <div class="column-2 font-size--3">Agriculture Jobs</div>
                     <div class="column-4 font-size--1 jobs"></div>
@@ -395,7 +406,7 @@
                 </div>
             </div>
 
-            <div class="text-center leader-half">
+            <div class="text-center">
                 <button class="modal-close-btn btn btn-clear btn-large js-modal-toggle">Close</button>
             </div>
         </div>
