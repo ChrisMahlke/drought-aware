@@ -54,6 +54,7 @@ window.onSignInHandler = (portal) => {
 
         let selectedDateObj = {};
         let inputDataset = [];
+        let webMap = {};
 
         // The URLSearchParams spec defines an interface and convenience methods for working with the query string of a
         // URL (e.g. everything after "?"). This means no more regex'ing and string splitting URLs!
@@ -139,7 +140,7 @@ window.onSignInHandler = (portal) => {
                         const { features } = response;
                         selectedDateObj = selectedDateHandler(parseInt(params.get("date")) || features[0].attributes.ddate);
 
-                        let webMap = new WebMap({
+                        webMap = new WebMap({
                             portalItem: {
                                 id: config.webMapId
                             }
@@ -398,6 +399,22 @@ window.onSignInHandler = (portal) => {
                                 config.qParams.outlook.seasonal.geometry = selectedFeature.geometry;
                                 config.qParams.agriculture.q = agrQuery;
 
+
+
+                                let selectedBoundaryMapView = new MapView({
+                                    container: "selectedBoundaryMap",
+                                    map: webMap,
+                                    constraints: {
+                                        snapToZoom: true,
+                                        rotationEnabled: false,
+                                        minScale: config.mapViewMinScale,
+                                        maxScale: config.mapViewMaxScale
+                                    },
+                                    ui: {
+                                        components: []
+                                    }
+                                });
+                                selectedBoundaryMapView.extent = selectedFeature.geometry.extent;
                                 document.getElementById("resultsModal").click();
 
                                 // Agricultural Impact
