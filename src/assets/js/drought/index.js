@@ -485,8 +485,10 @@ window.onSignInHandler = (portal) => {
                     function severeDroughtConditionsSuccessHandler(response) {
                         let responseDate = response.features[0].attributes.ddate;
                         const consecutiveWeeks = differenceInWeeks(new Date(selectedDateObj.selectedDate), new Date(responseDate)) - 1;
-                        let consecutiveWeeksElement = document.getElementById("consecutiveWeeks");
-                        consecutiveWeeksElement.innerHTML = `${consecutiveWeeks.toString()}`;
+                        let nodes = document.getElementsByClassName("consecutiveWeeks");
+                        for (let node of nodes) {
+                            node.innerHTML = `${consecutiveWeeks.toString()}`;
+                        }
                     }
 
                     function viewStationaryHandler(response) {
