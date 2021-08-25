@@ -13,7 +13,7 @@ export function isMobileBrowser() {
     return check;
 }
 
-export async function initMobileMapView(webMap, selectedFeature) {
+export async function updateMobileView(webMap, selectedFeature) {
     return await new Promise((resolve, reject) => {
         loadModules([
             "esri/views/MapView"
@@ -67,6 +67,7 @@ export async function initMobileMapView(webMap, selectedFeature) {
                 resolve(error);
             });
 
+            document.querySelector('[data-modal="results-modal"]').style.display = "flex";
             document.getElementById("resultsModal").click();
         });
     });

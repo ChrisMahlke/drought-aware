@@ -23,8 +23,6 @@ import * as calcite from "calcite-web";
 import * as d3 from "d3";
 import { differenceInWeeks, format } from 'date-fns';
 import * as Scrim from "./components/scrim";
-import {hydrateErrorAlert, noResponseHandler} from "./utils/ErrorHandler";
-import {initMobileMapView} from "./utils/Mobile";
 
 window.onSignInHandler = (portal) => {
 
@@ -422,9 +420,9 @@ window.onSignInHandler = (portal) => {
                                     .then(updateSelectedLocationComponent, updateSelectedLocationErrorHandler);
 
                                 if (isMobile) {
-                                    Mobile.initMobileMapView(webMap, selectedFeature);
+                                    Mobile.updateMobileView(webMap, selectedFeature);
                                 } else {
-
+                                    alert("NOT MOBILE")
                                 }
 
                             } else {

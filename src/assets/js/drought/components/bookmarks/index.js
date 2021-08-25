@@ -11,7 +11,7 @@ export function init(params) {
 
 function addBookmarksWidget(response) {
     const bookmarks = response.map.bookmarks.items;
-    const bookmarksNavEle = document.getElementsByClassName("bookmarks-container")[1];
+    const bookmarksNavEle = document.getElementsByClassName("bookmarks-container")[0];
     const bookmarkElements = bookmarks.map(createBookmarkElement);
     bookmarksNavEle.append(...bookmarkElements);
     bookmarksNavEle.addEventListener("click", event => {
