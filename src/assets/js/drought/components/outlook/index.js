@@ -8,8 +8,8 @@ import config from "../../config.json";
  * @param response
  */
 export function monthlyDroughtOutlookResponseHandler(response) {
+    console.debug(response);
     const outlook = processOutlookResponse(response);
-
     update(document.getElementsByClassName("monthlyOutlookDate"), outlook.date);
     update(document.getElementsByClassName("monthlyOutlookLabel"), outlook.label);
 }
@@ -27,6 +27,7 @@ function update(nodes, data) {
  * @param response
  */
 export function seasonalDroughtOutlookResponseHandler(response) {
+    console.debug(response);
     const outlook = processOutlookResponse(response);
     update(document.getElementsByClassName("seasonalOutlookDate"), outlook.date);
     update(document.getElementsByClassName("seasonalOutlookLabel"), outlook.label);

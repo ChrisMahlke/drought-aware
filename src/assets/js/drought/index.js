@@ -422,7 +422,7 @@ window.onSignInHandler = (portal) => {
                                 if (isMobile) {
                                     Mobile.updateMobileView(webMap, selectedFeature);
                                 } else {
-                                    alert("NOT MOBILE")
+
                                 }
 
                             } else {
