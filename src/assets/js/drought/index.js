@@ -109,8 +109,8 @@ window.onSignInHandler = (portal) => {
         document.getElementById("shieldPage").click();
         document.getElementsByClassName("shield-page-btn")[0].addEventListener("click", event => {
 
-            const u = "living-atlas-drought";//document.getElementsByClassName("username-field")[0].value.trim();
-            const p = "climate";// document.getElementsByClassName("password-field")[0].value.trim();
+            const u = document.getElementsByClassName("username-field")[0].value.trim();
+            const p = document.getElementsByClassName("password-field")[0].value.trim();
 
             QueryUtils.fetchData({
                 url: "https://services.arcgis.com/jIL9msH9OI208GCb/ArcGIS/rest/services/russian_national_parks/FeatureServer/0",
