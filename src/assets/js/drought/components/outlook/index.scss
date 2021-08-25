@@ -7,7 +7,6 @@
 
 .outlook-flex-container {
   display: flex;
-  margin-top: .35em;
 }
 
 .outlook-flex-child {
@@ -15,10 +14,10 @@
 }
 
 .outlook-label {
+  margin-top: .3em;
   font-size: .8em;
   flex: 0 0 auto;
   width: 100px;
-  line-height: 1.3;
 }
 
 .outlook-value {

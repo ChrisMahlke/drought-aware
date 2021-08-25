@@ -12,6 +12,10 @@
   display: none !important;
 }
 
+.esri-legend__layer-cell {
+
+}
+
 .esri-legend__layer-row {
   padding-left: .5em !important;
   position: absolute !important;
@@ -54,7 +58,6 @@
 #legendLabels {
   text-align: center;
   font-size: 0.8em;
-  padding-top: .5em;
   margin-left: 15%;
   margin-right: 15%;
 }

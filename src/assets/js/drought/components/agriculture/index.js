@@ -46,7 +46,7 @@ function updateLaborStatistics(nodes, data) {
 }
 
 function updateAgricultureItem(nodes, data) {
-    const value = (Number(data) > -1) ? `<span class="dollar-sign">$</span>${Number(data).toLocaleString()}` : `No Data`;
+    const value = (Number(data) > -1) ? `$${Number(data).toLocaleString()}` : `No Data`;
     for (let node of nodes) {
         node.innerHTML = value;
     }

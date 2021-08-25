@@ -421,7 +421,11 @@ window.onSignInHandler = (portal) => {
                                     .then(historicDataQuerySuccessHandler, ErrorHandler.hydrateErrorAlert)
                                     .then(updateSelectedLocationComponent, updateSelectedLocationErrorHandler);
 
-                                Mobile.initMobileMapView(webMap, selectedFeature);
+                                if (isMobile) {
+                                    Mobile.initMobileMapView(webMap, selectedFeature);
+                                } else {
+
+                                }
 
                             } else {
                                 ErrorHandler.noResponseHandler();

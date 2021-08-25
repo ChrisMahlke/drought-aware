@@ -32,7 +32,6 @@ export async function initMobileMapView(webMap, selectedFeature) {
                 }
             });
             view.extent = selectedFeature.geometry.extent;
-            document.getElementById("resultsModal").click();
 
             view.on("key-down", function(event) {
                 var prohibitedKeys = ["+", "-", "Shift", "_", "="];
@@ -63,10 +62,12 @@ export async function initMobileMapView(webMap, selectedFeature) {
             });
 
             view.when(response => {
-                resolve(response)
+                resolve(response);
             }, error => {
-                resolve(error)
+                resolve(error);
             });
+
+            document.getElementById("resultsModal").click();
         });
     });
 }

@@ -67,7 +67,7 @@ export function createChart(params) {
     barChartXAxis = (g, x) => g
         .attr("transform", `translate(0,${barChartHeight - barChartMargin.bottom})`)
         .call(d3.axisBottom(x).tickValues(x.domain()
-            .filter((e,i) => i % Math.round(barChartWidth/8) === 0))
+            .filter((e,i) => i % Math.round(barChartWidth/4) === 0))
             .tickFormat(d3.timeFormat("%m/%Y")));
 
     barChartYAxis = (g, y) => g
