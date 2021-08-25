@@ -27,15 +27,36 @@ export function updateAgriculturalImpactComponent(response) {
             population = "StatePop2020";
         }
 
-        updateLaborStatistics(document.getElementsByClassName("jobs"), selectedFeature.attributes[labor]);
-        updateAgricultureItem(document.getElementsByClassName("totalSales"), selectedFeature.attributes[total_sales]);
-        updateAgricultureItem(document.getElementsByClassName("cornSales"), selectedFeature.attributes[corn]);
-        updateAgricultureItem(document.getElementsByClassName("soySales"), selectedFeature.attributes[soy]);
-        updateAgricultureItem(document.getElementsByClassName("haySales"), selectedFeature.attributes[hay]);
-        updateAgricultureItem(document.getElementsByClassName("wheatSales"), selectedFeature.attributes[winter]);
-        updateAgricultureItem(document.getElementsByClassName("livestockSales"), selectedFeature.attributes[livestock]);
-        updateDemographicStatistics(document.getElementsByClassName("population"), selectedFeature.attributes[population]);
+        let totalSalesValue = selectedFeature.attributes[total_sales] || 0;
+        let laborValue = selectedFeature.attributes[labor] || 0;
+        let cornValue = selectedFeature.attributes[corn] || 0;
+        let soyValue = selectedFeature.attributes[soy] || 0;
+        let hayValue = selectedFeature.attributes[hay] || 0;
+        let winterValue = selectedFeature.attributes[winter] || 0;
+        let livestockValue = selectedFeature.attributes[livestock] || 0;
+        let populationValue = selectedFeature.attributes[population] || 0;
+
+        //const sum = calculateOther(cornValue, soyValue, hayValue, winterValue, livestockValue);
+        //const other = totalSalesValue - sum;
+
+        updateLaborStatistics(document.getElementsByClassName("jobs"), laborValue);
+        updateAgricultureItem(document.getElementsByClassName("totalSales"), totalSalesValue);
+        updateAgricultureItem(document.getElementsByClassName("cornSales"), cornValue);
+        updateAgricultureItem(document.getElementsByClassName("soySales"), soyValue);
+        updateAgricultureItem(document.getElementsByClassName("haySales"), hayValue);
+        updateAgricultureItem(document.getElementsByClassName("wheatSales"), winterValue);
+        updateAgricultureItem(document.getElementsByClassName("livestockSales"), livestockValue);
+        //updateAgricultureItem(document.getElementsByClassName("otherSales"), other);
+        updateDemographicStatistics(document.getElementsByClassName("population"), populationValue);
     }
+}
+
+function calculateOther(...args) {
+    return args.reduce(function (acc, cur) {
+        let current = (cur > -1) ? cur : 0;
+        console.debug(current);
+        return acc + current;
+    });
 }
 
 function updateLaborStatistics(nodes, data) {

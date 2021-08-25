@@ -261,7 +261,7 @@
     </div>
 
     <div class="js-modal modal-overlay" data-modal="foo" style="display: none;">
-        <div class="modal-content column-12" role="dialog" aria-labelledby="modal" style="background-color: #cac5b1">
+        <div class="modal-content column-12 font-size--2" role="dialog" aria-labelledby="modal" style="background-color: #cac5b1">
 
             <a class="js-modal-toggle right" href="#" aria-label="close-modal">
                     <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 32 32"
@@ -271,37 +271,89 @@
                 </a>
 
             <div class="modal-section-hdr">About this App</div>
-            <div class="modal-section-content">The Drought Aware app is intended to provide the latest information about current, future, and historical drought conditions in the United States. The data shown here from <a href="https://www.arcgis.com/home/group.html?id=b67c85e0a4f2486dbdcbab0785cc42e7#overview" target="_blank" rel="noopener" class="custom-link">ArcGIS Living Atlas</a> are authoritative U.S. government sources, including:</div>
-
-            <ul class="modal-section-content">
-                <li>NOAA NIDIS <a href="https://www.drought.gov/" target="_blank" rel="noopener" class="custom-link">US Drought Monitor</a> and NOAA Climate Prediction Center <a
-                                    href="https://www.cpc.ncep.noaa.gov/products/expert_assessment/mdo_summary.php"
-                                    target="_blank" rel="noopener" class="custom-link">Monthly</a> and <a
-                        href="https://www.cpc.ncep.noaa.gov/products/expert_assessment/sdo_summary.php"
-                        target="_blank" rel="noopener" class="custom-link">Seasonal Drought Outlooks</a></li>
-                <li>The USDA <a href="https://livingatlas.arcgis.com/en/browse/#d=2&q=%22USDA%20Census%20of%20Agriculture%22&type=layers&cont=true&authoritative=true" target="_blank" rel="noopener" class="custom-link">2017 Census of Agriculture</a> for agricultural
-                    values and employment
-                </li>
-                <li>U.S. Census <a
-                                href="https://livingatlas.arcgis.com/en/browse/#d=2&q=%22ACS%20Population%20Variables%20-%20Boundaries%22&type=layers&cont=true&authoritative=true"
-                                target="_blank" rel="noopener" class="custom-link">American Community Survey</a> for state and
-                    county population totals for the past year
-                </li>
-            </ul>
-
-            <div class="modal-section-hdr">Use this App</div>
-
-            <div class="modal-section-content">Click a location in the U.S. to see the current Drought Monitor
-                    information and potential impacts. These values can be viewed by county or state totals from the
-                    selector at the bottom left. Agriculture summaries are based on the USDA’s 2017 Census of
-                    Agriculture and are the best available data (though not all areas report data). Highlighted are
-                    some of the most economically important yet drought sensitive products.
-                The time series graph
-                    will change the display of the Drought Monitor map, however, all of the other values (outlooks,
-                    agriculture, etc) are fixed in time.  Use the mouse wheel to zoom in and out of the time series graphc.
+            <div>
+                The Drought Aware app is intended to provide the latest information about current, future, and historical drought conditions in the United States.
+                The data shown here from
+                <a href="https://www.arcgis.com/home/group.html?id=b67c85e0a4f2486dbdcbab0785cc42e7#overview" target="_blank"
+                   rel="noopener" class="custom-link">ArcGIS Living Atlas</a>
+                are authoritative U.S. government sources, including:
+            </div>
+            <div>
+                <ul class="font-size--2" style="margin-block-start: 0;">
+                    <li>
+                        NOAA NIDIS <a href="https://www.drought.gov/" target="_blank" rel="noopener" class="custom-link">US Drought Monitor</a>.
+                        Their website provides regional summaries of causation and impact.
+                    </li>
+                    <li>
+                        NOAA Climate Prediction Center <a
+                            href="https://www.cpc.ncep.noaa.gov/products/expert_assessment/mdo_summary.php"
+                            target="_blank" rel="noopener" class="custom-link">Monthly</a> and <a
+                            href="https://www.cpc.ncep.noaa.gov/products/expert_assessment/sdo_summary.php"
+                            target="_blank" rel="noopener" class="custom-link">Seasonal Drought Outlooks</a>
+                    </li>
+                    <li>
+                        The USDA <a href="https://livingatlas.arcgis.com/en/browse/#d=2&q=%22USDA%20Census%20of%20Agriculture%22&type=layers&cont=true&authoritative=true" target="_blank" rel="noopener" class="custom-link">2017 Census of Agriculture</a> for agricultural values and employment
+                    </li>
+                    <li>U.S. Census <a
+                            href="https://livingatlas.arcgis.com/en/browse/#d=2&q=%22ACS%20Population%20Variables%20-%20Boundaries%22&type=layers&cont=true&authoritative=true"
+                            target="_blank" rel="noopener" class="custom-link">American Community Survey</a> for state and
+                        county population totals for the past year
+                    </li>
+                </ul>
             </div>
 
-            <div class="modal-section-content leader-half">This app was designed by Esri’s <a href="https://www.esri.com/arcgis-blog/author/dpisut-2/" target="_blank" class="user-profile-link" rel="noopener">Dan Pisut</a>, <a
+            <div class="modal-section-hdr">Drought Definitions</div>
+            <div>
+                Abnormally Dry (D0):
+                <ul class="font-size--2" style="margin-block-start: 0;">
+                    <li>Going into drought there is short-term dryness slowing planting, growth of crops or pastures.</li>
+                    <li>Coming out of drought there is some lingering water deficits; pastures or crops not fully recovered.</li>
+                </ul>
+            </div>
+            <div>
+                Moderate Drought (D1)
+                <ul class="font-size--2" style="margin-block-start: 0;">
+                    <li>Some damage to crops and pastures;</li>
+                    <li>Streams, reservoirs, or wells low, some water shortages developing or imminent</li>
+                    <li>Voluntary water-use restrictions requested</li>
+                </ul>
+            </div>
+            <div>
+                Severe Drought (D2)
+                <ul class="font-size--2" style="margin-block-start: 0;">
+                    <li>Crop or pasture losses likely</li>
+                    <li>Water shortages common</li>
+                    <li>Water restrictions imposed</li>
+                </ul>
+            </div>
+            <div>
+                Extreme Drought (D3)
+                <ul class="font-size--2" style="margin-block-start: 0;">
+                    <li>Major crop/pasture losses</li>
+                    <li>Widespread water shortages or restrictions</li>
+                </ul>
+            </div>
+            <div>
+                Exceptional Drought (D4)
+                <ul class="font-size--2" style="margin-block-start: 0;">
+                    <li>Exceptional and widespread crop/pasture losses</li>
+                    <li>Shortages of water in reservoirs, streams, and wells creating water emergencies</li>
+                </ul>
+            </div>
+
+            <div class="modal-section-hdr">Use this App</div>
+            <ul class="font-size--2" style="margin-block-start: 0;">
+                <li>Click a location in the U.S. to see the current Drought Monitor information and potential impacts. These values can be viewed by county or state totals from the selector at the bottom left.</li>
+                <li>Agriculture summaries are based on the USDA’s 2017 Census of Agriculture and are the best available data (though not all areas report data). Highlighted are some of the most economically important yet drought sensitive products.</li>
+                <li>The time series graph will change the display of the Drought Monitor map, however, all of the other values (outlooks, agriculture, etc) are fixed in time.</li>
+                <li>Use the mouse wheel to zoom in and out of the time series graph.</li>
+            </ul>
+
+            <div class="font-size--2">
+                A blog describing some ways to use Drought Aware can be found <a target="_blank" href="https://www.esri.com/arcgis-blog/products/arcgis-living-atlas/water/drought-aware" class="user-profile-link" rel="noopener">here</a>.
+            </div>
+
+            <div class="font-size--2 leader-half">This app was designed by Esri’s <a href="https://www.esri.com/arcgis-blog/author/dpisut-2/" target="_blank" class="user-profile-link" rel="noopener">Dan Pisut</a>, <a
                         href="https://www.esri.com/arcgis-blog/author/emeriam/" target="_blank" class="user-profile-link" rel="noopener">Emily Meriam</a>, and <a href="https://github.com/ChrisMahlke" target="_blank" class="user-profile-link" rel="noopener">Chris
                     Mahlke</a>. The source code for the app can be found on <a
                         href="https://github.com/Esri/drought-tracker"
@@ -381,6 +433,11 @@
                     <div class="column-12">
                         <div class="column-2 font-size--3">Winter Wheat: </div>
                         <div class="column-4 font-size--2 wheatSales"></div>
+                    </div>
+
+                    <div class="column-12">
+                        <div class="column-2 font-size--3">Other: </div>
+                        <div class="column-4 font-size--2 otherSales"></div>
                     </div>
                 </div>
 

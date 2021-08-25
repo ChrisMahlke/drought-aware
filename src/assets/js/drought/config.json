@@ -91,25 +91,44 @@
       "q": ""
     },
     "outlook": {
-      "month" : {
-        "url": "https://services.arcgis.com/bDAhvQYMG4WL8O5o/ArcGIS/rest/services/mdo_polygons/FeatureServer/0",
-        "returnGeometry": false,
-        "outFields": ["*"],
-        "spatialRel": "esriSpatialRelIntersects",
-        "orderByFields": ["fid_persis desc", "fid_improv desc", "fid_dev desc", "fid_remove desc"],
-        "geometryType": "esriGeometryPolygon",
-        "geometry": "",
-        "q": ""
+      "monthly": {
+        "date" : {
+          "url": "https://services.arcgis.com/bDAhvQYMG4WL8O5o/ArcGIS/rest/services/mdo_polygons/FeatureServer/0",
+          "returnGeometry": false,
+          "outFields": ["Target"],
+          "orderByFields": ["Target"],
+          "q": "1=1"
+        },
+        "value" : {
+          "url": "https://services.arcgis.com/bDAhvQYMG4WL8O5o/ArcGIS/rest/services/mdo_polygons/FeatureServer/0",
+          "returnGeometry": false,
+          "outFields": ["*"],
+          "spatialRel": "esriSpatialRelIntersects",
+          "orderByFields": ["fid_persis desc", "fid_improv desc", "fid_dev desc", "fid_remove desc"],
+          "geometryType": "esriGeometryPolygon",
+          "geometry": "",
+          "q": ""
+        }
       },
+
       "seasonal": {
-        "url": "https://services.arcgis.com/bDAhvQYMG4WL8O5o/ArcGIS/rest/services/sdo_polygons/FeatureServer/0",
-        "returnGeometry": false,
-        "outFields": ["*"],
-        "spatialRel": "esriSpatialRelIntersects",
-        "orderByFields": ["fid_persis desc", "fid_improv desc", "fid_dev desc", "fid_remove desc"],
-        "geometryType": "esriGeometryPolygon",
-        "geometry": "",
-        "q": ""
+        "date": {
+          "url": "https://services.arcgis.com/bDAhvQYMG4WL8O5o/ArcGIS/rest/services/sdo_polygons/FeatureServer/0",
+          "returnGeometry": false,
+          "outFields": ["*"],
+          "orderByFields": ["Target"],
+          "q": "1=1"
+        },
+        "value": {
+          "url": "https://services.arcgis.com/bDAhvQYMG4WL8O5o/ArcGIS/rest/services/sdo_polygons/FeatureServer/0",
+          "returnGeometry": false,
+          "outFields": ["*"],
+          "spatialRel": "esriSpatialRelIntersects",
+          "orderByFields": ["fid_persis desc", "fid_improv desc", "fid_dev desc", "fid_remove desc"],
+          "geometryType": "esriGeometryPolygon",
+          "geometry": "",
+          "q": ""
+        }
       }
     },
     "severeDroughtConditions": {

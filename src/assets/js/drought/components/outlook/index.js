@@ -1,45 +1,31 @@
 import "./index.scss";
 import config from "../../config.json";
 
-/**
- * Update the monthly drought label
- * component: DROUGHT OUTLOOK
- *
- * @param response
- */
+export function monthlyDroughtOutlookDateResponseHandler(response) {
+    const { attributes } = response.features[0];
+    update(document.getElementsByClassName("monthlyOutlookDate"), attributes["Target"]);
+}
+
 export function monthlyDroughtOutlookResponseHandler(response) {
-    console.debug(response);
     const outlook = processOutlookResponse(response);
-    update(document.getElementsByClassName("monthlyOutlookDate"), outlook.date);
     update(document.getElementsByClassName("monthlyOutlookLabel"), outlook.label);
 }
 
-function update(nodes, data) {
-    for (let node of nodes) {
-        node.innerHTML = data;
-    }
+export function seasonalDroughtOutlookDateResponseHandler(response) {
+    const { attributes } = response.features[0];
+    update(document.getElementsByClassName("seasonalOutlookDate"), attributes["Target"]);
 }
 
-/**
- * Update the seasonal drought label
- * component: DROUGHT OUTLOOK
- *
- * @param response
- */
 export function seasonalDroughtOutlookResponseHandler(response) {
-    console.debug(response);
     const outlook = processOutlookResponse(response);
-    update(document.getElementsByClassName("seasonalOutlookDate"), outlook.date);
     update(document.getElementsByClassName("seasonalOutlookLabel"), outlook.label);
 }
 
-/**
- * Process the outlook response.
- * component: DROUGHT OUTLOOK
- *
- * @param response
- * @returns {{date: string, label: string}}
- */
+
+
+
+
+
 function processOutlookResponse(response) {
     let outlook = {
         "date": config.drought_colors.nothing.label,
@@ -60,4 +46,10 @@ function processOutlookResponse(response) {
         }
     }
     return outlook;
+}
+
+function update(nodes, data) {
+    for (let node of nodes) {
+        node.innerHTML = data;
+    }
 }
