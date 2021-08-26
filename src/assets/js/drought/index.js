@@ -330,7 +330,22 @@ window.onSignInHandler = (portal) => {
                             });
                         });
 
-                        document.getElementsByClassName("reset-app-btn")[0].addEventListener("click", event => {
+                        document.querySelectorAll(".reset-app-btn").forEach(ele => {
+                            ele.addEventListener("click", event => {
+                                bottomComponent.style.display = "none";
+                                adminSubdivision.style.display = "none";
+                                for (const graphic of mapView.graphics){
+                                    if (graphic.attributes === "BOUNDARY") {
+                                        mapView.graphics.remove(graphic);
+                                    }
+                                }
+                                Scrim.showScrim({
+                                    "mostRecentDate": new Date(inputDataset[inputDataset.length - 1].date),
+                                    "selectedDate": new Date(inputDataset[inputDataset.length - 1].date)
+                                });
+                            });
+                        });
+                        /*document.getElementsByClassName("reset-app-btn")[0].addEventListener("click", event => {
                             bottomComponent.style.display = "none";
                             adminSubdivision.style.display = "none";
                             for (const graphic of mapView.graphics){
@@ -342,7 +357,7 @@ window.onSignInHandler = (portal) => {
                                 "mostRecentDate": new Date(inputDataset[inputDataset.length - 1].date),
                                 "selectedDate": new Date(inputDataset[inputDataset.length - 1].date)
                             });
-                        });
+                        });*/
                     }
 
                     function mapClickHandler(event) {

@@ -5,7 +5,7 @@ export function showScrim(params) {
     let maskFontColorCSS_key = "mask-font-color";
     let maskElementOpacityCSS_key = "mask-font-opacity";
     let droughtStatusComponentEle = document.getElementById("droughtStatusComponent");
-    let droughtStatusEle = document.getElementById("drought-status");
+    let droughtStatusEle = document.getElementsByClassName("drought-status")[0];
     let agrComponentEle = document.getElementById("agrComponent");
     let outlookValues = document.getElementsByClassName("outlook-value");
     let legendWidgetEle = document.getElementById("legendWidget");
