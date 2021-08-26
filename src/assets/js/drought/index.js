@@ -6,13 +6,14 @@ import { loadCss, loadModules } from 'esri-loader';
 import * as AgricultureComponent from './components/agriculture';
 import * as AppHeaderComponent from './components/header/index';
 import * as BookmarksComponent from './components/bookmarks/index';
+import * as Conditions from './components/conditions/index';
 import * as Chart from './components/charts/index';
-import * as DataUtils from './utils/DataUtils';
 import * as ErrorHandler from './utils/ErrorHandler';
 import * as FormatUtils from './utils/FormatUtils';
 import * as HomeComponent from './components/home/index';
 import * as LayerUtils from './utils/LayerUtils';
 import * as LegendComponent from './components/legend/index';
+import * as LocationComponent from './components/location/index';
 import * as Mobile from './utils/Mobile';
 import * as Outlook from './components/Outlook';
 import * as QueryUtils from './utils/QueryUtils';
@@ -21,7 +22,7 @@ import * as ZoomComponent from './components/zoom/index';
 
 import * as calcite from "calcite-web";
 import * as d3 from "d3";
-import { differenceInWeeks, format } from 'date-fns';
+import { format } from 'date-fns';
 import * as Scrim from "./components/scrim";
 
 window.onSignInHandler = (portal) => {
@@ -265,8 +266,8 @@ window.onSignInHandler = (portal) => {
                         calcite.addClass(document.getElementById("splash"), "hide");
                         calcite.addClass(document.getElementById("appLoadingIndicator"), "hide");
 
-                        document.querySelectorAll(".radio-group-input").forEach(item => {
-                            item.addEventListener("click", event => {
+                        document.querySelectorAll(".radio-group-input").forEach(ele => {
+                            ele.addEventListener("click", event => {
                                 config.selected.adminAreaId = event.target.id;
                                 if (config.selected.adminAreaId === config.COUNTY_ADMIN) {
                                     config.boundaryQuery.url = config.county_boundary;
@@ -292,8 +293,8 @@ window.onSignInHandler = (portal) => {
                             });
                         });
 
-                        document.querySelectorAll(".reset-chart-btn").forEach(item => {
-                            item.addEventListener('click', event => {
+                        document.querySelectorAll(".reset-chart-btn").forEach(ele => {
+                            ele.addEventListener('click', event => {
                                 let mostRecentDate = new Date(inputDataset[inputDataset.length - 1].date).getTime();
                                 Chart.setSelectedEvent(d3.select("rect[id='" + mostRecentDate + "']"));
                                 let initXPosition = d3.select("rect[id='" + mostRecentDate + "']").attr("x");
@@ -345,19 +346,14 @@ window.onSignInHandler = (portal) => {
                                 });
                             });
                         });
-                        /*document.getElementsByClassName("reset-app-btn")[0].addEventListener("click", event => {
-                            bottomComponent.style.display = "none";
-                            adminSubdivision.style.display = "none";
-                            for (const graphic of mapView.graphics){
-                                if (graphic.attributes === "BOUNDARY") {
-                                    mapView.graphics.remove(graphic);
-                                }
-                            }
-                            Scrim.showScrim({
-                                "mostRecentDate": new Date(inputDataset[inputDataset.length - 1].date),
-                                "selectedDate": new Date(inputDataset[inputDataset.length - 1].date)
-                            });
-                        });*/
+
+                        Promise.all([
+                            QueryUtils.fetchData(config.qParams.outlook.monthly.date).catch(error => { return error }),
+                            QueryUtils.fetchData(config.qParams.outlook.seasonal.date).catch(error => { return error }),
+                        ]).then(([monthlyDate, seasonalDate]) => {
+                            Outlook.monthlyDroughtOutlookDateResponseHandler(monthlyDate);
+                            Outlook.seasonalDroughtOutlookDateResponseHandler(seasonalDate);
+                        }).catch(err => console.debug(err));
                     }
 
                     function mapClickHandler(event) {
@@ -413,40 +409,32 @@ window.onSignInHandler = (portal) => {
                                 config.qParams.outlook.seasonal.value.geometry = selectedFeature.geometry;
                                 config.qParams.agriculture.q = agrQuery;
 
-                                // Agricultural Impact
-                                QueryUtils.fetchData(config.qParams.agriculture)
-                                    .then(AgricultureComponent.updateAgriculturalImpactComponent, ErrorHandler.hydrateErrorAlert);
+                                Promise.all([
+                                    QueryUtils.fetchData(config.qParams.agriculture).catch(error => { return error }),
+                                    QueryUtils.fetchData(config.qParams.outlook.monthly.value).catch(error => { return error }),
+                                    QueryUtils.fetchData(config.qParams.outlook.seasonal.value).catch(error => { return error }),
+                                    QueryUtils.fetchData(config.qParams.severeDroughtConditions).catch(error => { return error }),
+                                    QueryUtils.fetchData(config.qParams.historicDroughtConditions).catch(error => { return error }),
+                                ]).then(([agriculture, monthlyValue, seasonalValue, severeDroughtConditions, historicDroughtConditions]) => {
+                                    AgricultureComponent.updateAgriculturalImpactComponent(agriculture);
+                                    Outlook.monthlyDroughtOutlookResponseHandler(monthlyValue);
+                                    Outlook.seasonalDroughtOutlookResponseHandler(seasonalValue);
+                                    Conditions.droughtConditionsSuccessHandler(severeDroughtConditions, selectedDateObj);
+                                    historicDataQuerySuccessHandler(historicDroughtConditions);
+                                    LocationComponent.updateSelectedLocationComponent(historicDroughtConditions);
 
-                                // Monthly outlook
-                                QueryUtils.fetchData(config.qParams.outlook.monthly.date).then(Outlook.monthlyDroughtOutlookDateResponseHandler, ErrorHandler.hydrateErrorAlert);
-                                QueryUtils.fetchData(config.qParams.outlook.monthly.value).then(Outlook.monthlyDroughtOutlookResponseHandler, ErrorHandler.hydrateErrorAlert);
+                                    if (isMobile) {
+                                        Mobile.updateMobileView(webMap, selectedFeature);
+                                    }
 
-                                // Season outlook
-                                QueryUtils.fetchData(config.qParams.outlook.seasonal.date).then(Outlook.seasonalDroughtOutlookDateResponseHandler, ErrorHandler.hydrateErrorAlert);
-                                QueryUtils.fetchData(config.qParams.outlook.seasonal.value).then(Outlook.seasonalDroughtOutlookResponseHandler, ErrorHandler.hydrateErrorAlert);
-
-                                // Severe Drought conditions for n number of weeks
-                                QueryUtils.fetchData(config.qParams.severeDroughtConditions)
-                                    .then(severeDroughtConditionsSuccessHandler, ErrorHandler.hydrateErrorAlert);
-
-                                // Historic Data
-                                QueryUtils.fetchData(config.qParams.historicDroughtConditions)
-                                    .then(historicDataQuerySuccessHandler, ErrorHandler.hydrateErrorAlert)
-                                    .then(updateSelectedLocationComponent, updateSelectedLocationErrorHandler);
-
-                                if (isMobile) {
-                                    Mobile.updateMobileView(webMap, selectedFeature);
-                                } else {
-
-                                }
-
+                                }).catch(err => console.debug(err));
                             } else {
                                 ErrorHandler.noResponseHandler();
                             }
                         });
                     }
 
-                    async function historicDataQuerySuccessHandler(response) {
+                    function historicDataQuerySuccessHandler(response) {
                         const { features } = response;
                         inputDataset = features.map(feature => {
                             const { attributes } = feature;
@@ -480,18 +468,8 @@ window.onSignInHandler = (portal) => {
                         d3.select(".click-scrubber-text").text(formattedDate);
 
                         updateDroughtPercentage(response, parseInt(dateFromUrl));
-                        updateCurrentDroughtStatus(response);
+                        Conditions.updateCurrentDroughtStatus(response);
                         dataComponentLoadingIndicator.removeAttribute("active");
-                        return await response;
-                    }
-
-                    function severeDroughtConditionsSuccessHandler(response) {
-                        let responseDate = response.features[0].attributes.ddate;
-                        const consecutiveWeeks = differenceInWeeks(new Date(selectedDateObj.selectedDate), new Date(responseDate)) - 1;
-                        let nodes = document.getElementsByClassName("consecutiveWeeks");
-                        for (let node of nodes) {
-                            node.innerHTML = `${consecutiveWeeks.toString()}`;
-                        }
                     }
 
                     function viewStationaryHandler(response) {
@@ -537,25 +515,6 @@ window.onSignInHandler = (portal) => {
                         return await response;
                     }
 
-                    async function updateSelectedLocationComponent(response) {
-                        const selectedFeature = response.features[0];
-                        let label = `${selectedFeature.attributes["name"]}, ${config.selected.state_name}`;
-                        if (config.selected.adminAreaId !== config.COUNTY_ADMIN) {
-                            label = `${config.selected.state_name}`;
-                        }
-
-                        let nodes = document.getElementsByClassName("selected-location");
-                        for (let node of nodes) {
-                            node.innerHTML = label.toUpperCase();
-                        }
-
-                        return await response;
-                    }
-
-                    function updateSelectedLocationErrorHandler(error) {
-                        console.debug("updateSelectedLocationErrorHandler | ERROR", error)
-                    }
-
                     /**
                      * Update the drought percentage of the selected area.
                      * component: HISTORIC DATA
@@ -573,45 +532,6 @@ window.onSignInHandler = (portal) => {
                         let nodes = document.getElementsByClassName("drought-percentage");
                         for (let node of nodes) {
                             node.innerHTML = attributes["D1_D4"].toFixed(0);
-                        }
-                    }
-
-                    /**
-                     * Update the drought status label.
-                     * component: LATEST DROUGHT CONDITIONS
-                     *
-                     * @param response
-                     */
-                    function updateCurrentDroughtStatus(response) {
-                        let { attributes } = response.features[0];
-                        let drought = {
-                            d0 : attributes["d0"],
-                            d1 : attributes["d1"],
-                            d2 : attributes["d2"],
-                            d3 : attributes["d3"],
-                            d4 : attributes["d4"]
-                        };
-                        let condition = DataUtils.highestValueAndKey(drought);
-                        let key = condition["key"];
-                        let label = config.drought_colors[key].label;
-                        let color = config.drought_colors[key].color;
-                        if (attributes["nothing"] === 100) {
-                            label = config.drought_colors.nothing.label;
-                            color = config.drought_colors.nothing.color;
-                        } else if (key === "d0") {
-                            label = config.drought_colors[key].label;
-                            color = "#b19657";
-                        } else if (key === "d1") {
-                            label = config.drought_colors[key].label;
-                            color = "#cb9362";
-                        }
-
-
-
-                        let nodes = document.getElementsByClassName("drought-status");
-                        for (let node of nodes) {
-                            node.innerHTML = label;
-                            node.style.color = color;
                         }
                     }
 

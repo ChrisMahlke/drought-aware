@@ -8,6 +8,8 @@ export function showScrim(params) {
     let droughtStatusEle = document.getElementsByClassName("drought-status")[0];
     let agrComponentEle = document.getElementById("agrComponent");
     let outlookValues = document.getElementsByClassName("outlook-value");
+    let jobs = document.getElementsByClassName("jobs");
+    let totalSales = document.getElementsByClassName("totalSales");
     let legendWidgetEle = document.getElementById("legendWidget");
     let overlayMessageContainer = document.getElementsByClassName("overlay-message")[0];
 
@@ -19,6 +21,12 @@ export function showScrim(params) {
         for (let i = 0, max = outlookValues.length; i < max; i++) {
             calcite.addClass(outlookValues[i], maskFontColorCSS_key);
         }
+        for (let i = 0, max = jobs.length; i < max; i++) {
+            calcite.addClass(jobs[i], maskFontColorCSS_key);
+        }
+        for (let i = 0, max = totalSales.length; i < max; i++) {
+            calcite.addClass(totalSales[i], maskFontColorCSS_key);
+        }
         calcite.addClass(legendWidgetEle, maskElementOpacityCSS_key);
         calcite.removeClass(overlayMessageContainer, "hide");
     } else {
@@ -27,6 +35,12 @@ export function showScrim(params) {
         calcite.removeClass(droughtStatusEle, maskFontColorCSS_key);
         for (let i = 0, max = outlookValues.length; i < max; i++) {
             calcite.removeClass(outlookValues[i], maskFontColorCSS_key);
+        }
+        for (let i = 0, max = jobs.length; i < max; i++) {
+            calcite.removeClass(jobs[i], maskFontColorCSS_key);
+        }
+        for (let i = 0, max = totalSales.length; i < max; i++) {
+            calcite.removeClass(totalSales[i], maskFontColorCSS_key);
         }
         calcite.removeClass(legendWidgetEle, maskElementOpacityCSS_key);
         calcite.addClass(overlayMessageContainer, "hide");

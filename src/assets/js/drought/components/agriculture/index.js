@@ -36,9 +36,6 @@ export function updateAgriculturalImpactComponent(response) {
         let livestockValue = selectedFeature.attributes[livestock] || 0;
         let populationValue = selectedFeature.attributes[population] || 0;
 
-        //const sum = calculateOther(cornValue, soyValue, hayValue, winterValue, livestockValue);
-        //const other = totalSalesValue - sum;
-
         updateLaborStatistics(document.getElementsByClassName("jobs"), laborValue);
         updateAgricultureItem(document.getElementsByClassName("totalSales"), totalSalesValue);
         updateAgricultureItem(document.getElementsByClassName("cornSales"), cornValue);
@@ -46,17 +43,8 @@ export function updateAgriculturalImpactComponent(response) {
         updateAgricultureItem(document.getElementsByClassName("haySales"), hayValue);
         updateAgricultureItem(document.getElementsByClassName("wheatSales"), winterValue);
         updateAgricultureItem(document.getElementsByClassName("livestockSales"), livestockValue);
-        //updateAgricultureItem(document.getElementsByClassName("otherSales"), other);
         updateDemographicStatistics(document.getElementsByClassName("population"), populationValue);
     }
-}
-
-function calculateOther(...args) {
-    return args.reduce(function (acc, cur) {
-        let current = (cur > -1) ? cur : 0;
-        console.debug(current);
-        return acc + current;
-    });
 }
 
 function updateLaborStatistics(nodes, data) {
