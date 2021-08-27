@@ -43,9 +43,8 @@ window.onSignInHandler = (portal) => {
 
         const isMobile = Mobile.isMobileBrowser();
 
-        // Cache DOM Nodes used by the app
+        // Cache DOM elements
         let bottomLeft = null;
-        let bottomRight = null;
         let dataComponentLoadingIndicator = document.getElementById("dataComponentLoader");
         let adminSubdivision = document.getElementById("administrativeSubdivision");
         let bottomComponent = document.getElementById("bottomComponent");
@@ -96,11 +95,11 @@ window.onSignInHandler = (portal) => {
             q: ""
         };
 
-        if (isMobile) {
+        /*if (isMobile) {
             config.widgetPositions.appHeader = "manual";
             config.widgetPositions.home = "bottom-right";
             config.widgetPositions.zoom = "bottom-right";
-        }
+        }*/
 
         // MapView
         let mapView = null;
@@ -115,9 +114,12 @@ window.onSignInHandler = (portal) => {
             orderByFields: ["ddate desc"],
             outFields: ["ddate"],
             q: ""
-        }).then(successHandler).catch(ErrorHandler.hydrateErrorAlert);
+        }).then(mostRecentRecordHandler).catch(ErrorHandler.hydrateErrorAlert);
 
-        function successHandler(response) {
+        function mostRecentRecordHandler(response) {
+            console.debug("successHandler")
+            console.debug(response);
+
             const { features } = response;
             selectedDateObj = selectedDateHandler(parseInt(params.get("date")) || features[0].attributes.ddate);
 
@@ -146,7 +148,6 @@ window.onSignInHandler = (portal) => {
             watchUtils.whenTrue(mapView, "stationary", viewStationaryHandler);
 
             bottomLeft = document.getElementsByClassName("esri-ui-bottom-left")[0];
-            bottomRight = document.getElementsByClassName("esri-ui-bottom-right")[0];
         }
 
         function webMapLoadedSuccessHandler(response) {
@@ -282,12 +283,15 @@ window.onSignInHandler = (portal) => {
 
             document.querySelectorAll(".reset-chart-btn").forEach(ele => {
                 ele.addEventListener('click', event => {
+                    // most recent date
                     let mostRecentDate = new Date(inputDataset[inputDataset.length - 1].date).getTime();
+                    // set the scrubber on the most recent date
                     Chart.setSelectedEvent(d3.select("rect[id='" + mostRecentDate + "']"));
                     let initXPosition = d3.select("rect[id='" + mostRecentDate + "']").attr("x");
                     // mouse-over scrubber
                     Chart.setScrubberPosition(initXPosition);
-                    let formattedDate = FormatUtils.getFormattedDate(new Date(parseInt(mostRecentDate)));
+                    // scrubber tooltip text
+                    let formattedDate = FormatUtils.getFormattedDate(new Date(mostRecentDate));
                     d3.select(".click-scrubber-text").text(formattedDate);
 
                     let endDate = new Date(inputDataset[inputDataset.length - 1].date);
@@ -296,13 +300,16 @@ window.onSignInHandler = (portal) => {
                     urlSearchParams.set("date", mostRecentDate.toString());
                     window.history.replaceState({}, '', `${location.pathname}?${urlSearchParams}`);
 
-                    // update ag layer
+                    updateDroughtPercentage(inputDataset[inputDataset.length - 1]["d1_d4"]);
+
+                    // update ag layer visibility
                     LayerUtils.toggleLayer(mapView, {
                         "mostRecentDate": new Date(inputDataset[inputDataset.length - 1].date),
                         "selectedDate": endDate
                     });
-
+                    // remove drought layer
                     LayerUtils.removeLayers(mapView);
+                    // add drought layer
                     LayerUtils.addLayer({
                         "url": config.droughtURL,
                         "start": startDate,
@@ -311,6 +318,7 @@ window.onSignInHandler = (portal) => {
                         "view": mapView
                     });
 
+                    // hide the scrim
                     Scrim.showScrim({
                         "mostRecentDate": new Date(),
                         "selectedDate": new Date(),
@@ -368,7 +376,6 @@ window.onSignInHandler = (portal) => {
                     adminSubdivision.style.display = "unset";
                     bottomComponent.style.display = "flex";
                     bottomLeft.style.bottom = "215";
-                    bottomRight.style.bottom = "215";
                     dataComponentLoadingIndicator.setAttribute("active", "");
 
                     let selectedFeature = response.features[0];
@@ -453,7 +460,10 @@ window.onSignInHandler = (portal) => {
             let formattedDate = FormatUtils.getFormattedDate(new Date(parseInt(dateFromUrl)));
             d3.select(".click-scrubber-text").text(formattedDate);
 
-            updateDroughtPercentage(response, parseInt(dateFromUrl));
+            let found = response.features.find(feature => {
+                return parseInt(dateFromUrl) === feature.attributes.ddate;
+            });
+            updateDroughtPercentage(found.attributes["D1_D4"]);
             Conditions.updateCurrentDroughtStatus(response);
             dataComponentLoadingIndicator.removeAttribute("active");
 
@@ -506,23 +516,10 @@ window.onSignInHandler = (portal) => {
             return await response;
         }
 
-        /**
-         * Update the drought percentage of the selected area.
-         * component: HISTORIC DATA
-         *
-         * @param droughtQueryResponse
-         * @param selectedDate
-         */
-        function updateDroughtPercentage(droughtQueryResponse, selectedDate) {
-            let { features } = droughtQueryResponse;
-            let found = features.find(feature => {
-                return selectedDate === feature.attributes.ddate;
-            });
-            let { attributes } = found;
-
+        function updateDroughtPercentage(percentage) {
             let nodes = document.getElementsByClassName("drought-percentage");
             for (let node of nodes) {
-                node.innerHTML = attributes["D1_D4"].toFixed(0);
+                node.innerHTML = percentage.toFixed(0);
             }
         }
     });
