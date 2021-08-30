@@ -43,10 +43,16 @@ window.onSignInHandler = (portal) => {
 
         const isMobile = Mobile.isMobileBrowser();
 
+        let size = {
+            width: window.innerWidth || document.body.clientWidth,
+            height: window.innerHeight || document.body.clientHeight
+        }
+        console.debug(size)
+
+
         // Cache DOM elements
         let bottomLeft = null;
-        let dataComponentLoadingIndicator = document.getElementById("dataComponentLoader");
-        let adminSubdivision = document.getElementById("administrativeSubdivision");
+        // GOOD let dataComponentLoadingIndicator = document.getElementById("dataComponentLoader");
         let bottomComponent = document.getElementById("bottomComponent");
         let countyButtonEle = document.getElementById("county");
         let stateButtonEle = document.getElementById("state");
@@ -95,12 +101,6 @@ window.onSignInHandler = (portal) => {
             q: ""
         };
 
-        /*if (isMobile) {
-            config.widgetPositions.appHeader = "manual";
-            config.widgetPositions.home = "bottom-right";
-            config.widgetPositions.zoom = "bottom-right";
-        }*/
-
         // MapView
         let mapView = null;
 
@@ -117,9 +117,6 @@ window.onSignInHandler = (portal) => {
         }).then(mostRecentRecordHandler).catch(ErrorHandler.hydrateErrorAlert);
 
         function mostRecentRecordHandler(response) {
-            console.debug("successHandler")
-            console.debug(response);
-
             const { features } = response;
             selectedDateObj = selectedDateHandler(parseInt(params.get("date")) || features[0].attributes.ddate);
 
@@ -138,6 +135,9 @@ window.onSignInHandler = (portal) => {
                     rotationEnabled: false,
                     minScale: config.mapViewMinScale,
                     maxScale: config.mapViewMaxScale
+                },
+                padding: {
+                    bottom: 320 // Same value as the #sidebar width in CSS
                 },
                 ui: {
                     components: []
@@ -195,23 +195,7 @@ window.onSignInHandler = (portal) => {
                 console.debug(error)
             });
 
-            // app header
-            AppHeaderComponent.init({
-                view: response,
-                position: config.widgetPositions.appHeader
-            });
-
-            // legend
-            LegendComponent.init({
-                view: response,
-                position: config.widgetPositions.legend
-            }).then(response => {
-                document.getElementById("minValue").innerHTML = "< $50 million"//formatter.format(visualVariables.minDataValue);
-                document.getElementById("maxValue").innerHTML = "> $1 Billion"//formatter.format(visualVariables.maxDataValue);
-                document.getElementById("legendWidget").appendChild(document.getElementsByClassName("esri-legend")[0]);
-            });
-
-            response.ui.add("administrativeSubdivision", "bottom-left");
+            response.ui.add("topComponent", "top-right");
 
             response.on("click", mapClickHandler);
 
@@ -247,6 +231,7 @@ window.onSignInHandler = (portal) => {
             // splash screen
             calcite.addClass(document.getElementById("splash"), "hide");
             calcite.addClass(document.getElementById("appLoadingIndicator"), "hide");
+            calcite.removeClass(document.getElementsByClassName("info-modal")[0], "hide");
 
             document.querySelectorAll(".radio-group-input").forEach(ele => {
                 ele.addEventListener("click", event => {
@@ -281,7 +266,7 @@ window.onSignInHandler = (portal) => {
                 });
             });
 
-            document.querySelectorAll(".reset-chart-btn").forEach(ele => {
+            /*document.querySelectorAll(".reset-chart-btn").forEach(ele => {
                 ele.addEventListener('click', event => {
                     // most recent date
                     let mostRecentDate = new Date(inputDataset[inputDataset.length - 1].date).getTime();
@@ -324,12 +309,11 @@ window.onSignInHandler = (portal) => {
                         "selectedDate": new Date(),
                     });
                 });
-            });
+            });*/
 
             document.querySelectorAll(".reset-app-btn").forEach(ele => {
                 ele.addEventListener("click", event => {
                     bottomComponent.style.display = "none";
-                    adminSubdivision.style.display = "none";
                     for (const graphic of mapView.graphics){
                         if (graphic.attributes === "BOUNDARY") {
                             mapView.graphics.remove(graphic);
@@ -373,10 +357,8 @@ window.onSignInHandler = (portal) => {
 
             QueryUtils.fetchData(config.boundaryQuery).then(retrieveGeometryResponseHandler).then(response => {
                 if (response.features.length > 0) {
-                    adminSubdivision.style.display = "unset";
-                    bottomComponent.style.display = "flex";
-                    bottomLeft.style.bottom = "215";
-                    dataComponentLoadingIndicator.setAttribute("active", "");
+                    bottomComponent.style.display = "";
+                    // GOOD dataComponentLoadingIndicator.setAttribute("active", "");
 
                     let selectedFeature = response.features[0];
                     config.selected.state_name = selectedFeature.attributes["STATE_NAME"];
@@ -445,6 +427,7 @@ window.onSignInHandler = (portal) => {
             });
             inputDataset.reverse();
 
+            config.chart.width = getChartContainerDimensions();
             let params = new URLSearchParams(location.search);
             let dateFromUrl = params.get("date") || new Date(inputDataset[inputDataset.length - 1].date).getTime();
             Chart.createChart({
@@ -465,12 +448,12 @@ window.onSignInHandler = (portal) => {
             });
             updateDroughtPercentage(found.attributes["D1_D4"]);
             Conditions.updateCurrentDroughtStatus(response);
-            dataComponentLoadingIndicator.removeAttribute("active");
+            // GOOD dataComponentLoadingIndicator.removeAttribute("active");
 
-            Scrim.showScrim({
+            /* GOOD Scrim.showScrim({
                 "mostRecentDate": new Date(inputDataset[inputDataset.length - 1].date),
                 "selectedDate": new Date(parseInt(dateFromUrl))
-            });
+            });*/
         }
 
         function viewStationaryHandler(response) {
@@ -521,6 +504,61 @@ window.onSignInHandler = (portal) => {
             for (let node of nodes) {
                 node.innerHTML = percentage.toFixed(0);
             }
+        }
+
+
+
+
+        // timeOutFunctionId stores a numeric ID which is
+        // used by clearTimeOut to reset timer
+        let timeOutFunctionId;
+        // The function that we want to execute after
+        // we are done resizing
+        function workAfterResizeIsDone() {
+            config.chart.width = getChartContainerDimensions();
+
+            let params = new URLSearchParams(location.search);
+            let dateFromUrl = params.get("date") || new Date(inputDataset[inputDataset.length - 1].date).getTime();
+            Chart.createChart({
+                data: inputDataset,
+                view: mapView
+            });
+
+            // selected date/time
+            Chart.setSelectedEvent(d3.select("rect[id='" + dateFromUrl + "']"));
+            let initXPosition = d3.select("rect[id='" + dateFromUrl + "']").attr("x");
+            // mouse-over scrubber
+            Chart.setScrubberPosition(initXPosition);
+            let formattedDate = FormatUtils.getFormattedDate(new Date(parseInt(dateFromUrl)));
+            d3.select(".click-scrubber-text").text(formattedDate);
+        }
+
+        // The following event is triggered continuously
+        // while we are resizing the window
+        window.addEventListener("resize", function() {
+
+            // clearTimeOut() resets the setTimeOut() timer
+            // due to this the function in setTimeout() is
+            // fired after we are done resizing
+            clearTimeout(timeOutFunctionId);
+
+            // setTimeout returns the numeric ID which is used by
+            // clearTimeOut to reset the timer
+            timeOutFunctionId = setTimeout(workAfterResizeIsDone, 500);
+        });
+
+        function getChartContainerDimensions() {
+            let droughtConditionsContainer = document.getElementsByClassName("m-flex-container")[0];
+            let w1 = droughtConditionsContainer.getBoundingClientRect().width;
+
+            let agrEleContainer = document.getElementsByClassName("agricultural-impacts-container")[0];
+            let w2 = agrEleContainer.getBoundingClientRect().width;
+
+            let size = {
+                width: window.innerWidth || document.body.clientWidth,
+                height: window.innerHeight || document.body.clientHeight
+            }
+            return (size.width - (w1 + w2)) - 40;
         }
     });
 }

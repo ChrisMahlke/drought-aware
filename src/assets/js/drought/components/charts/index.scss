@@ -14,5 +14,62 @@
 .chart-legend-label-container {
   float: left;
   padding-left: .25em;
-  font-size: 0.80em;
 }
+
+#areaChartScrubberContent {
+  position: absolute;
+  left: 50px;
+  width: 165px;
+  height: 115px;
+  line-height: 1.4;
+  background-color: #aaa79a;
+  color: #fff;
+  padding: 0.5em;
+  border-radius: .3em;
+  -webkit-box-shadow: 10px 10px 16px -6px rgba(170, 167, 154, .79);
+  box-shadow: 10px 10px 16px -6px rgba(170, 167, 154, .79);
+}
+
+#areaChartScrubberContentDate {
+  text-align: center;
+  padding-top: .25em;
+}
+.tooltip-flex-container {
+  display: grid;
+  grid-template-columns: 10px 100px 40px;
+}
+
+.legend-tooltip-graphic {
+  height: 10px;
+  width: 10px;
+  margin-top: .2em;
+}
+
+.legend-tooltip-label {
+  padding-left: .5em;
+}
+
+.legend-tooltip-value {
+  text-align: right;
+}
+
+.abnormally-dry {
+  background: #eee1b4;
+}
+
+.moderate-drought {
+  background: #ecd092;
+}
+
+.severe-drought {
+  background: #eaa771;
+}
+
+.extreme-drought {
+  background: #dc6f4d;
+}
+
+.exceptional-drought {
+  background: #aa3332;
+}
+

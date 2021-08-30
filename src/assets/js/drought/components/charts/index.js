@@ -30,7 +30,6 @@ const keyColors = [
     "rgb(255, 255, 255, 0.0)"
 ];
 const keys = Object.keys(config.drought_colors);
-let chartNode = document.getElementById("stackedBarchart");
 let chartScrubbingTooltip = document.getElementById("areaChartScrubberContent");
 let inputDataset = [];
 
@@ -42,9 +41,11 @@ export function createChart(params) {
     inputDataset = params.data;
     mapView = params.view;
 
+    //let chartNode = document.getElementById("stackedBarchart");
+
     // TODO
     barChartHeight = config.chart.height;
-    barChartWidth = chartNode.offsetWidth;
+    barChartWidth = config.chart.width;//chartNode.offsetWidth;
     barChartMargin = config.chart.margin;
 
     // TODO
@@ -67,7 +68,7 @@ export function createChart(params) {
     barChartXAxis = (g, x) => g
         .attr("transform", `translate(0,${barChartHeight - barChartMargin.bottom})`)
         .call(d3.axisBottom(x).tickValues(x.domain()
-            .filter((e,i) => i % Math.round(barChartWidth/4) === 0))
+            .filter((e,i) => i % Math.round(barChartWidth/scaleAxis(barChartWidth)) === 0))
             .tickFormat(d3.timeFormat("%m/%Y")));
 
     barChartYAxis = (g, y) => g
@@ -183,22 +184,27 @@ export function createChart(params) {
         return this.parentNode.nextSibling ? `\xa0${d}` : `${d}%`;
     }
 
+    function scaleAxis(chartContainerElement) {
+        if (chartContainerElement < 450) {
+            return 2;
+        } else if (chartContainerElement => 450 && chartContainerElement <= 600) {
+            return 4;
+        } else if (chartContainerElement => 600 && chartContainerElement < 1000) {
+            return 8;
+        } else {
+            return 10;
+        }
+    }
+
     return barChartSvg.node();
 }
 
-/**
- *
- * @param event
- */
+
 function chartMouseOverHandler(event) {
     scrubber.style("display", "block");
     chartScrubbingTooltip.style.display = "block";
 }
 
-/**
- *
- * @param event
- */
 function chartMouseOutHandler(event) {
     scrubber.style("display", "none");
     chartScrubbingTooltip.style.display = "none";
@@ -222,7 +228,7 @@ function chartMouseMoveHandler(event) {
     scrubber.attr("transform", "translate(" + (currentXPosition - 2) + "," + 0 + ")");
     chartScrubbingTooltip.style.position = "absolute";
     chartScrubbingTooltip.style.left = (pageX - 75) + "px";
-    chartScrubbingTooltip.style.top = "-80px";
+    chartScrubbingTooltip.style.top = "-30px";
 }
 
 function chartMouseClickHandler(event) {
@@ -231,7 +237,7 @@ function chartMouseClickHandler(event) {
     d3.select(".click-scrubber-text").text(FormatUtils.getFormattedDate(d.data.date));
 
     let pageX = event.pageX;
-    let chartContainerRect  = document.getElementById("historicRecordComponent").getBoundingClientRect();
+    let chartContainerRect  = document.getElementsByClassName("historic-data-container")[0].getBoundingClientRect();
     if ((chartContainerRect.width - pageX) < 60) {
         d3.select("#click-scrubber-text-container").attr("transform", "translate(-" + 100 + ",-" + 20 + ")");
         d3.select(".click-scrubber-text").attr("transform", "translate(-" + 50 + ",0)");
@@ -280,7 +286,8 @@ function barChartZoomed(event) {
     barChartX.range([barChartMargin.left, barChartWidth - barChartMargin.right].map(d =>
         event.transform.applyX(d)
     ));
-    barChartSvg.selectAll(".bars rect").attr("x", d => barChartX(d.data.date)).attr("width", Math.round(barChartX.bandwidth()));
+    let barWidth = (Math.round(barChartX.bandwidth()) === 0) ? 1.0 : Math.round(barChartX.bandwidth());
+    barChartSvg.selectAll(".bars rect").attr("x", d => barChartX(d.data.date)).attr("width", barWidth);
     gx_bar.call(barChartXAxis, barChartX);
 
     if (selectedEvent !== null) {
