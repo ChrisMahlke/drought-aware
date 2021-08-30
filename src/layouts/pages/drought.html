@@ -194,26 +194,26 @@
                     </div>
                 </div>
 
-                <div class="drought-status-component" style="margin-right: .2rem; max-width: 275px; min-width: 200px;">
-                    <div class="m-flex-item" style="box-sizing: border-box; background: #dddacf; padding: .5rem;  margin-bottom: .2rem;">
+                <div class="drought-status-component">
+                    <div class="m-flex-item">
                         <div>LATEST DROUGHT CONDITIONS</div>
-                        <div class="font-size-1 avenir-demi drought-status"></div>
-                        <div>Population: <span class="font-size--1 avenir-demi population"></span></div>
-                        <div style="flex-wrap: wrap; line-height: 1;">For the past <span class="font-size--1 avenir-demi consecutiveWeeks"></span> weeks this area has experienced Severe Drought conditions.</div>
+                        <div class="font-size-1 drought-status"></div>
+                        <div>Population: <span class="font-size--1 population"></span></div>
+                        <div class="consecutive-weeks-container">For the past <span class="font-size--1 consecutive-weeks"></span> weeks this area has experienced Severe Drought conditions.</div>
                     </div>
 
-                    <div class="m-flex-item" style="box-sizing: border-box; background: #dddacf; padding: .5rem;">
+                    <div class="m-flex-item">
                         <div>DROUGHT OUTLOOK</div>
-                        <div style="display: grid; grid-template-columns: 1.5fr 3fr; grid-template-rows: repeat(2, 1fr); grid-column-gap: 0; grid-row-gap: 0; align-items: baseline;">
-                            <div class="monthlyOutlookDate" style="box-sizing: border-box; min-width: 100px;"></div>
-                            <div class="font-size-0 avenir-demi monthlyOutlookLabel" style="box-sizing: border-box; min-width: 100px;"></div>
-                            <div class="seasonalOutlookDate" style="box-sizing: border-box; min-width: 100px;"></div>
-                            <div class="font-size-0 avenir-demi seasonalOutlookLabel" style="box-sizing: border-box; min-width: 100px;"></div>
+                        <div class="drought-outlook-container">
+                            <div class="monthlyOutlookDate outlook-date"></div>
+                            <div class="font-size-0 outlook-value monthlyOutlookLabel"></div>
+                            <div class="seasonalOutlookDate outlook-date"></div>
+                            <div class="font-size-0 outlook-value seasonalOutlookLabel"></div>
                         </div>
                     </div>
                 </div>
 
-                <div class="agricultural-impacts-container" style="flex-shrink: 0; box-sizing: border-box; background: #dddacf; padding: .5rem; max-width: 320px; min-width: 320px;">
+                <div class="agricultural-impacts-container">
 
                     <calcite-icon
                             style="float: right;"
@@ -223,54 +223,49 @@
                     </calcite-icon>
 
                     <div>AGRICULTURAL IMPACTS</div>
-                    <div>Agricultural Jobs: <span class="font-size--1 avenir-demi jobs" style="color: #5c7250;"></span></div>
-                    <div>Total Sales: <span class="font-size--1 avenir-demi totalSales" style="color: #5c7250;"></span></div>
-                    <div class="leader-half" style="display: grid; grid-template-columns: 1.7fr 2fr; grid-template-rows: repeat(2, 1fr); grid-column-gap: 0px; grid-row-gap: 0px;">
-                        <div>Soy: <span class="soySales"></span></div>
-                        <div>Hay: <span class="haySales"></span></div>
-                        <div>Corn: <span class="cornSales"></span></div>
-                        <div>Livestock: <span class="livestockSales"></span></div>
+                    <div>Agricultural Jobs: <span class="font-size--1 jobs agr-color"></span></div>
+                    <div>Total Sales: <span class="font-size--1 total-sales agr-color"></span></div>
+                    <div class="leader-half crops-container">
+                        <div>Soy: <span class="soy-sales"></span></div>
+                        <div>Hay: <span class="hay-sales"></span></div>
+                        <div>Corn: <span class="corn-sales"></span></div>
+                        <div>Livestock: <span class="livestock-sales"></span></div>
                     </div>
-                    <div>Winter Wheat: <span class="wheatSales"></span></div>
+                    <div>Winter Wheat: <span class="wheat-sales"></span></div>
 
                     <div class="leader-half trailer-quarter">
                         <div class="map-legend-container">
                             <div class="map-legend-item">
-                                <div style="display: flex; align-items: center; padding: 0 .5rem;">
+                                <div class="map-legend-graphic-container">
                                     <div class="map-legend-graphic map-legend-graphic-1"></div>
                                 </div>
                             </div>
                             <div class="map-legend-item">
-                                <div style="display: flex; align-items: center; padding: 0 .5rem;">
+                                <div class="map-legend-graphic-container">
                                     <div class="map-legend-graphic map-legend-graphic-2"></div>
                                 </div>
                             </div>
                             <div class="map-legend-item">
-                                <div style="display: flex; align-items: center; padding: 0 .5rem;">
+                                <div class="map-legend-graphic-container">
                                     <div class="map-legend-graphic map-legend-graphic-3"></div>
                                 </div>
                             </div>
                             <div class="map-legend-item">
-                                <div style="display: flex; align-items: center; padding: 0 .5rem;">
+                                <div class="map-legend-graphic-container">
                                     <div class="map-legend-graphic map-legend-graphic-4"></div>
                                 </div>
                             </div>
                             <div class="map-legend-item">
-                                <div style="display: flex; align-items: center; padding: 0 .5rem;">
+                                <div class="map-legend-graphic-container">
                                     <div class="map-legend-graphic map-legend-graphic-5"></div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div style="
-                    display: grid;
-                    grid-template-columns: repeat(2, 1fr);
-                    grid-template-rows: repeat(1, 1fr);
-                    grid-column-gap: 0px;
-                    grid-row-gap: 0px;">
-                        <div style="text-align: center"> &lt; $50 million </div>
-                        <div style="text-align: center"> &gt; $1 Billion </div>
+                    <div class="agr-legend-labels-container">
+                        <div class="agr-label"> &lt; $50 million </div>
+                        <div class="agr-label"> &gt; $1 Billion </div>
                     </div>
                 </div>
             </div>

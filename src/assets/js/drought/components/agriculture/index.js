@@ -1,11 +1,14 @@
-import "./index.scss";
+import "./agriculture.scss";
+import "./agriculture-legend.scss";
 import config from "../../config.json";
 
 /**
+ * Update the agriculture data
  *
  * @param response
  */
 export function updateAgriculturalImpactComponent(response) {
+    // TODO: Handle no features returned from the request!
     if (response.features.length > 0) {
         const selectedFeature = response.features[0];
         let labor = "CountyLabor";
@@ -36,33 +39,19 @@ export function updateAgriculturalImpactComponent(response) {
         let livestockValue = selectedFeature.attributes[livestock] || 0;
         let populationValue = selectedFeature.attributes[population] || 0;
 
-        updateLaborStatistics(document.getElementsByClassName("jobs"), laborValue);
-        updateAgricultureItem(document.getElementsByClassName("totalSales"), totalSalesValue);
-        updateAgricultureItem(document.getElementsByClassName("cornSales"), cornValue);
-        updateAgricultureItem(document.getElementsByClassName("soySales"), soyValue);
-        updateAgricultureItem(document.getElementsByClassName("haySales"), hayValue);
-        updateAgricultureItem(document.getElementsByClassName("wheatSales"), winterValue);
-        updateAgricultureItem(document.getElementsByClassName("livestockSales"), livestockValue);
-        updateDemographicStatistics(document.getElementsByClassName("population"), populationValue);
+        updateStatistics(document.getElementsByClassName("jobs"), laborValue, ``);
+        updateStatistics(document.getElementsByClassName("total-sales"), totalSalesValue, `$`);
+        updateStatistics(document.getElementsByClassName("corn-sales"), cornValue, `$`);
+        updateStatistics(document.getElementsByClassName("soy-sales"), soyValue, `$`);
+        updateStatistics(document.getElementsByClassName("hay-sales"), hayValue, `$`);
+        updateStatistics(document.getElementsByClassName("wheat-sales"), winterValue, `$`);
+        updateStatistics(document.getElementsByClassName("livestock-sales"), livestockValue, `$`);
+        updateStatistics(document.getElementsByClassName("population"), populationValue, ``);
     }
 }
 
-function updateLaborStatistics(nodes, data) {
-    const value = (Number(data) > -1) ? `${Number(data).toLocaleString()}` : `No Data`;
-    for (let node of nodes) {
-        node.innerHTML = value;
-    }
-}
-
-function updateAgricultureItem(nodes, data) {
-    const value = (Number(data) > -1) ? `$${Number(data).toLocaleString()}` : `No Data`;
-    for (let node of nodes) {
-        node.innerHTML = value;
-    }
-}
-
-function updateDemographicStatistics(nodes, data) {
-    const value = (Number(data) > -1) ? `${Number(data).toLocaleString()}` : `No Data`;
+function updateStatistics(nodes, data, dollarSign) {
+    const value = (Number(data) > -1) ? `${dollarSign}${Number(data).toLocaleString()}` : config.NO_DATA;
     for (let node of nodes) {
         node.innerHTML = value;
     }

@@ -45,7 +45,7 @@ import { format } from 'date-fns';
         let dataComponentLoadingIndicator = document.getElementById("dataComponentLoader");
         let bottomComponent = document.getElementById("bottomComponent");
         let countyButtonEle = document.getElementsByClassName("county");
-        let stateButtonEle = document.getElementById("state");
+        let stateButtonEle = document.getElementsByClassName("state");
         // data model
         let inputDataset = [];
         // selected date

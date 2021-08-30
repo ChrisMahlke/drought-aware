@@ -1,7 +1,7 @@
 import "./index.scss";
 
 /**
- *
+ * Initialize the Bookmarks Widget.
  * @param params
  */
 export function init(params) {

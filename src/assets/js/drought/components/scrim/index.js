@@ -8,7 +8,7 @@ export function showScrim(params) {
     let droughtStatusEle = document.getElementsByClassName("drought-status")[0];
     let agrComponentEle = document.getElementsByClassName("agricultural-impacts-container")[0];
     let jobs = document.getElementsByClassName("jobs");
-    let totalSales = document.getElementsByClassName("totalSales");
+    let totalSales = document.getElementsByClassName("total-sales");
     let legendWidgetEle = document.getElementsByClassName("map-legend-container")[0];
     let overlayMessageContainer = document.getElementsByClassName("overlay-message")[0];
 

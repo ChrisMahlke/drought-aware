@@ -13,6 +13,8 @@
   "mapViewMinScale": 30999535,
   "mapViewMaxScale":  577791,
 
+  "NO_DATA": "No Data",
+
   "widgetPositions": {
     "appHeader": "top-right",
     "home": "top-left",

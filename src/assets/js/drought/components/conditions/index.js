@@ -3,10 +3,16 @@ import {differenceInWeeks} from "date-fns";
 import * as DataUtils from "../../utils/DataUtils";
 import config from "../../config.json";
 
+/**
+ * Handle updates to the Drought Conditions component
+ *
+ * @param response
+ * @param selectedDateObj
+ */
 export function droughtConditionsSuccessHandler(response, selectedDateObj) {
     const responseDate = response.features[0].attributes.ddate;
     const consecutiveWeeks = differenceInWeeks(new Date(selectedDateObj.selectedDate), new Date(responseDate)) - 1;
-    let nodes = document.getElementsByClassName("consecutiveWeeks");
+    let nodes = document.getElementsByClassName("consecutive-weeks");
     for (let node of nodes) {
         node.innerHTML = `${consecutiveWeeks.toString()}`;
     }
@@ -14,7 +20,6 @@ export function droughtConditionsSuccessHandler(response, selectedDateObj) {
 
 /**
  * Update the drought status label.
- * component: LATEST DROUGHT CONDITIONS
  *
  * @param response
  */
