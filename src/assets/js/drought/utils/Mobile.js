@@ -67,8 +67,8 @@ export async function updateMobileView(webMap, selectedFeature) {
                 resolve(error);
             });
 
-            document.querySelector('[data-modal="results-modal"]').style.display = "flex";
-            document.getElementById("resultsModal").click();
+            //document.querySelector('[data-modal="results-modal"]').style.display = "flex";
+            //document.getElementById("resultsModal").click();
         });
     });
 }

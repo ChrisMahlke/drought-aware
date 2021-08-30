@@ -77,6 +77,11 @@
   background: transparent;
 }
 
+.bottom-component-content {
+  display: flex;
+  flex-direction: row;
+}
+
 #administrativeSubdivision > fieldset {
   z-index: 99;
   background-color: transparent;

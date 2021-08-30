@@ -17,7 +17,7 @@ export async function addLayer(params) {
                 title: params.title,
                 useViewTime: false
             });
-            params.view.map.add(layer, 2);
+            params.view.map.add(layer, 1);
             params.view.popup = null;
         });
     });

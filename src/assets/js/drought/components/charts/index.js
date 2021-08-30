@@ -41,11 +41,8 @@ export function createChart(params) {
     inputDataset = params.data;
     mapView = params.view;
 
-    //let chartNode = document.getElementById("stackedBarchart");
-
-    // TODO
     barChartHeight = config.chart.height;
-    barChartWidth = config.chart.width;//chartNode.offsetWidth;
+    barChartWidth = config.chart.width;
     barChartMargin = config.chart.margin;
 
     // TODO

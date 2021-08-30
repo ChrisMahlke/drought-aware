@@ -1,6 +1,9 @@
 <div class="drawer drawer-right js-drawer" data-drawer="top-nav" tabindex="0">
     <nav class="drawer-nav" role="navigation">
         <aside class="side-nav">
+            <h2 class="side-nav-title">Administrative Subdivision</h2>
+            <a href="/" class="side-nav-link">County</a>
+            <a href="/" class="side-nav-link">State</a>
             <h2 class="side-nav-title">Bookmarks</h2>
             <a href="/" class="side-nav-link">Alaska</a>
             <a href="/" class="side-nav-link">Puerto Rico</a>
@@ -78,7 +81,7 @@
                     <label class="radio-group-label" for="state">State</label>
                 </fieldset>
             </div>
-            <div class="font-size--3" style="display: flex; flex-direction: row;">
+            <div class="bottom-component-content font-size--3">
 
                 <calcite-loader
                         id="dataComponentLoader"
@@ -187,7 +190,7 @@
                     </div>
                 </div>
 
-                <div class="agricultural-impacts-container" style="flex-shrink: 0; box-sizing: border-box; background: #dddacf; padding: .5rem; max-width: 320px;">
+                <div class="agricultural-impacts-container" style="flex-shrink: 0; box-sizing: border-box; background: #dddacf; padding: .5rem; max-width: 320px; min-width: 320px;">
                     <div class="icon-ui-close-circled icon-ui-gray right font-size-1 reset-app-btn"></div>
                     <div>AGRICULTURAL IMPACTS</div>
                     <div>Agricultural Jobs: <span class="font-size--1 avenir-demi jobs" style="color: #5c7250;"></span></div>
@@ -243,189 +246,6 @@
             </div>
         </div>
     </div>
-
-    <!--<div id="bottomComponent" class="js-animation animate-in-up">
-
-        <calcite-loader
-                id="dataComponentLoader"
-                type="indeterminate"
-                scale="m"
-                no-padding=""
-                value="0"
-                style="
-                    &#45;&#45;calcite-ui-brand: rgba(170, 51, 50, 1);
-                    &#45;&#45;calcite-ui-brand-hover: rgba(220, 111, 77, 1);
-                    &#45;&#45;calcite-ui-brand-press: rgba(234, 167, 113, 1);"
-        ></calcite-loader>
-
-        <div class="overlay-message js-animation animate-fade-in hide">
-            Go to <span class="overlay-message-reset-btn reset-chart-btn">Current Week</span> to enable drought statistics
-        </div>
-
-        <div id="historicRecordComponent">
-            <div class="chart-flex-container">
-                <div class="item1">
-                    <span class="component-hdr">HISTORIC DATA </span>
-                </div>
-                <div class="chart-info-icon-container">
-                    <div class="selected-location"></div>
-                    <div class="drought-percentage-container"><span class="drought-percentage"></span>% of the area with drought conditions</div>
-                </div>
-                <div class="btn btn-small btn-clear reset-chart-btn">Current Week</div>
-            </div>
-
-            <div>
-                <div id="stackedBarchart"></div>
-                <div class="chart-legend">
-                    <ul class="flex-container longhand">
-                        <li class="flex-item">
-                            <div class="chart-legend-color-container abnormally-dry"></div>
-                            <div class="chart-legend-label-container">Abnormally Dry</div>
-                        </li>
-                        <li class="flex-item">
-                            <div class="chart-legend-color-container moderate-drought"></div>
-                            <div class="chart-legend-label-container">Moderate Drought</div>
-                        </li>
-                        <li class="flex-item">
-                            <div class="chart-legend-color-container severe-drought"></div>
-                            <div class="chart-legend-label-container">Severe Drought</div>
-                        </li>
-                        <li class="flex-item">
-                            <div class="chart-legend-color-container extreme-drought"></div>
-                            <div class="chart-legend-label-container">Extreme Drought</div>
-                        </li>
-                        <li class="flex-item">
-                            <div class="chart-legend-color-container exceptional-drought"></div>
-                            <div class="chart-legend-label-container">Exceptional Drought</div>
-                        </li>
-                    </ul>
-                </div>
-
-                <div id="areaChartScrubberContent" style="display: none">
-                    <div class="tooltip-flex-container">
-                        <div class="legend-tooltip-graphic abnormally-dry"></div>
-                        <div class="legend-tooltip-label">Abnormally Dry</div>
-                        <div id="areaChartScrubberContent_d0" class="legend-tooltip-value"></div>
-
-                        <div class="legend-tooltip-graphic moderate-drought"></div>
-                        <div class="legend-tooltip-label">Moderate</div>
-                        <div id="areaChartScrubberContent_d1" class="legend-tooltip-value"></div>
-
-                        <div class="legend-tooltip-graphic severe-drought"></div>
-                        <div class="legend-tooltip-label">Severe</div>
-                        <div id="areaChartScrubberContent_d2" class="legend-tooltip-value"></div>
-
-                        <div class="legend-tooltip-graphic extreme-drought"></div>
-                        <div class="legend-tooltip-label">Extreme</div>
-                        <div id="areaChartScrubberContent_d3" class="legend-tooltip-value"></div>
-
-                        <div class="legend-tooltip-graphic exceptional-drought"></div>
-                        <div class="legend-tooltip-label">Exceptional</div>
-                        <div id="areaChartScrubberContent_d4" class="legend-tooltip-value"></div>
-                    </div>
-                    <div id="areaChartScrubberContentDate"></div>
-                </div>
-            </div>
-        </div>
-
-        <div id="droughtStatusComponent">
-
-            <div class="trend-container">
-                <div class="component-hdr">LATEST DROUGHT CONDITIONS</div>
-
-                <div class="component-value drought-status"></div>
-
-                <div>
-                    <span class="component-label">Population: </span>
-                    <span class="population component-value"></span>
-                </div>
-                <div class="drought-condition-history-container" style="line-height: 1.3;">
-                    <span class="component-label">For the past </span>
-                    <span class="consecutiveWeeks component-value"></span>
-                    <span class="component-label">weeks this area has experienced Severe Drought conditions.</span>
-                </div>
-            </div>
-
-            <div class="outlook-container">
-                <div class="component-hdr">DROUGHT OUTLOOK</div>
-
-                <div class="outlook-flex-container">
-                    <div class="outlook-flex-child outlook-label">
-                        <div class="monthlyOutlookDate"></div>
-                    </div>
-                    <div class="monthlyOutlookLabel outlook-flex-child outlook-value component-value"></div>
-                </div>
-
-                <div class="outlook-flex-container">
-                    <div class="outlook-flex-child outlook-label">
-                        <div class="seasonalOutlookDate"></div>
-                    </div>
-                    <div class="seasonalOutlookLabel outlook-flex-child outlook-value component-value"></div>
-                </div>
-            </div>
-        </div>
-
-        <div id="agrComponent">
-
-            <div class="component-hdr">AGRICULTURAL IMPACTS</div>
-
-            <calcite-button class="reset-app-btn" appearance="transparent" color="neutral" icon-start="x-circle" round scale="m"></calcite-button>
-
-            <div>
-                <span class="component-label">Agricultural Jobs: </span>
-                <span class="jobs"></span>
-            </div>
-
-            <div>
-                <span class="component-label">Total Sales: </span>
-                <span class="totalSales"></span>
-            </div>
-
-            <div class="crops-container">
-                <div class="agr-flex-container">
-                    <div class="crops-flex-child">
-                        <span class="component-label">Soy: </span>
-                        <span class="component-label soySales"></span>
-                    </div>
-                    <div class="crops-flex-child">
-                        <span class="component-label">Hay: </span>
-                        <span class="component-label haySales"></span>
-                    </div>
-                </div>
-
-                <div class="agr-flex-container">
-                    <div class="crops-flex-child">
-                        <span class="component-label">Corn: </span>
-                        <span class="component-label cornSales"></span>
-                    </div>
-                    <div class="crops-flex-child">
-                        <span class="component-label">Livestock: </span>
-                        <span class="component-label livestockSales"></span>
-                    </div>
-                </div>
-
-                <div class="agr-flex-container">
-                    <div class="crops-flex-child">
-                        <span class="component-label">Winter Wheat: </span>
-                        <span class="component-label wheatSales"></span>
-                    </div>
-                </div>
-            </div>
-
-            <div id="legendWidget"></div>
-
-            <div id="legendLabels">
-                <div class="agr-flex-container">
-                    <div class="crops-flex-child">
-                        <span id="minValue" class=""></span>
-                    </div>
-                    <div class="crops-flex-child">
-                        <span id="maxValue" class=""></span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>-->
 
     <div class="js-modal modal-overlay info-modal" data-modal="foo" style="display: none;">
         <div class="modal-content column-18 font-size--2" role="dialog" aria-labelledby="modal" style="background-color: #cac5b1">
@@ -537,92 +357,4 @@
             </div>
         </div>
     </div>
-
-    <!--<div class="js-modal modal-overlay" data-modal="results-modal" style="display: none;">
-        <div class="modal-content column-12" role="dialog" aria-labelledby="modal" style="background-color: #cac5b1">
-
-            <div class="column-12">
-                <div class="column-2">
-                    <div id="selectedBoundaryMap" style="height: 10vh; width: 100%;"></div>
-                </div>
-                <div class="column-4">
-                    <div class="font-size&#45;&#45;1 selected-location"></div>
-                    <div class="font-size&#45;&#45;3">Population: <span class="population"></span></div>
-                </div>
-            </div>
-
-            <div class="column-12 leader-half">
-                <div class="column-12 font-size-1 avenir-demi">Latest Drought Conditions</div>
-                <div class="column-12 font-size-1 avenir-demi drought-status"></div>
-                <div class="column-12 font-size&#45;&#45;2 drought-percentage-container"><span class="drought-percentage avenir-demi"></span>% of the area with drought conditions</div>
-                <div class="column-12 font-size&#45;&#45;2">For the past <span class="consecutiveWeeks"></span> weeks this area has experienced Severe Drought conditions.</div>
-            </div>
-
-            <div class="column-12 leader-half">
-                <div class="column-12 font-size-1 avenir-demi">Drought Outlook</div>
-                <div class="column-12">
-                    <div class="column-2 font-size&#45;&#45;2 trailer-quarter">
-                        <div class="monthlyOutlookDate font-size&#45;&#45;3"></div>
-                    </div>
-                    <div class="column-4 font-size&#45;&#45;1 avenir-demi monthlyOutlookLabel"></div>
-                </div>
-                <div class="column-12">
-                    <div class="column-2 font-size&#45;&#45;2">
-                        <div class="seasonalOutlookDate font-size&#45;&#45;3"></div>
-                    </div>
-                    <div class="column-4 font-size&#45;&#45;1 avenir-demi seasonalOutlookLabel"></div>
-                </div>
-            </div>
-
-            <div class="column-12 leader-half trailer-1">
-                <div class="column-12 font-size-1 avenir-demi">Agricultural Impacts</div>
-                <div class="column-12">
-                    <div class="column-2 font-size&#45;&#45;3">Agriculture Jobs:</div>
-                    <div class="column-4 font-size&#45;&#45;1 jobs"></div>
-                </div>
-
-                <div class="column-12" style="line-height: 1;">
-                    <div class="column-12">
-                        <div class="column-2 font-size&#45;&#45;3">Soy: </div>
-                        <div class="column-4 font-size&#45;&#45;2 soySales"></div>
-                    </div>
-
-                    <div class="column-12">
-                        <div class="column-2 font-size&#45;&#45;3">Hay: </div>
-                        <div class="column-4 font-size&#45;&#45;2 haySales"></div>
-                    </div>
-
-                    <div class="column-12">
-                        <div class="column-2 font-size&#45;&#45;3">Corn: </div>
-                        <div class="column-4 font-size&#45;&#45;2 cornSales"></div>
-                    </div>
-
-                    <div class="column-12">
-                        <div class="column-2 font-size&#45;&#45;3">Livestock: </div>
-                        <div class="column-4 font-size&#45;&#45;2 livestockSales"></div>
-                    </div>
-
-                    <div class="column-12">
-                        <div class="column-2 font-size&#45;&#45;3">Winter Wheat: </div>
-                        <div class="column-4 font-size&#45;&#45;2 wheatSales"></div>
-                    </div>
-
-                    <div class="column-12">
-                        <div class="column-2 font-size&#45;&#45;3">Other: </div>
-                        <div class="column-4 font-size&#45;&#45;2 otherSales"></div>
-                    </div>
-                </div>
-
-                <div class="column-12">
-                    <div class="column-2 font-size&#45;&#45;3">Total Sales:</div>
-                    <div class="column-4 font-size&#45;&#45;1 totalSales"></div>
-                </div>
-            </div>
-
-            <div class="text-center">
-                <button class="modal-close-btn btn btn-clear btn-large js-modal-toggle">Close</button>
-            </div>
-        </div>
-    </div>
-    <a id="resultsModal" class="js-modal-toggle btn hide" href="" data-modal="results-modal"></a>-->
 </div>

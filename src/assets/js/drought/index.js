@@ -41,23 +41,15 @@ window.onSignInHandler = (portal) => {
 
         const isMobile = Mobile.isMobileBrowser();
 
-        let size = {
-            width: window.innerWidth || document.body.clientWidth,
-            height: window.innerHeight || document.body.clientHeight
-        }
-        console.debug(size)
-
-
         // Cache DOM elements
-        let bottomLeft = null;
         let dataComponentLoadingIndicator = document.getElementById("dataComponentLoader");
         let bottomComponent = document.getElementById("bottomComponent");
         let countyButtonEle = document.getElementById("county");
         let stateButtonEle = document.getElementById("state");
-
-        let selectedDateObj = {};
+        // data model
         let inputDataset = [];
-        let webMap = {};
+        // selected date
+        let selectedDateObj = {};
 
         // The URLSearchParams spec defines an interface and convenience methods for working with the query string of a
         // URL (e.g. everything after "?"). This means no more regex'ing and string splitting URLs!
@@ -118,7 +110,7 @@ window.onSignInHandler = (portal) => {
             const { features } = response;
             selectedDateObj = selectedDateHandler(parseInt(params.get("date")) || features[0].attributes.ddate);
 
-            webMap = new WebMap({
+            let webMap = new WebMap({
                 portalItem: {
                     id: config.webMapId
                 }
@@ -144,8 +136,6 @@ window.onSignInHandler = (portal) => {
             mapView.when(viewLoadedSuccessHandler, ErrorHandler.hydrateMapViewErrorAlert);
 
             watchUtils.whenTrue(mapView, "stationary", viewStationaryHandler);
-
-            bottomLeft = document.getElementsByClassName("esri-ui-bottom-left")[0];
         }
 
         function webMapLoadedSuccessHandler(response) {
@@ -399,7 +389,11 @@ window.onSignInHandler = (portal) => {
                         LocationComponent.updateSelectedLocationComponent(historicDroughtConditions);
 
                         if (isMobile) {
-                            Mobile.updateMobileView(webMap, selectedFeature);
+                            document.getElementsByClassName("bottom-component-content")[0].style.flexDirection = "column";
+                            document.getElementsByClassName("drought-status-component")[0].style.width = "100%";
+                            document.getElementsByClassName("drought-status-component")[0].style.maxWidth = "unset";
+                            document.getElementsByClassName("agricultural-impacts-container")[0].style.width = "100%";
+                            document.getElementsByClassName("agricultural-impacts-container")[0].style.maxWidth = "unset";
                         }
                     }).catch(err => console.debug(err));
                 } else {
@@ -426,7 +420,7 @@ window.onSignInHandler = (portal) => {
             });
             inputDataset.reverse();
 
-            config.chart.width = getChartContainerDimensions();
+            config.chart.width = getChartContainerDimensions(isMobile);
             let params = new URLSearchParams(location.search);
             let dateFromUrl = params.get("date") || new Date(inputDataset[inputDataset.length - 1].date).getTime();
             Chart.createChart({
@@ -514,7 +508,7 @@ window.onSignInHandler = (portal) => {
         // The function that we want to execute after
         // we are done resizing
         function workAfterResizeIsDone() {
-            config.chart.width = getChartContainerDimensions();
+            config.chart.width = getChartContainerDimensions(isMobile);
 
             let params = new URLSearchParams(location.search);
             let dateFromUrl = params.get("date") || new Date(inputDataset[inputDataset.length - 1].date).getTime();
@@ -546,7 +540,7 @@ window.onSignInHandler = (portal) => {
             timeOutFunctionId = setTimeout(workAfterResizeIsDone, 500);
         });
 
-        function getChartContainerDimensions() {
+        function getChartContainerDimensions(isMobile) {
             let droughtConditionsContainer = document.getElementsByClassName("drought-status-component")[0];
             let w1 = droughtConditionsContainer.getBoundingClientRect().width;
 
@@ -557,7 +551,8 @@ window.onSignInHandler = (portal) => {
                 width: window.innerWidth || document.body.clientWidth,
                 height: window.innerHeight || document.body.clientHeight
             }
-            return (size.width - (w1 + w2)) - 40;
+
+            return isMobile ? (size.width - (w2)) - 60 : (size.width - (w1 + w2)) - 40;
         }
     });
 }
