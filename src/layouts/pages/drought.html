@@ -2,16 +2,30 @@
     <nav class="drawer-nav" role="navigation">
         <aside class="side-nav">
             <h2 class="side-nav-title">Administrative Subdivision</h2>
-            <fieldset class="radio-group" style="padding-left: 1em; margin-bottom: .5em;">
-                <input class="radio-group-input county" type="radio" id="mobileCounty" name="adminboundary" data-admin-area-id="county" checked/>
-                <label class="radio-group-label" for="mobileCounty">County</label>
-                <input class="radio-group-input state" type="radio" id="mobileState" name="adminboundary" data-admin-area-id="state"/>
-                <label class="radio-group-label" for="mobileState">State</label>
-            </fieldset>
-            <h2 class="side-nav-title">Bookmarks</h2>
-            <a href="/" class="side-nav-link">Alaska</a>
-            <a href="/" class="side-nav-link">Puerto Rico</a>
-            <a href="/" class="side-nav-link">Hawaii</a>
+            <div class="side-nav-link">
+                <fieldset class="radio-group">
+                    <input class="radio-group-input county" type="radio" id="mobileCounty" name="adminboundary" data-admin-area-id="county" checked/>
+                    <label class="radio-group-label" for="mobileCounty">County</label>
+                    <input class="radio-group-input state" type="radio" id="mobileState" name="adminboundary" data-admin-area-id="state"/>
+                    <label class="radio-group-label" for="mobileState">State</label>
+                </fieldset>
+            </div>
+
+            <h2 class="side-nav-title">About</h2>
+            <div class="btn btn-small btn-transparent js-modal-toggle side-nav-link" data-modal="foo">Click here</div>
+
+            <h2 class="side-nav-title">Source</h2>
+            <div class="font-size--2">
+                <div class="side-nav-link">
+                    <a href="https://www.noaa.gov/" target="_blank" rel="noopener">NOAA</a>
+                </div>
+                <div class="side-nav-link">
+                    <a href="https://www.census.gov/" target="_blank" rel="noopener">US Census</a>
+                </div>
+                <div class="side-nav-link">
+                    <a href="https://www.nass.usda.gov/" target="_blank" rel="noopener">USDA</a>
+                </div>
+            </div>
         </aside>
     </nav>
 </div>
@@ -69,7 +83,7 @@
                     class="information-icon js-modal-toggle"
                     data-modal="foo">
             </calcite-icon>
-            <div class="drawer-btn btn js-drawer-toggle btn-transparent icon-ui-drag-horizontal icon-ui-gray right font-size-1" data-drawer="top-nav" style="display: none;"></div>
+            <div class="drawer-btn btn js-drawer-toggle btn-transparent icon-ui-menu icon-ui-gray right font-size-1" data-drawer="top-nav" style="display: none;"></div>
             <div class="font-size-3" style="color: #aa3332; text-shadow: 1px 1px 2px rgba(170, 51, 50, .61);">Esri Drought Aware</div>
             <div class="font-size--3">Statistics and impacts of drought in the U.S.A.</div>
             <div class="subheading">
