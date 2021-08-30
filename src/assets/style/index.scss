@@ -33,11 +33,39 @@
   margin-top: 15%;
 }
 
+#dataComponentLoader {
+  position: absolute;
+  margin-left: 50%;
+}
+
+.mask-font-color {
+  color: #00000024 !important;
+}
+
+.mask-font-opacity {
+  opacity: 0.3 !important;
+}
+
+.reset-chart-btn {
+  border: 1px solid #737373;
+  padding: .15rem;
+  border-radius: .15rem;
+}
+
+.reset-chart-btn:hover {
+  cursor: pointer;
+}
+
 #viewDiv {
   padding: 0;
   margin: 0;
   height: 100%;
   width: 100%;
+}
+
+#topComponent {
+  background: #dddacf;
+  padding: .25rem;
 }
 
 #bottomComponent {
@@ -379,7 +407,7 @@
 
 
 
-.m-flex-container {
+.drought-status-component {
   display: -ms-flexbox;
   display: -webkit-flex;
   display: flex;

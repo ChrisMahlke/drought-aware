@@ -52,7 +52,7 @@ window.onSignInHandler = (portal) => {
 
         // Cache DOM elements
         let bottomLeft = null;
-        // GOOD let dataComponentLoadingIndicator = document.getElementById("dataComponentLoader");
+        let dataComponentLoadingIndicator = document.getElementById("dataComponentLoader");
         let bottomComponent = document.getElementById("bottomComponent");
         let countyButtonEle = document.getElementById("county");
         let stateButtonEle = document.getElementById("state");
@@ -266,7 +266,7 @@ window.onSignInHandler = (portal) => {
                 });
             });
 
-            /*document.querySelectorAll(".reset-chart-btn").forEach(ele => {
+            document.querySelectorAll(".reset-chart-btn").forEach(ele => {
                 ele.addEventListener('click', event => {
                     // most recent date
                     let mostRecentDate = new Date(inputDataset[inputDataset.length - 1].date).getTime();
@@ -309,7 +309,7 @@ window.onSignInHandler = (portal) => {
                         "selectedDate": new Date(),
                     });
                 });
-            });*/
+            });
 
             document.querySelectorAll(".reset-app-btn").forEach(ele => {
                 ele.addEventListener("click", event => {
@@ -358,7 +358,7 @@ window.onSignInHandler = (portal) => {
             QueryUtils.fetchData(config.boundaryQuery).then(retrieveGeometryResponseHandler).then(response => {
                 if (response.features.length > 0) {
                     bottomComponent.style.display = "";
-                    // GOOD dataComponentLoadingIndicator.setAttribute("active", "");
+                    dataComponentLoadingIndicator.setAttribute("active", "");
 
                     let selectedFeature = response.features[0];
                     config.selected.state_name = selectedFeature.attributes["STATE_NAME"];
@@ -448,7 +448,7 @@ window.onSignInHandler = (portal) => {
             });
             updateDroughtPercentage(found.attributes["D1_D4"]);
             Conditions.updateCurrentDroughtStatus(response);
-            // GOOD dataComponentLoadingIndicator.removeAttribute("active");
+            dataComponentLoadingIndicator.removeAttribute("active");
 
             /* GOOD Scrim.showScrim({
                 "mostRecentDate": new Date(inputDataset[inputDataset.length - 1].date),
@@ -548,7 +548,7 @@ window.onSignInHandler = (portal) => {
         });
 
         function getChartContainerDimensions() {
-            let droughtConditionsContainer = document.getElementsByClassName("m-flex-container")[0];
+            let droughtConditionsContainer = document.getElementsByClassName("drought-status-component")[0];
             let w1 = droughtConditionsContainer.getBoundingClientRect().width;
 
             let agrEleContainer = document.getElementsByClassName("agricultural-impacts-container")[0];
