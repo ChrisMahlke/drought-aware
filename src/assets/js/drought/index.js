@@ -44,7 +44,7 @@ window.onSignInHandler = (portal) => {
         // Cache DOM elements
         let dataComponentLoadingIndicator = document.getElementById("dataComponentLoader");
         let bottomComponent = document.getElementById("bottomComponent");
-        let countyButtonEle = document.getElementById("county");
+        let countyButtonEle = document.getElementsByClassName("county");
         let stateButtonEle = document.getElementById("state");
         // data model
         let inputDataset = [];
@@ -72,8 +72,12 @@ window.onSignInHandler = (portal) => {
             boundaryQueryUrl = config.state_boundary;
             boundaryQueryOutFields = config.state_boundary_outfields;
             // update admin toggle buttons
-            countyButtonEle.checked = false;
-            stateButtonEle.checked = true;
+            for (let i = 0, max = countyButtonEle.length; i < max; i++) {
+                countyButtonEle.checked = false;
+            }
+            for (let i = 0, max = stateButtonEle.length; i < max; i++) {
+                stateButtonEle.checked = true;
+            }
         }
 
         config.boundaryQuery = {
@@ -224,7 +228,7 @@ window.onSignInHandler = (portal) => {
 
             document.querySelectorAll(".radio-group-input").forEach(ele => {
                 ele.addEventListener("click", event => {
-                    config.selected.adminAreaId = event.target.id;
+                    config.selected.adminAreaId = event.target.dataset.adminAreaId;
                     if (config.selected.adminAreaId === config.COUNTY_ADMIN) {
                         config.boundaryQuery.url = config.county_boundary;
                         config.boundaryQuery.outFields = config.county_boundary_outfields;
@@ -314,6 +318,23 @@ window.onSignInHandler = (portal) => {
                     });
                 });
             });
+
+            if (isMobile) {
+                document.getElementById("topComponent").style.width = "100%";
+                document.getElementsByClassName("subheading")[0].style.display = "none";
+                document.getElementsByClassName("drawer-btn")[0].style.display = "";
+                document.getElementsByClassName("information-icon")[0].style.display = "none";
+                document.getElementById("administrativeSubdivision").style.display = "none";
+                document.getElementsByClassName("m-flex-item")[0].style.margin = "";
+                document.getElementsByClassName("historic-data-container")[0].style.margin = "";
+                document.getElementById("bottomComponent").style.maxHeight = "400px";
+                document.getElementById("bottomComponent").style.overflowY = "scroll";
+
+                document.getElementsByClassName("esri-ui-inner-container")[0].style.inset = "unset";
+                document.getElementsByClassName("esri-ui-inner-container")[0].style.width = "100%";
+                document.getElementsByClassName("esri-ui-top-right")[0].style.inset = "unset";
+                document.getElementsByClassName("esri-ui-top-right")[0].style.width = "100%";
+            }
 
             Promise.all([
                 QueryUtils.fetchData(config.qParams.outlook.monthly.date).catch(error => { return error }),
@@ -552,7 +573,7 @@ window.onSignInHandler = (portal) => {
                 height: window.innerHeight || document.body.clientHeight
             }
 
-            return isMobile ? (size.width - (w2)) - 60 : (size.width - (w1 + w2)) - 40;
+            return isMobile ? Math.round(document.getElementsByClassName("historic-data-container")[0].getBoundingClientRect().width) - 20 : (size.width - (w1 + w2)) - 40;
         }
     });
 }

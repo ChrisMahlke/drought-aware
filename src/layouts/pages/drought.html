@@ -2,8 +2,12 @@
     <nav class="drawer-nav" role="navigation">
         <aside class="side-nav">
             <h2 class="side-nav-title">Administrative Subdivision</h2>
-            <a href="/" class="side-nav-link">County</a>
-            <a href="/" class="side-nav-link">State</a>
+            <fieldset class="radio-group" style="padding-left: 1em; margin-bottom: .5em;">
+                <input class="radio-group-input county" type="radio" id="mobileCounty" name="adminboundary" data-admin-area-id="county" checked/>
+                <label class="radio-group-label" for="mobileCounty">County</label>
+                <input class="radio-group-input state" type="radio" id="mobileState" name="adminboundary" data-admin-area-id="state"/>
+                <label class="radio-group-label" for="mobileState">State</label>
+            </fieldset>
             <h2 class="side-nav-title">Bookmarks</h2>
             <a href="/" class="side-nav-link">Alaska</a>
             <a href="/" class="side-nav-link">Puerto Rico</a>
@@ -58,27 +62,29 @@
         </div>
 
         <div id="topComponent" class="esri-widget" style="display: none; background: #dddacf;">
-                <calcite-icon
-                        style="float: right;"
-                        icon="information"
-                        scale="m"
-                        class="information-icon js-modal-toggle"
-                        data-modal="foo">
-                </calcite-icon>
-                <div class="hide btn js-drawer-toggle icon-ui-description icon-ui-gray right font-size-1" data-drawer="top-nav"></div>
-                <div class="font-size-3" style="color: #aa3332; text-shadow: 1px 1px 2px rgba(170, 51, 50, .61);">Esri Drought Aware</div>
-                <div class="font-size--3">Statistics and impacts of drought in the U.S.A.</div>
+            <calcite-icon
+                    style="float: right;"
+                    icon="information"
+                    scale="m"
+                    class="information-icon js-modal-toggle"
+                    data-modal="foo">
+            </calcite-icon>
+            <div class="drawer-btn btn js-drawer-toggle btn-transparent icon-ui-drag-horizontal icon-ui-gray right font-size-1" data-drawer="top-nav" style="display: none;"></div>
+            <div class="font-size-3" style="color: #aa3332; text-shadow: 1px 1px 2px rgba(170, 51, 50, .61);">Esri Drought Aware</div>
+            <div class="font-size--3">Statistics and impacts of drought in the U.S.A.</div>
+            <div class="subheading">
                 <div class="font-size--3">Click on the map or search for a location for more information.</div>
                 <div class="font-size--3">Source: <a href="https://www.noaa.gov/" target="_blank" rel="noopener" class="custom-link">NOAA</a>, <a href="https://www.census.gov/" target="_blank" rel="noopener" class="custom-link">US Census</a>, <a href="https://www.nass.usda.gov/" target="_blank" rel="noopener" class="custom-link">USDA</a></div>
+            </div>
         </div>
 
         <div id="bottomComponent" class="esri-widget" style="display: none;">
             <div id="administrativeSubdivision">
                 <fieldset class="radio-group" style="padding-left: 1em; margin-bottom: .5em;">
-                    <input class="radio-group-input" type="radio" id="county" name="adminboundary" data-admin-area-id="county" checked/>
-                    <label class="radio-group-label" for="county">County</label>
-                    <input class="radio-group-input" type="radio" id="state" name="adminboundary" data-admin-area-id="state"/>
-                    <label class="radio-group-label" for="state">State</label>
+                    <input class="radio-group-input county" type="radio" id="desktopCounty" name="adminboundary" data-admin-area-id="county" checked/>
+                    <label class="radio-group-label" for="desktopCounty">County</label>
+                    <input class="radio-group-input state" type="radio" id="desktopState" name="adminboundary" data-admin-area-id="state"/>
+                    <label class="radio-group-label" for="desktopState">State</label>
                 </fieldset>
             </div>
             <div class="bottom-component-content font-size--3">

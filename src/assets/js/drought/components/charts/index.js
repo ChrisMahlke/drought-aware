@@ -45,6 +45,8 @@ export function createChart(params) {
     barChartWidth = config.chart.width;
     barChartMargin = config.chart.margin;
 
+    console.debug("barChartWidth", barChartWidth);
+
     // TODO
     // Clear previous svg
     d3.select("#stackedBarchart").selectAll("svg").remove();
