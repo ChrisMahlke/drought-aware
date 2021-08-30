@@ -54,7 +54,7 @@
             </nav>
         </div>
 
-        <div id="topComponent" class="esri-widget" style="background: #dddacf;">
+        <div id="topComponent" class="esri-widget" style="display: none; background: #dddacf;">
                 <calcite-icon
                         style="float: right;"
                         icon="information"
@@ -132,7 +132,6 @@
                         </div>
                         <div id="areaChartScrubberContentDate"></div>
                     </div>
-
                     <div id="stackedBarchart"></div>
 
                     <div class="flex-container">
@@ -428,16 +427,14 @@
         </div>
     </div>-->
 
-    <div class="js-modal modal-overlay info-modal hide" data-modal="foo">
+    <div class="js-modal modal-overlay info-modal" data-modal="foo" style="display: none;">
         <div class="modal-content column-18 font-size--2" role="dialog" aria-labelledby="modal" style="background-color: #cac5b1">
 
             <div class="modal-section-hdr">About this App</div>
             <div>
                 The Drought Aware app is intended to provide the latest information about current, future, and historical drought conditions in the United States.
                 The data shown here from
-                <a href="https://www.arcgis.com/home/group.html?id=b67c85e0a4f2486dbdcbab0785cc42e7#overview" target="_blank"
-                   rel="noopener" class="custom-link">ArcGIS Living Atlas</a>
-                are authoritative U.S. government sources, including:
+                <a href="https://www.arcgis.com/home/group.html?id=b67c85e0a4f2486dbdcbab0785cc42e7#overview" target="_blank" rel="noopener" class="custom-link">ArcGIS Living Atlas</a> are authoritative U.S. government sources, including:
             </div>
             <div>
                 <ul class="font-size--2" style="margin-block-start: 0;">
@@ -465,22 +462,31 @@
 
             <div class="modal-section-hdr">Drought Definitions</div>
             <div>
-                Abnormally Dry (D0):
+                <div style="display: flex; align-items: baseline;">
+                    <div class="modal-legend-graphic abnormally-dry"></div>
+                    <div class="">Abnormally Dry (D0)</div>
+                </div>
                 <ul class="font-size--2" style="margin-block-start: 0;">
                     <li>Going into drought there is short-term dryness slowing planting, growth of crops or pastures.</li>
                     <li>Coming out of drought there is some lingering water deficits; pastures or crops not fully recovered.</li>
                 </ul>
             </div>
             <div>
-                Moderate Drought (D1)
+                <div style="display: flex; align-items: baseline;">
+                    <div class="modal-legend-graphic moderate-drought"></div>
+                    <div class="">Moderate Drought (D1)</div>
+                </div>
                 <ul class="font-size--2" style="margin-block-start: 0;">
-                    <li>Some damage to crops and pastures;</li>
+                    <li>Some damage to crops and pastures</li>
                     <li>Streams, reservoirs, or wells low, some water shortages developing or imminent</li>
                     <li>Voluntary water-use restrictions requested</li>
                 </ul>
             </div>
             <div>
-                Severe Drought (D2)
+                <div style="display: flex; align-items: baseline;">
+                    <div class="modal-legend-graphic severe-drought"></div>
+                    <div class="">Severe Drought (D2)</div>
+                </div>
                 <ul class="font-size--2" style="margin-block-start: 0;">
                     <li>Crop or pasture losses likely</li>
                     <li>Water shortages common</li>
@@ -488,14 +494,20 @@
                 </ul>
             </div>
             <div>
-                Extreme Drought (D3)
+                <div style="display: flex; align-items: baseline;">
+                    <div class="modal-legend-graphic extreme-drought"></div>
+                    <div class="">Extreme Drought (D3)</div>
+                </div>
                 <ul class="font-size--2" style="margin-block-start: 0;">
                     <li>Major crop/pasture losses</li>
                     <li>Widespread water shortages or restrictions</li>
                 </ul>
             </div>
             <div>
-                Exceptional Drought (D4)
+                <div style="display: flex; align-items: baseline;">
+                    <div class="modal-legend-graphic exceptional-drought"></div>
+                    <div class="">Exceptional Drought (D4)</div>
+                </div>
                 <ul class="font-size--2" style="margin-block-start: 0;">
                     <li>Exceptional and widespread crop/pasture losses</li>
                     <li>Shortages of water in reservoirs, streams, and wells creating water emergencies</li>
@@ -515,7 +527,7 @@
             </div>
 
             <div class="font-size--2 leader-half">This app was designed by Esri’s <a href="https://www.esri.com/arcgis-blog/author/dpisut-2/" target="_blank" class="user-profile-link" rel="noopener">Dan Pisut</a>, <a
-                    href="https://www.esri.com/arcgis-blog/author/emeriam/" target="_blank" class="user-profile-link" rel="noopener">Emily Meriam</a>, and <a href="https://www.esri.com/arcgis-blog/author/coscopel/?rmedium=redirect&rsource=blogs.esri.com/esri/arcgis/author/coscopel" target="_blank" class="user-profile-link" rel="noopener">Caitlin Scopel</a>. The source code for the app can be found on <a
+                    href="https://www.esri.com/arcgis-blog/author/emeriam/" target="_blank" class="user-profile-link" rel="noopener">Emily Meriam</a>, <a href="https://www.esri.com/arcgis-blog/author/coscopel/?rmedium=redirect&rsource=blogs.esri.com/esri/arcgis/author/coscopel" target="_blank" class="user-profile-link" rel="noopener">Caitlin Scopel</a>, and <a href="https://github.com/ChrisMahlke" target="_blank" class="user-profile-link" rel="noopener">Chris Mahlke</a> . The source code for the app can be found on <a
                         href="https://github.com/Esri/drought-tracker"
                         target="_blank" class="user-profile-link" rel="noopener">GitHub</a>. For questions, please contact environment@esri.com.
             </div>

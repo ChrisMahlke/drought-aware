@@ -4,7 +4,6 @@ import config from './config.json';
 import { loadCss, loadModules } from 'esri-loader';
 
 import * as AgricultureComponent from './components/agriculture';
-import * as AppHeaderComponent from './components/header/index';
 import * as BookmarksComponent from './components/bookmarks/index';
 import * as Conditions from './components/conditions/index';
 import * as Chart from './components/charts/index';
@@ -12,18 +11,17 @@ import * as ErrorHandler from './utils/ErrorHandler';
 import * as FormatUtils from './utils/FormatUtils';
 import * as HomeComponent from './components/home/index';
 import * as LayerUtils from './utils/LayerUtils';
-import * as LegendComponent from './components/legend/index';
 import * as LocationComponent from './components/location/index';
 import * as Mobile from './utils/Mobile';
 import * as Outlook from './components/Outlook';
 import * as QueryUtils from './utils/QueryUtils';
+import * as Scrim from "./components/scrim";
 import * as SearchComponent from './components/search/index';
 import * as ZoomComponent from './components/zoom/index';
 
 import * as calcite from "calcite-web";
 import * as d3 from "d3";
 import { format } from 'date-fns';
-import * as Scrim from "./components/scrim";
 
 window.onSignInHandler = (portal) => {
 
@@ -231,7 +229,8 @@ window.onSignInHandler = (portal) => {
             // splash screen
             calcite.addClass(document.getElementById("splash"), "hide");
             calcite.addClass(document.getElementById("appLoadingIndicator"), "hide");
-            calcite.removeClass(document.getElementsByClassName("info-modal")[0], "hide");
+            document.getElementsByClassName("info-modal")[0].style.display = "";
+            document.getElementById("topComponent").style.display = "";
 
             document.querySelectorAll(".radio-group-input").forEach(ele => {
                 ele.addEventListener("click", event => {
@@ -450,10 +449,10 @@ window.onSignInHandler = (portal) => {
             Conditions.updateCurrentDroughtStatus(response);
             dataComponentLoadingIndicator.removeAttribute("active");
 
-            /* GOOD Scrim.showScrim({
+            Scrim.showScrim({
                 "mostRecentDate": new Date(inputDataset[inputDataset.length - 1].date),
                 "selectedDate": new Date(parseInt(dateFromUrl))
-            });*/
+            });
         }
 
         function viewStationaryHandler(response) {

@@ -145,7 +145,7 @@ export function createChart(params) {
         .attr("x1", 0)
         .attr("y1", 0)
         .attr("x2", 0)
-        .attr("y2", 120)
+        .attr("y2", 110)
         .attr("stroke-width", .5)
         .attr("stroke", "#000000")
         .style("opacity", 1.0);
@@ -228,7 +228,6 @@ function chartMouseMoveHandler(event) {
     scrubber.attr("transform", "translate(" + (currentXPosition - 2) + "," + 0 + ")");
     chartScrubbingTooltip.style.position = "absolute";
     chartScrubbingTooltip.style.left = (pageX - 75) + "px";
-    chartScrubbingTooltip.style.top = "-30px";
 }
 
 function chartMouseClickHandler(event) {
