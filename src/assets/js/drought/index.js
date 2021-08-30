@@ -23,7 +23,7 @@ import * as calcite from "calcite-web";
 import * as d3 from "d3";
 import { format } from 'date-fns';
 
-window.onSignInHandler = (portal) => {
+(async () => {
 
     // initialize calcite
     calcite.init();
@@ -576,4 +576,4 @@ window.onSignInHandler = (portal) => {
             return isMobile ? Math.round(document.getElementsByClassName("historic-data-container")[0].getBoundingClientRect().width) - 20 : (size.width - (w1 + w2)) - 40;
         }
     });
-}
+})();

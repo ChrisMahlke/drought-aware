@@ -31,7 +31,6 @@ module.exports = (env, argv) => {
 
     return {
         entry: {
-            common: path.resolve(__dirname, "./src/assets/js/common.js"),
             drought: path.resolve(__dirname, "./src/assets/js/drought/index.js")
         },
         output: {
@@ -91,10 +90,10 @@ module.exports = (env, argv) => {
                     options: {
                         name: '[name].[hash].[ext]',
                         outputPath: (url, resourcePath, context) => {
-                            return `assets/font/${url}`;
+                            return `assets/fonts/${url}`;
                         },
                         publicPath: function(url) {
-                            return '/assets/font/' + url;
+                            return '/droughtaware/assets/fonts/' + url;
                         },
                     }
                 },
@@ -128,7 +127,7 @@ module.exports = (env, argv) => {
                 template: path.resolve(__dirname, './src/layouts/site.layout.html'),
                 filename: 'drought/index.html',
                 pageName: 'drought',
-                chunks: ['common', 'drought'],
+                chunks: ['drought'],
                 title: pageTitle,
                 minify: {
                     html5                          : true,
@@ -141,7 +140,7 @@ module.exports = (env, argv) => {
                     removeOptionalTags             : true,
                     removeRedundantAttributes      : true,
                     removeScriptTypeAttributes     : true,
-                    removeStyleLinkTypeAttributese : true,
+                    removeStyleLinkTypeAttributes : true,
                     useShortDoctype                : true
                 }
             }),

@@ -186,9 +186,9 @@ export function createChart(params) {
     function scaleAxis(chartContainerElement) {
         if (chartContainerElement < 450) {
             return 2;
-        } else if (chartContainerElement => 450 && chartContainerElement <= 600) {
+        } else if (chartContainerElement > 449 && chartContainerElement < 600) {
             return 4;
-        } else if (chartContainerElement => 600 && chartContainerElement < 1000) {
+        } else if (chartContainerElement > 599 && chartContainerElement < 1000) {
             return 8;
         } else {
             return 10;

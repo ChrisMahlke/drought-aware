@@ -32,11 +32,6 @@
 
 <div class="wrapper">
 
-    <div class="hide">
-        <div class="sign-in-btn"></div>
-        <div class="sign-out-btn"></div>
-    </div>
-
     <calcite-loader
             id="appLoadingIndicator"
             active=""
@@ -83,7 +78,15 @@
                     class="information-icon js-modal-toggle"
                     data-modal="foo">
             </calcite-icon>
-            <div class="drawer-btn btn js-drawer-toggle btn-transparent icon-ui-menu icon-ui-gray right font-size-1" data-drawer="top-nav" style="display: none;"></div>
+
+            <calcite-icon
+                    style="display: none;"
+                    icon="hamburger"
+                    scale="m"
+                    class="drawer-btn js-drawer-toggle right"
+                    data-drawer="top-nav">
+            </calcite-icon>
+
             <div class="font-size-3" style="color: #aa3332; text-shadow: 1px 1px 2px rgba(170, 51, 50, .61);">Esri Drought Aware</div>
             <div class="font-size--3">Statistics and impacts of drought in the U.S.A.</div>
             <div class="subheading">
@@ -211,7 +214,14 @@
                 </div>
 
                 <div class="agricultural-impacts-container" style="flex-shrink: 0; box-sizing: border-box; background: #dddacf; padding: .5rem; max-width: 320px; min-width: 320px;">
-                    <div class="icon-ui-close-circled icon-ui-gray right font-size-1 reset-app-btn"></div>
+
+                    <calcite-icon
+                            style="float: right;"
+                            icon="x-circle"
+                            scale="m"
+                            class="reset-app-btn right">
+                    </calcite-icon>
+
                     <div>AGRICULTURAL IMPACTS</div>
                     <div>Agricultural Jobs: <span class="font-size--1 avenir-demi jobs" style="color: #5c7250;"></span></div>
                     <div>Total Sales: <span class="font-size--1 avenir-demi totalSales" style="color: #5c7250;"></span></div>
