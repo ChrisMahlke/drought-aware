@@ -1,4 +1,5 @@
 import "./index.scss";
+import "./legend.scss";
 import * as d3 from "d3";
 import config from "../../config.json";
 import * as FormatUtils from './../../utils/FormatUtils';
