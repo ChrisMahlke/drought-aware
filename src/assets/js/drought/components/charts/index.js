@@ -1,5 +1,6 @@
 import "./index.scss";
 import "./legend.scss";
+import "./chart-tooltip.scss";
 import * as d3 from "d3";
 import config from "../../config.json";
 import * as FormatUtils from './../../utils/FormatUtils';
@@ -45,8 +46,6 @@ export function createChart(params) {
     barChartHeight = config.chart.height;
     barChartWidth = config.chart.width;
     barChartMargin = config.chart.margin;
-
-    console.debug("barChartWidth", barChartWidth);
 
     // TODO
     // Clear previous svg

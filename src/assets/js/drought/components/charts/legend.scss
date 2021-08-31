@@ -29,7 +29,9 @@
   -webkit-align-self: center;
   -ms-flex-item-align: center;
   align-self: center;
-  display: flex; align-items: center; padding-right: .5rem;
+  display: flex;
+  align-items: center;
+  padding-right: .5rem;
 }
 
 .chart-legend-item:nth-child(2) {
@@ -42,7 +44,9 @@
   -webkit-align-self: center;
   -ms-flex-item-align: center;
   align-self: center;
-  display: flex; align-items: center; padding-right: .5rem;
+  display: flex;
+  align-items: center;
+  padding-right: .5rem;
 }
 
 .chart-legend-item:nth-child(3) {
@@ -55,7 +59,9 @@
   -webkit-align-self: center;
   -ms-flex-item-align: center;
   align-self: center;
-  display: flex; align-items: center; padding-right: .5rem;
+  display: flex;
+  align-items: center;
+  padding-right: .5rem;
 }
 
 .chart-legend-item:nth-child(4) {
@@ -68,7 +74,9 @@
   -webkit-align-self: center;
   -ms-flex-item-align: center;
   align-self: center;
-  display: flex; align-items: center; padding-right: .5rem;
+  display: flex;
+  align-items: center;
+  padding-right: .5rem;
 }
 
 .chart-legend-item:nth-child(5) {
@@ -81,27 +89,9 @@
   -webkit-align-self: center;
   -ms-flex-item-align: center;
   align-self: center;
-  display: flex; align-items: center; padding-right: .5rem;
-}
-
-.abnormally-dry {
-  background: #eee1b4;
-}
-
-.moderate-drought {
-  background: #ecd092;
-}
-
-.severe-drought {
-  background: #eaa771;
-}
-
-.extreme-drought {
-  background: #dc6f4d;
-}
-
-.exceptional-drought {
-  background: #aa3332;
+  display: flex;
+  align-items: center;
+  padding-right: .5rem;
 }
 
 .chart-legend-graphic {

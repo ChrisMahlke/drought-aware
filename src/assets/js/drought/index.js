@@ -9,6 +9,7 @@ import * as Conditions from './components/conditions/index';
 import * as Chart from './components/charts/index';
 import * as ErrorHandler from './utils/ErrorHandler';
 import * as FormatUtils from './utils/FormatUtils';
+import * as HistoryComponent from './components/history/index';
 import * as HomeComponent from './components/home/index';
 import * as LayerUtils from './utils/LayerUtils';
 import * as LocationComponent from './components/location/index';
@@ -143,7 +144,7 @@ import { format } from 'date-fns';
         }
 
         function webMapLoadedSuccessHandler(response) {
-            //console.debug("WebMap Success", response)
+            // TODO
         }
 
         function viewLoadedSuccessHandler(response) {
@@ -278,7 +279,7 @@ import { format } from 'date-fns';
                     urlSearchParams.set("date", mostRecentDate.toString());
                     window.history.replaceState({}, '', `${location.pathname}?${urlSearchParams}`);
 
-                    updateDroughtPercentage(inputDataset[inputDataset.length - 1]["d1_d4"]);
+                    HistoryComponent.updateDroughtPercentage(inputDataset[inputDataset.length - 1]["d1_d4"]);
 
                     // update ag layer visibility
                     LayerUtils.toggleLayer(mapView, {
@@ -320,6 +321,7 @@ import { format } from 'date-fns';
             });
 
             if (isMobile) {
+                // TODO: A mess!
                 document.getElementById("topComponent").style.width = "100%";
                 document.getElementsByClassName("subheading")[0].style.display = "none";
                 document.getElementsByClassName("drawer-btn")[0].style.display = "";
@@ -460,7 +462,7 @@ import { format } from 'date-fns';
             let found = response.features.find(feature => {
                 return parseInt(dateFromUrl) === feature.attributes.ddate;
             });
-            updateDroughtPercentage(found.attributes["D1_D4"]);
+            HistoryComponent.updateDroughtPercentage(found.attributes["D1_D4"]);
             Conditions.updateCurrentDroughtStatus(response);
             dataComponentLoadingIndicator.removeAttribute("active");
 
@@ -513,12 +515,7 @@ import { format } from 'date-fns';
             return await response;
         }
 
-        function updateDroughtPercentage(percentage) {
-            let nodes = document.getElementsByClassName("drought-percentage");
-            for (let node of nodes) {
-                node.innerHTML = percentage.toFixed(0);
-            }
-        }
+
 
 
 

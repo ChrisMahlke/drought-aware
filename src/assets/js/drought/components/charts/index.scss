@@ -1,39 +1,12 @@
-#areaChartScrubberContent {
-  position: absolute;
-  left: 50px;
-  top: -35px;
-  width: 165px;
-  height: 125px;
-  line-height: 1.4;
-  background-color: #aaa79a;
-  color: #fff;
-  padding: 0.5em;
-  border-radius: .3em;
-  -webkit-box-shadow: 10px 10px 16px -6px rgba(170, 167, 154, .79);
-  box-shadow: 10px 10px 16px -6px rgba(170, 167, 154, .79);
-}
-
 #areaChartScrubberContentDate {
   text-align: center;
   padding-top: .25em;
 }
-.tooltip-flex-container {
-  display: grid;
-  grid-template-columns: 10px 100px 40px;
-}
 
-.legend-tooltip-graphic {
-  height: 10px;
-  width: 10px;
-  margin-top: .2em;
-}
-
-.legend-tooltip-label {
-  padding-left: .5em;
-}
-
-.legend-tooltip-value {
-  text-align: right;
+.modal-legend-graphic {
+  width: .75rem;
+  height: .75rem;
+  margin: 0 .5rem;
 }
 
 .abnormally-dry {
@@ -54,10 +27,4 @@
 
 .exceptional-drought {
   background: #aa3332;
-}
-
-.modal-legend-graphic {
-  width: .75rem;
-  height: .75rem;
-  margin: 0 .5rem;
 }
